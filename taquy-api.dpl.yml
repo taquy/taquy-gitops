@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taquy-api
+  namespace: taquy-backend
+  labels:
+    zone: hanoi-vietnam
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: taquy-api
