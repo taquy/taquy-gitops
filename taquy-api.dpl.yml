@@ -2,11 +2,118 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: taquy-api
-  namespace: taquy-backend
+  namespace: taquy
   labels:
+    app: taquy-api
     zone: hanoi-vietnam
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: taquy-api
+  template:
+    metadata:
+      name: taquy-api
+      namespace: taquy
+      labels:
+        app: taquy-api
+        zone: hanoi-vietnam
+    spec:
+      imagePullSecrets:
+      - name: taquy-ecr-secret
+      containers:
+      - name: taquy-api
+        image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/taquy-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            memory: "0.5Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: CLOUDFRONT_PRIVATE_KEY
+          value: 'cloudfront-key/private_key.pem'
+        - name: APP_NAME
+          value: 'taquy'
+        - name: APP_ENV
+          value: 'production'
+        - name: APP_CLIENT_ENDPOINT
+          value: 'https://taquy.com'
+        - name: APP_STORAGE_ENDPOINT
+          value: 'https://storage.taquy.com'
+        - name: CLOUDFRONT_PUBLIC_KEY_ID
+          value: 'K2YSA0HVIA8S3G'
+        - name: AWS_ACCESS_KEY
+          value: 'AKIAVZH6TJTWXPERBZ6I'
+        - name: AWS_SECRET_KEY
+          value: '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'
+        - name: APP_API_KEY
+          value: 'OFKNCOZaxUFVYAWUUdlBOr0bwxU3JGbF'
+        - name: APP_SETTING_KEY
+          value: 'setting.json'
+        - name: APP_API_KEY_LIFESPAN
+          value: '3600'
+        - name: AUTH_TOKEN_LIFESPAN
+          value: '3600'
+        - name: APP_INITIAL_ROOT_USER
+          value: 'https://taquy-master.s3.amazonaws.com/root-user.yml'
+        - name: FACEBOOK_CLIENT_ID
+          value: '296435477733344'
+        - name: FACEBOOK_CLIENT_SECRET
+          value: '45c94ef0d02af176cb7ccc89f960e141'
+        - name: FACEBOOK_CALLBACK_URL
+          value: 'https://api.taquy.com/auth/facebook/redirect'
+        - name: GOOGLE_ID
+          value: '740451179906-5307q488p0gqheblos7p6054h7c16fu3.apps.googleusercontent.com'
+        - name: GOOGLE_SECRET
+          value: '9UtJ7dRe2qInkibHf1z0m_zr'
+        - name: GOOGLE_AUTH_REDIRECT_URI
+          value: 'https://api.taquy.com/auth/google/redirect'
+        - name: GITHUB_ID
+          value: 'c118856b91d102ac37ac'
+        - name: GITHUB_SECRET
+          value: '5eb7455a5b9859592bc8baea00eb8542f897ce58'
+        - name: GITHUB_AUTH_REDIRECT_URI
+          value: 'https://cms.taquy.com/auth/github/redirect'
+        - name: INSTAGRAM_ID
+          value: '2795992177110385'
+        - name: INSTAGRAM_SECRET
+          value: '48aba3c55c4a58212bf0ffe2ea2d93fe'
+        - name: INSTAGRAM_REDIRECT_URL
+          value: 'https://api.taquy.com/instagram/code'
+        - name: IDP_FRONTEND_REDIRECT_URI_INSTAGRAM_SYNC
+          value: 'https://cms.taquy.com/#/admin/setting'
+        - name: LINKEDIN_ID
+          value: '77lwz5b6h7rhdf'
+        - name: LINKEDIN_SECRET
+          value: '3AADKSnySKhY9OvE'
+        - name: LINKEDIN_REDIRECT_URL
+          value: 'https://api.taquy.com/linkedin/code'
+        - name: IDP_FRONTEND_REDIRECT_URI_LINKEDIN_SYNC
+          value: 'https://cms.taquy.com/#/admin/setting'
+        - name: AWS_PROJECT_KEY
+          value: 'project'
+        - name: AWS_PROJECT_VALUE
+          value: 'taquy'
+        - name: AWS_SES_SOURCE
+          value: 'no-reply@taquy.com'
+        - name: AWS_SES_CONTACT_POINT
+          value: 'taquy.se@gmail.com'
+        - name: AWS_STS_POLICY
+          value: 'arn:aws:iam::aws:policy/ReadOnlyAccess'
+        - name: S3_BUCKET
+          value: 'taquy-master-dev'
+        - name: UPLOAD_PATH
+          value: '/taquy/uploads'
+        - name: REDIS_HOST
+          value: 'redis'
+        - name: DB_MONGO_URI
+          value: 'mongodb://root:root1234@mongo:27017/admin'
+        - name: ES_NODE
+          value: 'es:9200'
+        - name: MAX_MEDIA_DURATION_IN_MINUTES
+          value: '5'
