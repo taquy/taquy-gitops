@@ -4,6 +4,7 @@ metadata:
   name: mongo
   namespace: taquy
 spec:
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: taquy-api
@@ -30,7 +31,7 @@ spec:
           - containerPort: 27017
         env:
           - name: MONGO_INITDB_DATABASE
-            value: admin
+            value: taquy
           - name: MONGO_INITDB_ROOT_USERNAME
             value: root
           - name: MONGO_INITDB_ROOT_PASSWORD
@@ -43,12 +44,7 @@ spec:
         env:
           - name: MONGO_SIDECAR_POD_LABELS
             value: "role=mongo,environment=test"
-  volumeClaimTemplates:
-    - metadata:
-        name: mongo-persistent-storage
-      spec:
-        storageClassName: "fast"
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 20Gi
+      volumes:
+      - name: mongo
+        persistentVolumeClaim:
+          claimName: mongo
