@@ -29,7 +29,6 @@ spec:
       serviceAccountName: mongo
       automountServiceAccountToken: true
       terminationGracePeriodSeconds: 10
-      
       containers:
       - name: mongo
         image: mongo
@@ -42,8 +41,11 @@ spec:
         - "--bind_ip=0.0.0.0"
         resources:
           requests:
-            cpu: 1
+            cpu: 0.5
             memory: 500Mi
+          limits:
+            cpu: 1
+            memory: 1Gi
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -68,7 +70,7 @@ spec:
         - name: MONGO_INITDB_ROOT_PASSWORD
           value: root1234
         volumeMounts:
-        - name: mongo
+        - name: storage
           mountPath: /data/db
       - name: mongo-sidecar
         image: cvallance/mongo-k8s-sidecar
@@ -77,19 +79,43 @@ spec:
           value: "run=mongo"
         - name: KUBERNETES_SERVICE_NAME
           value: mongo
-      # volumes:
-      #   - name: mongo
-      #     persistentVolumeClaim:
-      #       claimName: mongo
   volumeClaimTemplates:
   - metadata:
-      name: mongo
+      name: storage
+      labels:
+        app: mongo
     spec:
       storageClassName: mongo
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes:
+      - ReadWriteOnce
       resources:
         requests:
           storage: 5Gi
       selector:
         matchLabels:
           name: mongo
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mongo-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: mongo
+  minReplicas: 3
+  maxReplicas: 12
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue
+        averageValue: 700Mi
