@@ -4,7 +4,9 @@ metadata:
   name: mongo
   namespace: taquy
   labels:
+    name: mongo
     zone: hanoi-vietnam
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
+allowVolumeExpansion: true

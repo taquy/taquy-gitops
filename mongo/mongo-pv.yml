@@ -4,13 +4,14 @@ metadata:
   name: mongo
   namespace: taquy
   labels:
+    name: mongo
     zone: hanoi-vietnam
 spec:
   storageClassName: mongo
   capacity:
-    storage: 50Gi
+    storage: 20Gi
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   local:
     fsType: ext4

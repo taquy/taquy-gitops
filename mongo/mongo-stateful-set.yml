@@ -3,49 +3,93 @@ kind: StatefulSet
 metadata:
   name: mongo
   namespace: taquy
+  labels:
+    app: mongo
+    zone: hanoi-vietnam
+    environment: production
 spec:
-  podManagementPolicy: Parallel
   selector:
     matchLabels:
-      app: taquy-api
+      app: mongo
       zone: hanoi-vietnam
   serviceName: "mongo"
   replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
   template:
     metadata:
       namespace: taquy
       labels:
-        app: taquy-api
+        app: mongo
+        role: mongo
         zone: hanoi-vietnam
+        environment: production
     spec:
+      serviceAccountName: mongo
+      automountServiceAccountToken: true
       terminationGracePeriodSeconds: 10
+      
       containers:
       - name: mongo
         image: mongo
         command:
-          - mongod
-          - "--replSet"
-          - rs0
-          - "--smallfiles"
-          - "--noprealloc"
+        - mongod
+        args:
+        - "--replSet=rs0"
+        - --dbpath=/data/db
+        - --port=27017
+        - "--bind_ip=0.0.0.0"
+        resources:
+          requests:
+            cpu: 1
+            memory: 500Mi
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - db.adminCommand('ping')
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
         ports:
-          - containerPort: 27017
+        - containerPort: 27017
+          name: peer
+          protocol: TCP
         env:
-          - name: MONGO_INITDB_DATABASE
-            value: taquy
-          - name: MONGO_INITDB_ROOT_USERNAME
-            value: root
-          - name: MONGO_INITDB_ROOT_PASSWORD
-            value: root1234
+        - name: MONGO_INITDB_DATABASE
+          value: taquy
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: root
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: root1234
         volumeMounts:
-          - name: mongo
-            mountPath: /data/db
+        - name: mongo
+          mountPath: /data/db
       - name: mongo-sidecar
         image: cvallance/mongo-k8s-sidecar
         env:
-          - name: MONGO_SIDECAR_POD_LABELS
-            value: "role=mongo,environment=test"
-      volumes:
-      - name: mongo
-        persistentVolumeClaim:
-          claimName: mongo
+        - name: KUBERNETES_POD_LABELS
+          value: "run=mongo"
+        - name: KUBERNETES_SERVICE_NAME
+          value: mongo
+      # volumes:
+      #   - name: mongo
+      #     persistentVolumeClaim:
+      #       claimName: mongo
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo
+    spec:
+      storageClassName: mongo
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
+      selector:
+        matchLabels:
+          name: mongo

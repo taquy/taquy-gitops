@@ -6,8 +6,10 @@ metadata:
   labels:
     zone: hanoi-vietnam
 spec:
+  storageClassName: mongo
+  volumeName: mongo
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 25Gi
