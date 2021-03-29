@@ -4,12 +4,20 @@ metadata:
   name: mongo
   namespace: taquy
   labels:
+    app: mongo
+    environment: production
     zone: hanoi-vietnam
 spec:
-  storageClassName: mongo
+  # storageClassName: mongo
   volumeName: mongo
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 25Gi
+  selector: 
+    matchLabels:
+      name: mongo
+      app: mongo
+      environment: production
+      zone: hanoi-vietnam

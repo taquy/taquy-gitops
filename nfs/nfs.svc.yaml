@@ -1,0 +1,107 @@
+# Define Persistence Volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-server
+  labels:
+    zone: hanoi-vietnam
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/data"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - taquy
+---
+# Define Persistence Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-server
+  labels:
+    zone: hanoi-vietnam
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi
+---
+# Define Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: nfs-server
+  labels:
+    zone: hanoi-vietnam
+spec:
+  selector:
+    app: nfs-server
+    zone: hanoi-vietnam
+  ports:
+    # Port 2049 for TCP
+    - name: nfs-tcp
+      port: 2049
+      protocol: TCP
+    # Port 111 for UDP
+    - name: nfs-upd
+      port: 111
+      protocol: UDP
+---
+# Define Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server
+  labels:
+    zone: hanoi-vietnam
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nfs-server
+  template:
+    metadata:
+      name: nfs-server
+      labels:
+        app: nfs-server
+        zone: hanoi-vietnam
+    spec:
+      containers:
+        - name: nfs-server
+          image: itsthenetwork/nfs-server-alpine:12
+          ports:
+            - containerPort: 2049
+              name: nfs-tcp
+            - containerPort: 111
+              name: nfs-upd
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - SYS_ADMIN
+                - SETPCAP
+          env:
+            - name: SHARED_DIRECTORY
+              value: "/data"
+          volumeMounts:
+            - name: nfs-storage
+              mountPath: /data
+      volumes:
+        - name: nfs-storage
+          persistentVolumeClaim:
+            claimName: nfs-server

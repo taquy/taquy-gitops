@@ -5,14 +5,20 @@ metadata:
   namespace: taquy
   labels:
     name: mongo
+    app: mongo
+    environment: production
     zone: hanoi-vietnam
 spec:
   storageClassName: mongo
   capacity:
-    storage: 20Gi
+    storage: 30Gi
   accessModes:
   - ReadWriteOnce
+  - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: taquy
+    name: mongo
   local:
     fsType: ext4
     path: /mnt/taquy/mongo  
