@@ -19,14 +19,9 @@ spec:
   claimRef:
     namespace: taquy
     name: mongo
-  local:
-    fsType: ext4
-    path: /mnt/taquy/mongo  
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - taquy
+  # local:
+  #   fsType: ext4
+  #   path: /mnt/taquy/mongo
+  nfs: 
+    path: /data 
+    server: 172.17.0.2

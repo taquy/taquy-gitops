@@ -46,6 +46,7 @@ metadata:
   labels:
     zone: hanoi-vietnam
 spec:
+  clusterIP: 10.96.0.5
   selector:
     app: nfs-server
     zone: hanoi-vietnam
@@ -98,6 +99,8 @@ spec:
           env:
             - name: SHARED_DIRECTORY
               value: "/data"
+            - name: PROVISIONER_NAME
+              value: taquy.com/nfs
           volumeMounts:
             - name: nfs-storage
               mountPath: /data
