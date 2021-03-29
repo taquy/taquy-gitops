@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-server
+  name: nfs-server-pv
   namespace: taquy
   labels:
     zone: hanoi-vietnam
@@ -12,9 +12,13 @@ spec:
     storage: 20Gi
   accessModes:
     - ReadWriteMany
+    - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: "/mnt/data"
+  claimRef:
+    namespace: taquy
+    name: nfs-server-pvc
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -28,17 +32,19 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-server
+  name: nfs-server-pvc
   namespace: taquy
   labels:
+    name: nfs-server-pvc
     zone: hanoi-vietnam
 spec:
   storageClassName: manual
   accessModes:
     - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: 20Gi
 ---
 # Define Service
 kind: Service
@@ -70,7 +76,7 @@ metadata:
   name: nfs-server
   namespace: taquy
   labels:
-    app: nfs-server
+    name: nfs-server
     zone: hanoi-vietnam
 spec:
   replicas: 3
@@ -78,17 +84,16 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: nfs-server
+      name: nfs-server
       zone: hanoi-vietnam
   template:
     metadata:
       name: nfs-server
       namespace: taquy
       labels:
-        app: nfs-server
+        name: nfs-server
         zone: hanoi-vietnam
     spec:
-      serviceAccountName: nfs-server
       containers:
         - name: nfs-server
           image: itsthenetwork/nfs-server-alpine:12
@@ -99,12 +104,7 @@ spec:
               name: nfs-upd
           imagePullPolicy: Always
           securityContext:
-            runAsUser: 65534
             privileged: true
-            capabilities:
-              add:
-                - SYS_ADMIN
-                - SETPCAP
           env:
             - name: SHARED_DIRECTORY
               value: "/data"
@@ -114,4 +114,4 @@ spec:
       volumes:
         - name: nfs-storage
           persistentVolumeClaim:
-            claimName: nfs-server
+            claimName: nfs-server-pvc

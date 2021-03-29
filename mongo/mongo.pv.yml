@@ -7,7 +7,7 @@ metadata:
     name: mongo-pv
     zone: hanoi-vietnam
 spec:
-  storageClassName: nfs-storage
+  storageClassName: nfs-sc
   capacity:
     storage: 10Gi
   accessModes:

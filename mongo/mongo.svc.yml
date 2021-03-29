@@ -67,7 +67,7 @@ spec:
         - name: MONGO_INITDB_ROOT_PASSWORD
           value: root1234
         volumeMounts:
-        - name: storage
+        - name: mongo-pvc
           readOnly: false
           mountPath: /data/db
       - name: mongo-sidecar
@@ -77,18 +77,14 @@ spec:
           value: "run=mongo"
         - name: KUBERNETES_SERVICE_NAME
           value: mongo
-  # volumes:
-  # - name: storage
-  #   persistentVolumeClaim:
-  #     claimName: mongo
   volumeClaimTemplates:
   - metadata:
-      name: storage
+      name: mongo-pvc
       labels:
-        app: mongo
+        name: mongo-pvc
         zone: hanoi-vietnam
     spec:
-      storageClassName: taquy.com/nfs
+      storageClassName: nfs-sc
       accessModes:
       - ReadWriteOnce
       # - ReadWriteMany
@@ -97,7 +93,7 @@ spec:
           storage: 1Gi
       selector:
         matchLabels:
-          app: mongo
+          name: mongo-pvc
           zone: hanoi-vietnam
 # ---
 # apiVersion: autoscaling/v2beta1
