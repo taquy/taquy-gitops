@@ -14,7 +14,6 @@ spec:
     storage: 30Gi
   accessModes:
   - ReadWriteOnce
-  - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: taquy
@@ -24,4 +23,4 @@ spec:
   #   path: /mnt/taquy/mongo
   nfs: 
     path: /data 
-    server: 172.17.0.2
+    server: 10.96.0.5

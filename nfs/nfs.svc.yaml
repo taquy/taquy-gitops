@@ -108,8 +108,6 @@ spec:
           env:
             - name: SHARED_DIRECTORY
               value: "/data"
-            - name: PROVISIONER_NAME
-              value: nfs-server
           volumeMounts:
             - name: nfs-storage
               mountPath: /data

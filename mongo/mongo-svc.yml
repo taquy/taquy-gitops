@@ -93,19 +93,17 @@ spec:
       labels:
         app: mongo
     spec:
-      storageClassName: mongo
-      # accessModes:
+      storageClassName: taquy.com/nfs
+      accessModes:
       # - ReadWriteOnce
-      # - ReadWriteMany
+      - ReadWriteMany
       resources:
         requests:
-          storage: 5Gi
-      # selector:
-      #   matchLabels:
-      #     name: mongo
-      #     app: mongo
-      #     environment: production
-      #     zone: hanoi-vietnam
+          storage: 1Gi
+      selector:
+        matchLabels:
+          name: mongo
+          zone: hanoi-vietnam
 # ---
 # apiVersion: autoscaling/v2beta1
 # kind: HorizontalPodAutoscaler
