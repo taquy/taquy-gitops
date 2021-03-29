@@ -1,0 +1,39 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+  labels:
+    zone: hanoi-vietnam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+      zone: hanoi-vietnam
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+        zone: hanoi-vietnam
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: quay.io/external_storage/nfs-client-provisioner:latest
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /data
+          env:
+            - name: PROVISIONER_NAME
+              value: taquy.com/nfs
+            - name: NFS_SERVER
+              value: 10.96.0.5
+            - name: NFS_PATH
+              value: /data
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 10.96.0.5
+            path: /data

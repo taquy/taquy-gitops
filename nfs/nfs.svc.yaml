@@ -3,6 +3,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: nfs-server
+  namespace: taquy
   labels:
     zone: hanoi-vietnam
 spec:
@@ -17,17 +18,18 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - taquy
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - taquy
 ---
 # Define Persistence Volume Claim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nfs-server
+  namespace: taquy
   labels:
     zone: hanoi-vietnam
 spec:
@@ -43,6 +45,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: nfs-server
+  namespace: taquy
   labels:
     zone: hanoi-vietnam
 spec:
@@ -65,7 +68,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nfs-server
+  namespace: taquy
   labels:
+    app: nfs-server
     zone: hanoi-vietnam
 spec:
   replicas: 3
@@ -74,13 +79,16 @@ spec:
   selector:
     matchLabels:
       app: nfs-server
+      zone: hanoi-vietnam
   template:
     metadata:
       name: nfs-server
+      namespace: taquy
       labels:
         app: nfs-server
         zone: hanoi-vietnam
     spec:
+      serviceAccountName: nfs-server
       containers:
         - name: nfs-server
           image: itsthenetwork/nfs-server-alpine:12
@@ -91,6 +99,7 @@ spec:
               name: nfs-upd
           imagePullPolicy: Always
           securityContext:
+            runAsUser: 65534
             privileged: true
             capabilities:
               add:
@@ -100,7 +109,7 @@ spec:
             - name: SHARED_DIRECTORY
               value: "/data"
             - name: PROVISIONER_NAME
-              value: taquy.com/nfs
+              value: nfs-server
           volumeMounts:
             - name: nfs-storage
               mountPath: /data
