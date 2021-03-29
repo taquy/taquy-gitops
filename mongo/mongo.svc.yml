@@ -5,16 +5,12 @@ metadata:
   namespace: taquy
   labels:
     app: mongo
-    role: mongo
     zone: hanoi-vietnam
-    environment: production
 spec:
   selector:
     matchLabels:
       app: mongo
-      role: mongo
       zone: hanoi-vietnam
-      environment: production
   serviceName: "mongo"
   replicas: 3
   updateStrategy:
@@ -25,9 +21,7 @@ spec:
       namespace: taquy
       labels:
         app: mongo
-        role: mongo
         zone: hanoi-vietnam
-        environment: production
     spec:
       serviceAccountName: mongo
       automountServiceAccountToken: true
@@ -92,17 +86,18 @@ spec:
       name: storage
       labels:
         app: mongo
+        zone: hanoi-vietnam
     spec:
       storageClassName: taquy.com/nfs
       accessModes:
-      # - ReadWriteOnce
-      - ReadWriteMany
+      - ReadWriteOnce
+      # - ReadWriteMany
       resources:
         requests:
           storage: 1Gi
       selector:
         matchLabels:
-          name: mongo
+          app: mongo
           zone: hanoi-vietnam
 # ---
 # apiVersion: autoscaling/v2beta1
