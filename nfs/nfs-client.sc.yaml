@@ -3,7 +3,7 @@ kind: StorageClass
 metadata:
   name: nfs-sc
   labels:
-    name: nfs-sc
+    name:  nfs-sc
     zone: hanoi-vietnam
 provisioner: taquy.com/nfs
 parameters:

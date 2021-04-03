@@ -26,14 +26,14 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - taquy
+                - node1
 ---
 # Define Persistence Volume Claim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-server-pvc
   namespace: taquy
+  name: nfs-server-pvc
   labels:
     name: nfs-server-pvc
     zone: hanoi-vietnam
@@ -47,27 +47,29 @@ spec:
       storage: 20Gi
 ---
 # Define Service
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: nfs-server
   namespace: taquy
   labels:
     zone: hanoi-vietnam
 spec:
-  clusterIP: 10.96.0.5
+  clusterIP: 10.233.0.5
   selector:
-    app: nfs-server
+    name: nfs-server
     zone: hanoi-vietnam
   ports:
     # Port 2049 for TCP
     - name: nfs-tcp
       port: 2049
       protocol: TCP
+      targetPort: 2049
     # Port 111 for UDP
     - name: nfs-upd
       port: 111
       protocol: UDP
+      targetPort: 111
 ---
 # Define Deployment
 apiVersion: apps/v1
@@ -79,7 +81,7 @@ metadata:
     name: nfs-server
     zone: hanoi-vietnam
 spec:
-  replicas: 3
+  replicas: 10
   strategy:
     type: Recreate
   selector:
@@ -94,6 +96,13 @@ spec:
         name: nfs-server
         zone: hanoi-vietnam
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              name: nfs-server
       containers:
         - name: nfs-server
           image: itsthenetwork/nfs-server-alpine:12
@@ -102,7 +111,7 @@ spec:
               name: nfs-tcp
             - containerPort: 111
               name: nfs-upd
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
           env:
