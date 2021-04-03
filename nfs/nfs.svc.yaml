@@ -14,8 +14,10 @@ spec:
     - ReadWriteMany
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: "/mnt/data"
+  # hostPath:
+  #   path: "/mnt/data"
+  local:
+    path: /mnt/data
   claimRef:
     namespace: taquy
     name: nfs-server-pvc
@@ -27,6 +29,9 @@ spec:
               operator: In
               values:
                 - node1
+                - node2
+                - node3
+                - node4
 ---
 # Define Persistence Volume Claim
 apiVersion: v1

@@ -36,6 +36,11 @@ spec:
         - --dbpath=/data/db
         - --port=27017
         - "--bind_ip=0.0.0.0"
+        - "--smallfiles"
+        - "--noprealloc"
+        - "--sslAllowConnectionsWithoutCertificates"
+        - "--sslAllowInvalidCertificates"
+        - "--sslAllowInvalidHostnames"
         resources:
           requests:
             cpu: 0.5
@@ -73,6 +78,8 @@ spec:
       - name: mongo-sidecar
         image: cvallance/mongo-k8s-sidecar
         env:
+        - name: MONGO_SIDECAR_POD_LABELS
+          value: "role=mongo,environment=prod"
         - name: KUBERNETES_POD_LABELS
           value: "run=mongo"
         - name: KUBERNETES_SERVICE_NAME
