@@ -19,7 +19,7 @@ spec:
         name: nfs-client-provisioner
         zone: hanoi-vietnam
     spec:
-      serviceAccountName: nfs-client-provisioner
+      serviceAccountName: nfs-provisioner
       containers:
         - name: nfs-client-provisioner
           image: quay.io/external_storage/nfs-client-provisioner:latest
@@ -30,11 +30,11 @@ spec:
             - name: PROVISIONER_NAME
               value: taquy.com/nfs
             - name: NFS_SERVER
-              value: 10.233.0.5
+              value: 172.16.42.138
             - name: NFS_PATH
               value: /data
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.233.0.5
-            path: /data
+            server: 172.16.42.138
+            path: /var/nfs_share_dir 

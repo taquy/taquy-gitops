@@ -27,81 +27,83 @@ spec:
       automountServiceAccountToken: true
       terminationGracePeriodSeconds: 10
       containers:
-      - name: mongo
-        image: mongo
-        command:
-        - mongod
-        args:
-        - "--replSet=rs0"
-        - --dbpath=/data/db
-        - --port=27017
-        - "--bind_ip=0.0.0.0"
-        - "--smallfiles"
-        - "--noprealloc"
-        - "--sslAllowConnectionsWithoutCertificates"
-        - "--sslAllowInvalidCertificates"
-        - "--sslAllowInvalidHostnames"
-        resources:
-          requests:
-            cpu: 0.5
-            memory: 500Mi
-          limits:
-            cpu: 1
-            memory: 1Gi
-        imagePullPolicy: IfNotPresent
-        livenessProbe:
-          exec:
-            command:
-            - mongo
-            - --eval
-            - db.adminCommand('ping')
-          failureThreshold: 3
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 5
-        ports:
-        - containerPort: 27017
-          name: peer
-          protocol: TCP
-        env:
-        - name: MONGO_INITDB_DATABASE
-          value: taquy
-        - name: MONGO_INITDB_ROOT_USERNAME
-          value: root
-        - name: MONGO_INITDB_ROOT_PASSWORD
-          value: root1234
-        volumeMounts:
-        - name: mongo-pvc
-          readOnly: false
-          mountPath: /data/db
-      - name: mongo-sidecar
-        image: cvallance/mongo-k8s-sidecar
-        env:
-        - name: MONGO_SIDECAR_POD_LABELS
-          value: "role=mongo,environment=prod"
-        - name: KUBERNETES_POD_LABELS
-          value: "run=mongo"
-        - name: KUBERNETES_SERVICE_NAME
-          value: mongo
+        - name: mongo
+          image: mongo
+          command:
+            - mongod
+          args:
+            - "--replSet=rs0"
+            - --dbpath=/data/db
+            - --port=27017
+            - "--bind_ip=0.0.0.0"
+            - "--smallfiles"
+            - "--noprealloc"
+            - "--sslAllowConnectionsWithoutCertificates"
+            - "--sslAllowInvalidCertificates"
+            - "--sslAllowInvalidHostnames"
+          resources:
+            requests:
+              cpu: 0.5
+              memory: 500Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - db.adminCommand('ping')
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          ports:
+            - containerPort: 27017
+              name: peer
+              protocol: TCP
+          env:
+            - name: MONGO_INITDB_DATABASE
+              value: taquy
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: root1234
+          volumeMounts:
+            - name: mongo-pvc
+              readOnly: false
+              mountPath: /data/db
+        - name: mongo-sidecar
+          image: cvallance/mongo-k8s-sidecar
+          env:
+            - name: MONGO_SIDECAR_POD_LABELS
+              value: "role=mongo,environment=prod"
+            - name: KUBERNETES_POD_LABELS
+              value: "run=mongo"
+            - name: KUBERNETES_SERVICE_NAME
+              value: mongo
   volumeClaimTemplates:
-  - metadata:
-      name: mongo-pvc
-      labels:
+    - metadata:
         name: mongo-pvc
-        zone: hanoi-vietnam
-    spec:
-      storageClassName: nfs-sc
-      accessModes:
-      - ReadWriteOnce
-      # - ReadWriteMany
-      resources:
-        requests:
-          storage: 1Gi
-      selector:
-        matchLabels:
+        labels:
           name: mongo-pvc
           zone: hanoi-vietnam
+        annotations:
+          volume.beta.kubernetes.io/storage-class: nfs-sc
+      spec:
+        storageClassName: nfs-sc
+        accessModes:
+          - ReadWriteOnce
+        # - ReadWriteMany
+        resources:
+          requests:
+            storage: 1Gi
+        selector:
+          matchLabels:
+            name: mongo-pvc
+            zone: hanoi-vietnam
 # ---
 # apiVersion: autoscaling/v2beta1
 # kind: HorizontalPodAutoscaler

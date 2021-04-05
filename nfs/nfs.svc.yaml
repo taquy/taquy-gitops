@@ -12,7 +12,6 @@ spec:
     storage: 20Gi
   accessModes:
     - ReadWriteMany
-    - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   # hostPath:
   #   path: "/mnt/data"
@@ -46,7 +45,6 @@ spec:
   storageClassName: manual
   accessModes:
     - ReadWriteMany
-    - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -86,7 +84,7 @@ metadata:
     name: nfs-server
     zone: hanoi-vietnam
 spec:
-  replicas: 10
+  replicas: 4
   strategy:
     type: Recreate
   selector:
@@ -121,7 +119,7 @@ spec:
             privileged: true
           env:
             - name: SHARED_DIRECTORY
-              value: "/data"
+              value: /data
           volumeMounts:
             - name: nfs-storage
               mountPath: /data
