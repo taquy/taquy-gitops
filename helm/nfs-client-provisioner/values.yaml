@@ -1,0 +1,23 @@
+nfs-client-provisioner: # alias 
+  replicaCount: 3
+  strategyType: Recreate
+  storageClass:
+    name: nfs-client
+    defaultClass: true
+    allowVolumeExpansion: true
+    reclaimPolicy: Delete
+    provisionerName: taquy.com/nfs
+    archiveOnDelete: true
+    accessModes:
+      - ReadWriteOnce
+      - ReadWriteMany
+  nfs:
+    server: 172.16.42.138
+    path: /
+  rbac:
+    create: true
+  podSecurityPolicy:
+    enabled: true
+  serviceAccount:
+    create: true
+    name: nfs-cp

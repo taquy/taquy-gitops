@@ -1,0 +1,6 @@
+dependencies:
+- name: nfs-client-provisioner
+  repository: https://ckotzbauer.github.io/helm-charts
+  version: 1.0.2
+digest: sha256:13813afeb20dcceeb1309606a14cb3c060eba0e27756c168332212ffb039c28f
+generated: "2021-04-05T12:48:24.804635946+07:00"
