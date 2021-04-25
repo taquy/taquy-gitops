@@ -1,0 +1,13 @@
+storageos:
+  cluster:
+    create: true
+    name: storageos
+    namespace: taquy
+    secretRefName: storageos-api
+    admin:
+      username: storageos
+      password: root1234
+    sharedDir: /data
+  kvBackend:
+    address: 172.16.42.138,172.16.42.139
+    backend: etcd

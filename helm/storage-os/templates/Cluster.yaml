@@ -1,0 +1,10 @@
+apiVersion: storageos.com/v1
+kind: StorageOSCluster
+metadata:
+  name: storageos
+  namespace: taquy
+spec:
+  kvBackend:
+    address: http://172.16.42.138:2379
+  secretRefName: storageos-api
+  secretRefNamespace: taquy
