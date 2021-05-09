@@ -7,8 +7,8 @@ RUN chown -R jenkins:jenkins /var/log/jenkins
 RUN chown -R jenkins:jenkins /var/cache/jenkins
 
 USER jenkins
-ENV JAVA_OPTS="-Xmx8192m -Djenkins.install.runSetupWizard=false --argumentsRealm.passwd.admin=root1234 --argumentsRealm.roles.user=root --argumentsRealm.roles.admin=admin --httpPort=8080"
-ENV JENKINS_OPTS="--handlerCountMax=300 --logfile=/var/log/jenkins/jenkins.log --webroot=/var/cache/jenkins/war"
+ENV JAVA_OPTS="-Xmx8192m -Djenkins.install.runSetupWizard=false"
+ENV JENKINS_OPTS="--handlerCountMax=300 --logfile=/var/log/jenkins/jenkins.log --webroot=/var/cache/jenkins/war --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin"
 
 COPY plugins.txt /usr/share/jenkins/plugins.txt
 
