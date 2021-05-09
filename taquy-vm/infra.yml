@@ -1,0 +1,111 @@
+version: '3'
+
+volumes:
+  jenkins-cache-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/jenkins/cache
+  jenkins-logs-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/jenkins/logs
+  octopus-repository-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/octopus/repository
+  octopus-artifacts-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/octopus/artifacts
+  octopus-taskLogs-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/octopus/taskLogs
+  octopus-cache-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/octopus/cache
+  octopus-import-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/octopus/import
+  mssql-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/mssql
+
+services:
+  jenkins:
+    container_name: jenkins
+    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/jenkins:latest
+    user: root
+    privileged: true
+    restart: always
+    ports:
+      - 9091:8080
+    environment:
+      JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
+      JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
+    volumes:
+      - jenkins-cache-data:/var/cache/jenkins
+      - jenkins-logs-data:/var/log/jenkins
+  mssql:
+    container_name: mssql
+    image: microsoft/mssql-server-linux
+    user: root
+    privileged: true
+    restart: always
+    environment:
+      SA_PASSWORD: "aD@R98xaYEctkKCn"
+      ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+    healthcheck:
+      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "aD@R98xaYEctkKCn", "-Q", "select 1"]
+      interval: 10s
+      retries: 10
+    volumes:
+      - mssql-data:/var/opt/mssql
+  octopus:
+    container_name: octopus
+    image: octopusdeploy/octopusdeploy:latest
+    user: root
+    privileged: true
+    restart: always
+    ports:
+      - 9090:8080
+      - 11111:10943
+    environment:
+      ACCEPT_EULA: "Y"
+      OCTOPUS_SERVER_NODE_NAME: taquy
+      DB_CONNECTION_STRING: Server=mssql,1433;Database=OctopusDeploy;User=sa;Password=aD@R98xaYEctkKCn
+      ADMIN_USERNAME: root
+      ADMIN_PASSWORD: "aD@R98xaYEctkKCn"
+      ADMIN_EMAIL: taquy.pb@gmail.com
+      # openssl rand 16 | base64
+      MASTER_KEY: txEh15FjdRzdNhLroMNb1w==
+      DISABLE_DIND: "Y"
+    depends_on:
+      - mssql
+    volumes:
+      - octopus-repository-data:/repository
+      - octopus-artifacts-data:/artifacts
+      - octopus-taskLogs-data:/taskLogs
+      - octopus-cache-data:/cache
+      - octopus-import-data:/import
