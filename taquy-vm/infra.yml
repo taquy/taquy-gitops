@@ -1,6 +1,12 @@
 version: '3'
 
 volumes:
+  nginx-logs-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/nginx/logs
   jenkins-cache-data:
     driver: local
     driver_opts:
@@ -51,6 +57,19 @@ volumes:
       device: /data/mssql
 
 services:
+  nginx:
+    container_name: nginx
+    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+    user: root
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - 81:80
+      - 444:443
+    volumes:
+      - nginx-logs-data:/var/log/nginx
+    network_mode: host
+
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/jenkins:latest
@@ -60,11 +79,14 @@ services:
     ports:
       - 9091:8080
     environment:
+      JENKINS_USER: root
+      JENKINS_PASS: root1234
       JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
       JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
     volumes:
       - jenkins-cache-data:/var/cache/jenkins
       - jenkins-logs-data:/var/log/jenkins
+
   mssql:
     container_name: mssql
     image: microsoft/mssql-server-linux
