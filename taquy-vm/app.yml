@@ -22,9 +22,12 @@ volumes:
 
 services:
   es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
     container_name: taquy-es
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
     restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
@@ -50,6 +53,8 @@ services:
     image: redis:alpine
     container_name: taquy-redis
     restart: always
+    ports:
+      - 6379:6379
     entrypoint: redis-server --appendonly yes
     volumes:
       - redis-data:/data
@@ -66,6 +71,9 @@ services:
     image: mongo:latest
     container_name: taquy-mongo
     restart: always
+    ports:
+      - 27017:27017
+      - 27018:27018
     environment:
       MONGO_INITDB_DATABASE: admin
       MONGO_INITDB_ROOT_USERNAME: root
@@ -83,7 +91,6 @@ services:
 
   application:
     image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/taquy-api:latest
-    # image: taquy-api:latest
     container_name: taquy-api
     ports:
      - 90:3000

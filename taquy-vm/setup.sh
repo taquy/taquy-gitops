@@ -14,3 +14,4 @@ mkdir -p /data/nginx/logs
 chmod -R 775 /data
 
 docker-compose -f infra.yml up
+docker-compose -f app.yml up

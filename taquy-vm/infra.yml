@@ -63,9 +63,6 @@ services:
     user: root
     privileged: true
     restart: unless-stopped
-    ports:
-      - 81:80
-      - 444:443
     volumes:
       - nginx-logs-data:/var/log/nginx
     network_mode: host
