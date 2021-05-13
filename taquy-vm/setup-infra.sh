@@ -1,4 +1,5 @@
 #!/bin/bash
+aws s3 cp s3://taquy-deploy/infra.yml ./
 
 # create folder for infra
 mkdir -p /data/jenkins/cache
@@ -13,5 +14,7 @@ mkdir -p /data/nginx/logs
 
 chmod -R 775 /data
 
-docker-compose -f infra.yml up
-docker-compose -f app.yml up
+REPOSITORY_URI=397818416365.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPOSITORY_URI --password-stdin
+
+docker-compose -f infra.yml up -d
