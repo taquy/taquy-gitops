@@ -21,19 +21,30 @@ volumes:
       device: /data/es
 
 services:
+  fluentd:
+    container_name: fluentd
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:latest
+    restart: always
+    links:
+      - es
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    network_mode: bridge
+
   es:
-    container_name: taquy-es
+    container_name: es
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
     restart: always
+    expose:
+      - "9200"
     ports:
       - 9200:9200
       - 9300:9300
     environment:
-      - node.name=es01
-      - cluster.name=es-docker-cluster
-      - cluster.initial_master_nodes=es01
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
@@ -41,17 +52,19 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
     network_mode: bridge
-    # logging:
-    #   driver: awslogs
-    #   options:
-    #     awslogs-region: "us-east-1"
-    #     awslogs-group: "taquy"
-    #     awslogs-stream: "elasticsearch"
-    #     awslogs-create-group: "true"
+
+  kibana:
+    container_name: kibana
+    image: kibana:7.10.1
+    restart: always
+    links:
+      - es
+    ports:
+      - "5601:5601"
 
   redis:
-    image: redis:alpine
     container_name: taquy-redis
+    image: redis:alpine
     restart: always
     ports:
       - 6379:6379
@@ -59,22 +72,10 @@ services:
     volumes:
       - redis-data:/data
     network_mode: bridge
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: httpd.acces
-    # logging:
-    #   driver: awslogs
-    #   options:
-    #     awslogs-region: us-east-1
-    #     awslogs-group: "taquy"
-    #     awslogs-stream: "redis"
-    #     awslogs-create-group: "true"
 
   mongo:
-    image: mongo:latest
     container_name: taquy-mongo
+    image: mongo:latest
     restart: always
     ports:
       - 27017:27017
@@ -86,29 +87,22 @@ services:
     volumes:
       - mongo-data:/data/db
     network_mode: bridge
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: "us-east-1"
-        awslogs-group: "taquy"
-        awslogs-stream: "mongo"
-        awslogs-create-group: "true"
 
   application:
-    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/taquy-api:latest
     container_name: taquy-api
+    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/taquy-api:latest
     ports:
      - 90:3000
     restart: always
     links:
+      - fluentd
       - es
       - mongo
       - redis
     network_mode: bridge
     logging:
-      driver: awslogs
+      driver: fluentd
       options:
-        awslogs-region: "us-east-1"
-        awslogs-group: "taquy"
-        awslogs-stream: "api"
-        awslogs-create-group: "true"
+        fluentd-address: fluentd:24224
+        tag: httpd.access
+    network_mode: bridge
