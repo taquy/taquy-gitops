@@ -1,30 +1,38 @@
 version: '3'
 
 volumes:
-  mongo-data:
+  mongo-vol:
     driver: local
     driver_opts:
       o: bind
       type: none
       device: /data/mongo
-  redis-data:
+  redis-vol:
     driver: local
     driver_opts:
       o: bind
       type: none
       device: /data/redis
-  es-data:
+  es-vol:
     driver: local
     driver_opts:
       o: bind
       type: none
       device: /data/es
+  app-vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/tmp
 
 services:
   fluentd:
     container_name: fluentd
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:latest
     restart: always
+    depends_on:
+      - es
     links:
       - es
     ports:
@@ -34,7 +42,7 @@ services:
 
   es:
     container_name: es
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     restart: always
     expose:
       - "9200"
@@ -42,6 +50,9 @@ services:
       - 9200:9200
       - 9300:9300
     environment:
+      - xpack.security.enabled=true
+      - cluster.name=taquy
+      - node.name=taquy
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms1024m -Xmx1024m
       - discovery.type=single-node
@@ -50,7 +61,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - es-data:/usr/share/elasticsearch/data
+      - es-vol:/usr/share/elasticsearch/data
     network_mode: bridge
 
   kibana:
@@ -60,21 +71,24 @@ services:
     links:
       - es
     ports:
-      - "5601:5601"
+      - 5601:5601
+    environment:
+      SERVER_NAME: kibana.taquy.com
+      ELASTICSEARCH_HOSTS: https://es.taquy.com
 
   redis:
-    container_name: taquy-redis
+    container_name: redis
     image: redis:alpine
     restart: always
     ports:
       - 6379:6379
     entrypoint: redis-server --appendonly yes
     volumes:
-      - redis-data:/data
+      - redis-vol:/data
     network_mode: bridge
 
   mongo:
-    container_name: taquy-mongo
+    container_name: mongo
     image: mongo:latest
     restart: always
     ports:
@@ -85,24 +99,27 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root1234
     volumes:
-      - mongo-data:/data/db
+      - mongo-vol:/data/db
     network_mode: bridge
 
   application:
     container_name: taquy-api
-    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/taquy-api:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-api:latest
     ports:
      - 90:3000
     restart: always
+    depends_on:
+      - fluentd
     links:
       - fluentd
       - es
       - mongo
       - redis
+    volumes:
+      - app-vol:/data/tmp
     network_mode: bridge
     logging:
       driver: fluentd
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: httpd.access
-    network_mode: bridge

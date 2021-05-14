@@ -14,9 +14,11 @@ mkdir -p /data/nginx/logs
 
 chmod -R 775 /data
 
-REPOSITORY_URI=397818416365.dkr.ecr.us-east-1.amazonaws.com
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPOSITORY_URI --password-stdin
+# ECR Login
+REGION=ap-southeast-1
+REPOSITORY_URI=397818416365.dkr.ecr.$REGION.amazonaws.com
+aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URI --password-stdin
 
+# Docker run
+docker-compose -f infra.yml pull
 docker-compose -f infra.yml up -d
-
-rm -rf *

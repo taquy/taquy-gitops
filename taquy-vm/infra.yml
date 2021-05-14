@@ -59,7 +59,7 @@ volumes:
 services:
   nginx:
     container_name: nginx
-    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:latest
     user: root
     privileged: true
     restart: unless-stopped
@@ -68,7 +68,7 @@ services:
     network_mode: host
   jenkins:
     container_name: jenkins
-    image: 397818416365.dkr.ecr.us-east-1.amazonaws.com/jenkins:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
     user: root
     privileged: true
     restart: always
@@ -135,13 +135,14 @@ services:
     user: root
     privileged: true
     restart: always
-    publish:
+    ports:
       - 10931:10933
     environment:
       ServerUsername: root
       ServerPassword: aD@R98xaYEctkKCn
       TargetName: octopus-deploy
       ListeningPort: 10931
+      TargetRole: admin
       TargetEnvironment: api.taquy.com
       ServerUrl: https://octopus.taquy.com
       PublicHostNameConfiguration: https://octopus-tentacle.taquy.com

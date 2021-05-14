@@ -15,6 +15,6 @@ RUN apk add --no-cache ffmpeg lame-dev
 
 COPY ./imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 
-RUN yarn global add pm2
+RUN yarn global add pm2 glob rimraf
 
 RUN mkdir -p /data/tmp
