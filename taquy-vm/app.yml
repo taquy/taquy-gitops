@@ -41,13 +41,13 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
     network_mode: bridge
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: "us-east-1"
-        awslogs-group: "taquy"
-        awslogs-stream: "elasticsearch"
-        awslogs-create-group: "true"
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: "us-east-1"
+    #     awslogs-group: "taquy"
+    #     awslogs-stream: "elasticsearch"
+    #     awslogs-create-group: "true"
 
   redis:
     image: redis:alpine
@@ -60,12 +60,17 @@ services:
       - redis-data:/data
     network_mode: bridge
     logging:
-      driver: awslogs
+      driver: "fluentd"
       options:
-        awslogs-region: us-east-1
-        awslogs-group: "taquy"
-        awslogs-stream: "redis"
-        awslogs-create-group: "true"
+        fluentd-address: localhost:24224
+        tag: httpd.acces
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: us-east-1
+    #     awslogs-group: "taquy"
+    #     awslogs-stream: "redis"
+    #     awslogs-create-group: "true"
 
   mongo:
     image: mongo:latest

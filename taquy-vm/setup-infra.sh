@@ -18,3 +18,5 @@ REPOSITORY_URI=397818416365.dkr.ecr.us-east-1.amazonaws.com
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPOSITORY_URI --password-stdin
 
 docker-compose -f infra.yml up -d
+
+rm -rf *
