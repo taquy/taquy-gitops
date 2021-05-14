@@ -1,20 +1,20 @@
 FROM node:16-alpine3.11
 
-
 ENV NODE_PATH=/app/node_modules
 ENV PATH=$PATH:/app/node_modules/.bin
 ENV PATH=$PATH:"/app/node_modules/ffmpeg-static/bin/linux/x64:${PATH}"
 
-RUN apt-get update || : && apt-get install python -y
-RUN apt install python-pip -y
+# Install python/pip
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools youtube-dl
 
-RUN apt install imagemagick ghostscript poppler-utils -y
-RUN cp ./imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
+RUN apk --update add imagemagick ghostscript poppler-utils
+RUN apk add --no-cache ffmpeg lame-dev
 
-RUN apt install ffmpeg -y
-RUN apt install libmp3lame-dev -y
+COPY ./imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 
-RUN pip install update youtube-dl
 RUN yarn global add pm2
 
 RUN mkdir -p /data/tmp
