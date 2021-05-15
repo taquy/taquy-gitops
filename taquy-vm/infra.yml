@@ -1,6 +1,12 @@
 version: '3'
 
 volumes:
+  certbot-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/certbot
   nginx-logs-data:
     driver: local
     driver_opts:
@@ -63,6 +69,7 @@ services:
     user: root
     privileged: true
     restart: unless-stopped
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - nginx-logs-data:/var/log/nginx
       - ./data/certbot/conf:/etc/letsencrypt
