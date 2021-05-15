@@ -1,6 +1,11 @@
 #!/bin/bash
 aws s3 cp s3://taquy-deploy/infra.yml ./
 
+# initiate letsecrypt
+curl -L https://raw.githubusercontent.com/wmnnd/nginx-certbot/master/init-letsencrypt.sh > init-letsencrypt.sh
+chmod +x init-letsencrypt.sh
+sudo ./init-letsencrypt.sh
+
 # create folder for infra
 mkdir -p /data/jenkins/cache
 mkdir -p /data/jenkins/logs 
