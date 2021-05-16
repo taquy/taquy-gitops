@@ -27,18 +27,18 @@ volumes:
       device: /data/tmp
 
 services:
-  # fluentd:
-  #   container_name: fluentd
-  #   image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:latest
-  #   restart: always
-  #   depends_on:
-  #     - es
-  #   links:
-  #     - es
-  #   ports:
-  #     - 24224:24224
-  #     - 24224:24224/udp
-  #   network_mode: bridge
+  fluentd:
+    container_name: fluentd
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:latest
+    restart: always
+    depends_on:
+      - es
+    links:
+      - es
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    network_mode: bridge
 
   es:
     container_name: es
@@ -64,17 +64,17 @@ services:
       - es-vol:/usr/share/elasticsearch/data
     network_mode: bridge
 
-  # kibana:
-  #   container_name: kibana
-  #   image: kibana:7.10.1
-  #   restart: always
-  #   links:
-  #     - es
-  #   ports:
-  #     - 5601:5601
-  #   environment:
-  #     SERVER_NAME: kibana.taquy.com
-  #     ELASTICSEARCH_HOSTS: https://es.taquy.com
+  kibana:
+    container_name: kibana
+    image: kibana:7.10.1
+    restart: always
+    links:
+      - es
+    ports:
+      - 5601:5601
+    environment:
+      SERVER_NAME: kibana.taquy.com
+      ELASTICSEARCH_HOSTS: https://es.taquy.com
 
   redis:
     container_name: redis

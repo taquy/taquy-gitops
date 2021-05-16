@@ -1,12 +1,25 @@
 version: '3'
 
 volumes:
-  certbot-data:
+
+  certbot-ssl:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /data/certbot
+      device: /data/certbot/ssl
+  certbot-logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/certbot/logs
+  nginx-web:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/nginx/web
   nginx-logs-data:
     driver: local
     driver_opts:
@@ -61,6 +74,7 @@ volumes:
       o: bind
       type: none
       device: /data/mssql
+    
 
 services:
   nginx:
@@ -69,24 +83,24 @@ services:
     user: root
     privileged: true
     restart: unless-stopped
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
+      - certbot-ssl:/etc/letsencrypt
+      - nginx-web:/var/www/html
       - nginx-logs-data:/var/log/nginx
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     network_mode: host
 
   certbot:
+    image: certbot/certbot:latest
     container_name: certbot
-    image: certbot/certbot
-    user: root
-    privileged: true
-    restart: always
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-  
+      - certbot-ssl:/etc/letsencrypt
+      - nginx-web:/var/www/html
+      - certbot-logs:/var/log/letsencrypt
+    depends_on:
+      - nginx
+    command: certonly --webroot -w /var/www/html --email taquy.se@gmail.com --agree-tos --no-eff-email --staging -d taquy.com
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
