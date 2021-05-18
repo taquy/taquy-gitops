@@ -1,80 +1,32 @@
 version: '3'
 
 volumes:
-
-  certbot-ssl:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/certbot/ssl
-  certbot-logs:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/certbot/logs
-  nginx-web:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/nginx/web
-  nginx-logs-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/nginx/logs
-  jenkins-cache-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/jenkins/cache
-  jenkins-logs-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/jenkins/logs
-  octopus-repository-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/octopus/repository
-  octopus-artifacts-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/octopus/artifacts
-  octopus-taskLogs-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/octopus/taskLogs
-  octopus-cache-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/octopus/cache
-  octopus-import-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/octopus/import
-  mssql-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/mssql
-    
+  jenkins-home-vol:
+    external: true
+  jenkins-cache-vol:
+    external: true
+  jenkins-logs-vol:
+    external: true
+  octopus-repository-vol:
+    external: true
+  octopus-artifacts-vol:
+    external: true
+  octopus-taskLogs-vol:
+    external: true
+  octopus-cache-vol:
+    external: true
+  octopus-import-vol:
+    external: true
+  mssql-vol:
+    external: true
+  nginx-logs-vol:
+    external: true
+  nginx-web-vol:
+    external: true
+  certbot-logs-vol:
+    external: true
+  certbot-ssl-vol:
+    external: true
 
 services:
   nginx:
@@ -84,9 +36,9 @@ services:
     privileged: true
     restart: unless-stopped
     volumes:
-      - certbot-ssl:/etc/letsencrypt
-      - nginx-web:/var/www/html
-      - nginx-logs-data:/var/log/nginx
+      - certbot-ssl-vol:/etc/letsencrypt
+      - nginx-logs-vol:/var/log/nginx
+      - nginx-web-vol:/var/www/html
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     network_mode: host
 
@@ -94,13 +46,13 @@ services:
     image: certbot/certbot:latest
     container_name: certbot
     volumes:
-      - certbot-ssl:/etc/letsencrypt
-      - nginx-web:/var/www/html
-      - certbot-logs:/var/log/letsencrypt
+      - certbot-ssl-vol:/etc/letsencrypt
+      - certbot-logs-vol:/var/log/letsencrypt
+      - nginx-web-vol:/var/www/html
     depends_on:
       - nginx
-    command: certonly --webroot -w /var/www/html --email taquy.se@gmail.com --agree-tos --no-eff-email --staging -d taquy.com
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
@@ -115,8 +67,10 @@ services:
       JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
       JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
     volumes:
-      - jenkins-cache-data:/var/cache/jenkins
-      - jenkins-logs-data:/var/log/jenkins
+      - jenkins-home-vol:/var/jenkins_home
+      - jenkins-cache-vol:/var/cache/jenkins
+      - jenkins-logs-vol:/var/log/jenkins
+  
   mssql:
     container_name: mssql
     image: microsoft/mssql-server-linux
@@ -133,7 +87,7 @@ services:
       interval: 10s
       retries: 10
     volumes:
-      - mssql-data:/var/opt/mssql
+      - mssql-vol:/var/opt/mssql
   octopus:
     container_name: octopus
     image: octopusdeploy/octopusdeploy:latest
@@ -156,16 +110,11 @@ services:
       DISABLE_DIND: "Y"
     depends_on:
       - mssql
-    volumes:
-      - octopus-repository-data:/repository
-      - octopus-artifacts-data:/artifacts
-      - octopus-taskLogs-data:/taskLogs
-      - octopus-cache-data:/cache
-      - octopus-import-data:/import
+
   octopus-tentacle:
+    container_name: octopus-tentacle
     depends_on:
       - octopus
-    container_name: octopus-tentacle
     image: octopusdeploy/tentacle:latest
     user: root
     privileged: true

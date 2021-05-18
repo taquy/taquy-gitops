@@ -1,7 +1,4 @@
 #!/bin/bash
-
-aws s3 cp ./init-letsencrypt.sh s3://taquy-deploy
-
 PROJECT=nginx
 REGION=ap-southeast-1
 REPOSITORY_URI=397818416365.dkr.ecr.$REGION.amazonaws.com
