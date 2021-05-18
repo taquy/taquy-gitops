@@ -2,29 +2,13 @@ version: '3'
 
 volumes:
   mongo-vol:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/mongo
+    external: true
   redis-vol:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/redis
+    external: true
   es-vol:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/es
+    external: true
   app-vol:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /data/tmp
+    external: true
 
 services:
   fluentd:
@@ -75,6 +59,7 @@ services:
     environment:
       SERVER_NAME: kibana.taquy.com
       ELASTICSEARCH_HOSTS: https://es.taquy.com
+    network_mode: bridge
 
   redis:
     container_name: redis
@@ -123,3 +108,9 @@ services:
       options:
         fluentd-address: localhost:24224
         tag: httpd.access
+    network_mode: bridge
+
+networks:
+  default:
+    external: true
+    name: app

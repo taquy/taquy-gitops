@@ -5,6 +5,9 @@ aws s3 cp s3://taquy-deploy/app.yml ./
 # Setup memory for VM
 sysctl -w vm.max_map_count=262144
 
+# Create networks 
+docker network create -d bridge app
+
 # Create volume folder
 mkdir -p /data/es 
 mkdir -p /data/mongo

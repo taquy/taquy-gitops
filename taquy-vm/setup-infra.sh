@@ -14,8 +14,10 @@ mkdir -p /data/certbot/logs /data/certbot/ssl
 
 chmod -R 775 /data
 
-# Create docker volumes
+# Create networks
+docker network create -d bridge infra
 
+# Create docker volumes
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/home jenkins-home-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/cache jenkins-cache-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/logs jenkins-logs-vol
