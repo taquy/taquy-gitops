@@ -22,3 +22,6 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 # Docker run
 docker-compose -f app.yml pull
 docker-compose -f app.yml up -d
+
+# Clean dangling images
+docker rmi $(docker images -f dangling=true -q)

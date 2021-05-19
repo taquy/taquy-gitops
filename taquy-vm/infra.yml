@@ -52,7 +52,7 @@ services:
     depends_on:
       - nginx
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    
+  
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
@@ -70,8 +70,7 @@ services:
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins
-    network_mode: bridge
-  
+
   mssql:
     container_name: mssql
     image: microsoft/mssql-server-linux
@@ -89,7 +88,6 @@ services:
       retries: 10
     volumes:
       - mssql-vol:/var/opt/mssql
-    network_mode: bridge
 
   octopus:
     container_name: octopus
@@ -113,12 +111,17 @@ services:
       DISABLE_DIND: "Y"
     depends_on:
       - mssql
-    network_mode: bridge
+    volumes:
+      - octopus-repository-vol:/repository
+      - octopus-artifacts-vol:/artifacts
+      - octopus-taskLogs-vol:/taskLogs
+      - octopus-cache-vol:/cache
+      - octopus-import-vol:/import
 
   octopus-tentacle:
-    container_name: octopus-tentacle
     depends_on:
       - octopus
+    container_name: octopus-tentacle
     image: octopusdeploy/tentacle:latest
     user: root
     privileged: true
@@ -135,8 +138,7 @@ services:
       ServerUrl: https://octopus.taquy.com
       PublicHostNameConfiguration: https://octopus-tentacle.taquy.com
       ACCEPT_EULA: "Y"
-    network_mode: bridge
-
+      
 networks:
   default:
     external: true
