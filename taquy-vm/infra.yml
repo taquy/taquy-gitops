@@ -106,7 +106,7 @@ services:
       ADMIN_PASSWORD: aD@R98xaYEctkKCn
       ADMIN_EMAIL: taquy.pb@gmail.com
       # openssl rand 16 | base64
-      MASTER_KEY: txEh15FjdRzdNhLroMNb1w==
+      MASTER_KEY: txEh15FjdRzedNhLroMNb1w==
       ServerApiKey: 
       DISABLE_DIND: "Y"
     depends_on:
@@ -117,7 +117,7 @@ services:
       - octopus-taskLogs-vol:/taskLogs
       - octopus-cache-vol:/cache
       - octopus-import-vol:/import
-
+      
   octopus-tentacle:
     depends_on:
       - octopus
@@ -142,4 +142,4 @@ services:
 networks:
   default:
     external: true
-    name: infra
+    name: infrae
