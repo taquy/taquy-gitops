@@ -3,7 +3,7 @@ aws s3 cp s3://taquy-deploy/infra.yml ./
 
 # create folder for infra
 mkdir -p /data/jenkins/cache /data/jenkins/logs /data/jenkins/home 
-mkdir -p /data/octopus/repository 
+mkdir -p /data/octopus/repository
 mkdir -p /data/octopus/artifacts 
 mkdir -p /data/octopus/taskLogs 
 mkdir -p /data/octopus/cache 
@@ -11,6 +11,7 @@ mkdir -p /data/octopus/import
 mkdir -p /data/mssql
 mkdir -p /data/nginx/logs /data/nginx/web
 mkdir -p /data/certbot/logs /data/certbot/ssl
+mkdir -p /data/backup/logs /data/backup/archives
 
 chmod -R 775 /data
 
@@ -31,6 +32,7 @@ docker volume create --driver local --opt o=bind --opt type=none --opt device=/d
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/nginx/web nginx-web-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/logs certbot-logs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/ssl certbot-ssl-vol
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup backup-vol
 
 # ECR Login
 REGION=ap-southeast-1
