@@ -34,7 +34,7 @@ logging.basicConfig(
   datefmt='%Y-%m-%d %H:%M:%S',
 )
 
-CONF_PATH = 'backup.conf'
+CONF_PATH = '/data/backup/conf/backup.conf'
 
 # Define S3 backup path
 BUCKET='taquy-backup'
@@ -82,6 +82,7 @@ def backup():
       store_path=BACKUP_STORE_PATH,
       bucket=BUCKET
     ))
+    # TODO clean file
     
 def run_backup_thread():
     worker = threading.Thread(target=backup)

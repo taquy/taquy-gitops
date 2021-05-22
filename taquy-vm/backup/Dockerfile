@@ -1,13 +1,23 @@
 # syntax=docker/dockerfile:1
-FROM python:3.8-slim-buster
+FROM python
 
 USER root
 WORKDIR /app
+ARG schedule="* * * * *"
 
+# Create volumes
+RUN mkdir -p /data/backup/archives /data/backup/logs /data/backup/conf
+VOLUME ["/data/backup/archives", "/data/backup/logs", "/data/backup/conf"]
+
+# Install libraries
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
+
+# Copy config files
 COPY . .
+COPY ./backup.conf /data/backup/conf
+RUN chmod a+x /app/backup.py
+RUN chmod a+x /app/backup-cron.py
 
-RUN apt-get update && apt-get -y install cron
-
-RUN echo "* * * * * echo \"Hello world\"" >> backup.job 2>&1
+# Cronjob
+CMD ["/usr/local/bin/python3", "/app/backup-cron.py"]
