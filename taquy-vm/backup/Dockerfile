@@ -6,8 +6,13 @@ WORKDIR /app
 ARG schedule="* * * * *"
 
 # Create volumes
-RUN mkdir -p /data/backup/archives /data/backup/logs /data/backup/conf
-VOLUME ["/data/backup/archives", "/data/backup/logs", "/data/backup/conf"]
+RUN mkdir -p /data/backup/archives /data/backup/logs /data/backup/conf /root/.aws/
+VOLUME ["/data/backup/archives", "/data/backup/logs", "/data/backup/conf", "/root/.aws/"]
+
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
 
 # Install libraries
 COPY requirements.txt requirements.txt

@@ -42,6 +42,7 @@ services:
     volumes:
       - backup-logs-vol:/data/backup/logs
       - backup-archives-vol:/data/backup/archives
+      - /root/.aws:/root/.aws/
     environment:
       schedule: '* * * * *'
 
