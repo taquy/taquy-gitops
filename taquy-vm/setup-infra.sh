@@ -32,7 +32,8 @@ docker volume create --driver local --opt o=bind --opt type=none --opt device=/d
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/nginx/web nginx-web-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/logs certbot-logs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/ssl certbot-ssl-vol
-docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup backup-vol
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup/logs backup-logs-vol
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup/archives backup-archives-vol
 
 # ECR Login
 REGION=ap-southeast-1

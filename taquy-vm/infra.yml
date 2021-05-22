@@ -27,8 +27,24 @@ volumes:
     external: true
   certbot-ssl-vol:
     external: true
+  backup-logs-vol:
+    external: true
+  backup-archives-vol:
+    external: true
 
 services:
+  backup-cron:
+    container_name: backup-cron
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup-cron:latest
+    user: root
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - backup-logs-vol:/data/backup/logs
+      - backup-archives-vol:/data/backup/archives
+    environment:
+      schedule: '* * * * *'
+
   nginx:
     container_name: nginx
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:latest
@@ -142,4 +158,4 @@ services:
 networks:
   default:
     external: true
-    name: infrae
+    name: infra

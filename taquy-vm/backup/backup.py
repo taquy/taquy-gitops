@@ -7,6 +7,7 @@ import time
 import logging
 import threading
 import boto3
+import glob
 
 s3 = boto3.client('s3')
 
@@ -74,15 +75,24 @@ def backup():
     zipf.close()
     
     # upload to s3
-    # s3.meta.client.upload_file(
-    #   BACKUP_STORE_PATH, BUCKET, BACKUP_FILE_NAME
-    # )
+    s3.meta.client.upload_file(
+      BACKUP_STORE_PATH, BUCKET, BACKUP_FILE_NAME
+    )
+    
+    # log events
     logging.info('Upload {backup_path} to s3://{bucket}/{store_path}'.format(
       backup_path=BACKUP_FILE_PATH,
       store_path=BACKUP_STORE_PATH,
       bucket=BUCKET
     ))
-    # TODO clean file
+    
+    # empty archives folder
+    files = glob.glob('{}/*.zip'.format(BACKUP_FOLDER), recursive=True)
+    for f in files:
+        try:
+            os.remove(f)
+        except OSError as e:
+            print("Error: %s : %s" % (f, e.strerror))
     
 def run_backup_thread():
     worker = threading.Thread(target=backup)
