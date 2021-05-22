@@ -2,9 +2,9 @@ from crontab import CronTab
 import os
 
 # prepare environments
-SCHEDULE = os.getenv('schedule')
-EXECUTOR = os.getenv('executor')
-PROGRAM = os.getenv('program')
+SCHEDULE = os.getenv('SCHEDULE')
+EXECUTOR = os.getenv('EXECUTOR')
+PROGRAM = os.getenv('PROGRAM')
 
 if not SCHEDULE:
   SCHEDULE = '* * * * *'

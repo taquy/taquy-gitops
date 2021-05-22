@@ -2,8 +2,6 @@
 import os
 import zipfile
 import datetime;
-import schedule
-import time
 import logging
 import threading
 import boto3
@@ -38,7 +36,7 @@ logging.basicConfig(
 CONF_PATH = '/data/backup/conf/backup.conf'
 
 # Define S3 backup path
-BUCKET='taquy-backup'
+BUCKET=os.getenv('BUCKET')
 BACKUP_FOLDER = '/data/backup/archives'
 BACKUP_FILE_NAME = '{}.zip'.format(now_ts)
 BACKUP_FILE_PATH = '{folder}/{file_name}'.format(

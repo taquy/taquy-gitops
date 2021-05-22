@@ -3,7 +3,6 @@ FROM python
 
 USER root
 WORKDIR /app
-ARG schedule="* * * * *"
 
 # Create volumes
 RUN mkdir -p /data/backup/archives /data/backup/logs /data/backup/conf /root/.aws/

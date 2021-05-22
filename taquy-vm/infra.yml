@@ -44,7 +44,8 @@ services:
       - backup-archives-vol:/data/backup/archives
       - /root/.aws:/root/.aws/
     environment:
-      schedule: '* * * * *'
+      SCHEDULE: '* * * * *'
+      BUCKET: 'taquy-backup'
 
   nginx:
     container_name: nginx
