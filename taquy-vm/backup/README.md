@@ -1,10 +1,24 @@
 
+**Build & Push script
+```bash
+# build with cache
+bash push-ecr.sh 
+
+# build without cache
+bash push-ecr.sh --no-cache 
+```
+
 
 **Build docker image**
 
 ```bash
 REPOSITORY_URI=397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup-cron
+
+# build with cache
 docker build . -t $REPOSITORY_URI
+
+# build without cache
+docker build . -t $REPOSITORY_URI --no-cache
 ```
 
 
@@ -28,5 +42,6 @@ docker run -e schedule='* * * * *' \
     -e executor='/usr/local/bin/python3' \
     -e program='/app/backup.py' \
     $REPOSITORY_URI
+
 ```
 
