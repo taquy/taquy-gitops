@@ -124,7 +124,7 @@ services:
       ADMIN_PASSWORD: aD@R98xaYEctkKCn
       ADMIN_EMAIL: taquy.pb@gmail.com
       # openssl rand 16 | base64
-      MASTER_KEY: txEh15FjdRzedNhLroMNb1w==
+      MASTER_KEY: DR1OIkFzQxynWzfEY5DhXg==
       ServerApiKey: 
       DISABLE_DIND: "Y"
     depends_on:

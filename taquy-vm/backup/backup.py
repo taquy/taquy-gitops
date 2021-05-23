@@ -58,39 +58,66 @@ def zipdir(path, ziph):
         )
       )
 
+def empty_folder(folder_name: str):
+  try:
+    # empty archives folder
+    files = glob.glob('{}/*.zip'.format(folder_name), recursive=True)
+    for f in files:
+      os.remove(f)
+    return True
+  except OSError as e:
+    err = 'Unable to delete {file} with error {error}'.format(
+      file=f, error=e.strerror
+    )
+    logging.error(err)
+    return False
+    
+def create_zip_folder(lines):
+  # create zip file recursively
+  zipf = zipfile.ZipFile(BACKUP_FILE_PATH, 'w', zipfile.ZIP_DEFLATED)
+  for folder_path in lines:
+    zipdir(folder_path, zipf)
+  zipf.close()
+  
+
 def backup():
-  global BACKUP_FILE_PATH, BACKUP_STORE_PATH
+  global BACKUP_FILE_PATH, BACKUP_STORE_PATH, CONF_PATH
   with open(CONF_PATH, 'r') as f:
     lines = f.readlines()
     lines = list(map(lambda x: x.strip('\n').strip('\t'), lines))
     if len(lines) == 0:
+      logging.info('Upload {backup_path} to s3://{bucket}/{store_path}'.format(
+        backup_path=BACKUP_FILE_PATH,
+        store_path=BACKUP_STORE_PATH,
+        bucket=BUCKET
+      ))
       return
     
-    # create zip file recursively
-    zipf = zipfile.ZipFile(BACKUP_FILE_PATH, 'w', zipfile.ZIP_DEFLATED)
-    for folder_path in lines:
-      zipdir(folder_path, zipf)
-    zipf.close()
-    
+    create_zip_folder(lines)
+   
     # upload to s3
-    s3.meta.client.upload_file(
-      BACKUP_STORE_PATH, BUCKET, BACKUP_FILE_NAME
-    )
-    
-    # log events
-    logging.info('Upload {backup_path} to s3://{bucket}/{store_path}'.format(
-      backup_path=BACKUP_FILE_PATH,
-      store_path=BACKUP_STORE_PATH,
-      bucket=BUCKET
-    ))
-    
-    # empty archives folder
-    files = glob.glob('{}/*.zip'.format(BACKUP_FOLDER), recursive=True)
-    for f in files:
-        try:
-            os.remove(f)
-        except OSError as e:
-            print("Error: %s : %s" % (f, e.strerror))
+    try:
+      s3.meta.client.upload_file(
+        BACKUP_STORE_PATH, BUCKET, BACKUP_FILE_NAME
+      )
+      
+      is_error = empty_folder(BACKUP_FOLDER)
+      
+      if is_error:
+        return
+
+      # log events
+      logging.info('Upload {backup_path} to s3://{bucket}/{store_path}'.format(
+        backup_path=BACKUP_FILE_PATH,
+        store_path=BACKUP_STORE_PATH,
+        bucket=BUCKET
+      ))
+      
+    except Exception as e:
+      err = 'Unable to upload {file} to S3 with error {error}'.format(
+        file=BACKUP_STORE_PATH, error=e.strerror
+      )
+      logging.error(err)
     
 def run_backup_thread():
     worker = threading.Thread(target=backup)
