@@ -1,4 +1,5 @@
-FROM jenkins/jenkins:2.277.4-lts-centos7
+FROM jenkins/jenkins:slim
+
 LABEL maintainer="taquy.pb@gmail.com"
 
 USER root
@@ -6,6 +7,27 @@ RUN mkdir /var/log/jenkins
 RUN mkdir /var/cache/jenkins
 RUN chown -R jenkins:jenkins /var/log/jenkins
 RUN chown -R jenkins:jenkins /var/cache/jenkins
+
+VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home" ]
+
+RUN apt-get update -y
+RUN apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release -y 
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+RUN  echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN apt-get update -y && apt-get install docker-ce docker-ce-cli containerd.io -y
+RUN service docker start
+RUN usermod -aG docker jenkins
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
 
 USER jenkins
 
@@ -18,3 +40,4 @@ ENV JENKINS_OPTS="--handlerCountMax=300 --logfile=/var/log/jenkins/jenkins.log -
 COPY plugins.txt /usr/share/jenkins/plugins.txt
 
 RUN cat /usr/share/jenkins/plugins.txt | /usr/local/bin/install-plugins.sh
+
