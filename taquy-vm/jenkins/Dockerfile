@@ -5,6 +5,7 @@ LABEL maintainer="taquy.pb@gmail.com"
 USER root
 RUN mkdir /var/log/jenkins
 RUN mkdir /var/cache/jenkins
+RUN mkdir -p /var/jenkins_home/.aws
 RUN chown -R jenkins:jenkins /var/log/jenkins
 RUN chown -R jenkins:jenkins /var/cache/jenkins
 
@@ -28,6 +29,8 @@ RUN usermod -aG docker jenkins
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
 RUN ./aws/install
+
+ENTRYPOINT [ "dockerd" ]
 
 USER jenkins
 

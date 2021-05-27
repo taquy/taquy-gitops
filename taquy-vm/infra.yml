@@ -86,6 +86,7 @@ services:
       JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
       JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
     volumes:
+      - /root/.aws:/var/jenkins_home/.aws:ro
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins

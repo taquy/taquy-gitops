@@ -26,4 +26,4 @@ ssh-slaves:latest
 timestamper:latest
 workflow-aggregator:latest
 ws-cleanup:latest
- 
+amazon-ecr:latest
