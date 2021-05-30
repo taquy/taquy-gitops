@@ -27,3 +27,4 @@ timestamper:latest
 workflow-aggregator:latest
 ws-cleanup:latest
 amazon-ecr:latest
+aws-secrets-manager-credentials-provider:0.5.3

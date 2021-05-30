@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:centos7
 
 LABEL maintainer="taquy.pb@gmail.com"
 
@@ -11,20 +11,8 @@ RUN chown -R jenkins:jenkins /var/cache/jenkins
 
 VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home" ]
 
-RUN apt-get update -y
-RUN apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release -y 
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-RUN  echo \
-  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
-  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-RUN apt-get update -y && apt-get install docker-ce docker-ce-cli containerd.io -y
-RUN service docker start
-RUN usermod -aG docker jenkins
+RUN yum install -y yum-utils
+RUN curl -fsSL https://get.docker.com/ | sh
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
