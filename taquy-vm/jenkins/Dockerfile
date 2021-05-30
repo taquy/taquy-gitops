@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:slim
+FROM jenkins/jenkins:lts
 
 LABEL maintainer="taquy.pb@gmail.com"
 
@@ -30,8 +30,6 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN unzip awscliv2.zip
 RUN ./aws/install
 
-ENTRYPOINT [ "dockerd" ]
-
 USER jenkins
 
 ENV JENKINS_USER root
@@ -43,4 +41,3 @@ ENV JENKINS_OPTS="--handlerCountMax=300 --logfile=/var/log/jenkins/jenkins.log -
 COPY plugins.txt /usr/share/jenkins/plugins.txt
 
 RUN cat /usr/share/jenkins/plugins.txt | /usr/local/bin/install-plugins.sh
-
