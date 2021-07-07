@@ -3,7 +3,7 @@
 helm repo add nfs-client-provisioner https://ckotzbauer.github.io/helm-charts
 
 helm search repo nfs-client-provisioner
-helm repo update 
+helm repo update
 
 helm dep update && helm dep build .
 

@@ -37,4 +37,4 @@ spec:
         - name: nfs-client-root
           nfs:
             server: 172.16.42.138
-            path: /var/nfs_share_dir 
+            path: /var/nfs_share_dir

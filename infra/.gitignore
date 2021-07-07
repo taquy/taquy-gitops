@@ -1,0 +1,27 @@
+#  Local .terraform directories
+**/.terraform/*
+.terraform
+.terraform/**
+**/*/terraform
+
+#  Local .terraform directories
+**/.vscode/*
+.vscode
+.vscode/**
+**/*/vscode
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+**/.terraform.lock.hcl
+
+# .tfvars files
+*.tfvars
+
+**/.idea
+**/*.iml
+
+**/.build-harness
+**/build-harness
+
+*.plan

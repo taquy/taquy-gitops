@@ -1,4 +1,4 @@
-nfs-client-provisioner: # alias 
+nfs-client-provisioner: # alias
   replicaCount: 3
   strategyType: Recreate
   storageClass:
