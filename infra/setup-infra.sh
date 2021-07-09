@@ -51,7 +51,7 @@ docker-compose -f infra.yml up -d
 # Install SSL
 aws s3 cp s3://taquy-deploy/init-letsencrypt.sh ./
 chmod +x init-letsencrypt.sh
-sudo ./init-letsencrypt.sh
+./init-letsencrypt.sh
 
 # Clean dangling images
 docker rmi $(docker images -f dangling=true -q)

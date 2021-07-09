@@ -1,3 +1,6 @@
+**Initial Deploy**
+sudo $(bash <(curl -s https://taquy-deploy.s3.ap-southeast-1.amazonaws.com/setup-initial.sh))
+
 **Deploy Infra**
 
 ```bash

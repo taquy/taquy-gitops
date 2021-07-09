@@ -6,7 +6,7 @@ REGION=ap-southeast-1
 REPOSITORY_URI=397818416365.dkr.ecr.$REGION.amazonaws.com
 
 # build docker iamge
-docker build . -t $REPOSITORY_URI/$PROJECT --build-arg root1234
+docker build . -t $REPOSITORY_URI/$PROJECT --build-arg root1234 --no-cache
 
 # push docker image
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URI --password-stdin

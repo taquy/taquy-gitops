@@ -23,7 +23,8 @@ RUN mkdir /var/log/jenkins \
   && mkdir -p /var/jenkins_home/.aws \
   && chown -R jenkins:jenkins /var/log/jenkins \
   && chown -R jenkins:jenkins /var/cache/jenkins \
-  && yum install -y yum-utils jq \
+  && apt-get update -y \
+  && apt install -y jq \
   # install docker
   && curl -fsSL https://get.docker.com/ | sh \
   # install awscli
