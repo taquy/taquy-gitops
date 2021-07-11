@@ -7,12 +7,9 @@ module "label" {
 }
 
 resource "aws_network_interface" "vm_eni" {
-  depends_on = [
-    aws_security_group.sg,
-  ]
   subnet_id = var.subnet_id
   security_groups = [
-    var.sg_id
+    var.vm_sg_id
   ]
   tags = merge(module.label.tags, {
     "Name" = module.label.id
