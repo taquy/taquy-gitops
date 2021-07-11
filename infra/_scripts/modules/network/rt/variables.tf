@@ -9,11 +9,7 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "vm_sg_id" {
-  description = "Network interface's security group for VM"
-  type        = string
-}
-variable "vm_subnet_id" {
-  description = "Network interface's subnet for VM"
+variable "vpc_id" {
+  description = "Route tables's VPC"
   type        = string
 }

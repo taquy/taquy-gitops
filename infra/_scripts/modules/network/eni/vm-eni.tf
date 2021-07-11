@@ -7,7 +7,7 @@ module "label" {
 }
 
 resource "aws_network_interface" "vm_eni" {
-  subnet_id = var.subnet_id
+  subnet_id = var.vm_subnet_id
   security_groups = [
     var.vm_sg_id
   ]
