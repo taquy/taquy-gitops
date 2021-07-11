@@ -1,7 +1,7 @@
 
 variable "tags" {
   description = "Tags for resources"
-  type = map(string)
+  type        = map(string)
 }
 
 variable "region" {
@@ -28,8 +28,8 @@ variable "instance" {
   description = "Spot instance configuration"
   type = object({
     spot_price = string
-    ami = string
-    type = string
-    user_data = optional(string)
+    ami        = string
+    type       = string
+    user_data  = optional(string)
   })
 }

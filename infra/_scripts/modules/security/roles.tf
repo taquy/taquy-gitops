@@ -1,11 +1,11 @@
 
 module "label" {
-  source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
-  namespace = var.namespace
-  name      = var.name
-  delimiter = "-"
+  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
+  namespace   = var.namespace
+  name        = var.name
+  delimiter   = "-"
   label_order = ["namespace", "name"]
-  tags = var.tags
+  tags        = var.tags
 }
 
 resource "aws_iam_role" "instance_role" {

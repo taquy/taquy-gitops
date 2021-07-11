@@ -22,6 +22,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_network"></a> [network](#module\_network) | ./modules/network |  |
 | <a name="module_secrets"></a> [secrets](#module\_secrets) | ./modules/aws-secret-manager |  |
 
 ## Resources
@@ -32,8 +33,8 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace of resources | `string` | n/a | yes |
-| <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets | <pre>map(object({<br>    description = optional(string)<br>    data_path   = optional(string)<br>    data_value  = optional(string)<br>    tags        = optional(map(string))<br>  }))</pre> | n/a | yes |
+| <a name="input_network"></a> [network](#input\_network) | Network module parameters | <pre>object({<br>    name           = string<br>    vpc_cidr_block = string<br>    tags           = optional(map(string))<br>  })</pre> | n/a | yes |
+| <a name="input_secrets"></a> [secrets](#input\_secrets) | Secret manager module parameters | <pre>object({<br>    namespace = string<br>    secrets = map(object({<br>      description = optional(string)<br>      data_path   = optional(string)<br>      data_value  = optional(string)<br>      tags        = optional(map(string))<br>    }))<br>  })</pre> | n/a | yes |
 
 ## Outputs
 

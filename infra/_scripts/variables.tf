@@ -10,19 +10,30 @@ variable "secrets" {
     }))
   })
 }
-variable "ec2" {
-  description = "EC2 module parameters"
+
+variable "network" {
+  description = "Network module parameters"
   type = object({
-    name = string
-    namespace = string
-    region = string
-    key_path = string
-    tags        = optional(map(string))
-    instance = object({
-      spot_price = string
-      ami = string
-      type = string
-      user_data = optional(string)
-    })
+    namespace           = string
+    vpc_cidr_block = string
+    tags           = optional(map(string))
   })
 }
+
+
+# variable "compute" {
+#   description = "compute module parameters"
+#   type = object({
+#     name = string
+#     namespace = string
+#     region = string
+#     key_path = string
+#     tags        = optional(map(string))
+#     instance = object({
+#       spot_price = string
+#       ami = string
+#       type = string
+#       user_data = optional(string)
+#     })
+#   })
+# }

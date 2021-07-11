@@ -1,16 +1,13 @@
 
 module "secrets" {
-  source    = "./modules/aws-secret-manager"
+  source    = "./modules/secrets"
   namespace = var.secrets.namespace
   secrets   = var.secrets.secrets
 }
 
-module "ec2" {
-  source    = "./modules/aws-ec2-instance"
-  name = var.ec2.name
-  namespace = var.ec2.namespace
-  region = var.ec2.region
-  key_path = var.ec2.key_path
-  tags = var.ec2.tags
-  instance = var.ec2.instance
+module "network" {
+  source    = "./modules/network"
+  namespace      = var.network.namespace
+  vpc_cidr_block      = var.network.vpc_cidr_block
+  tags      = var.network.tags
 }

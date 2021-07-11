@@ -17,8 +17,8 @@ variable "instance" {
   description = "Spot instance configuration"
   type = object({
     spot_price = string
-    ami = string
-    type = string
-    user_data = optional(string)
+    ami        = string
+    type       = string
+    user_data  = optional(string)
   })
 }

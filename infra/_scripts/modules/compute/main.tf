@@ -1,11 +1,11 @@
 
 module "label" {
-  source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
-  namespace = var.namespace
-  name      = var.name
-  delimiter = "-"
+  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
+  namespace   = var.namespace
+  name        = var.name
+  delimiter   = "-"
   label_order = ["namespace", "name"]
-  tags = var.tags
+  tags        = var.tags
 }
 
 resource "aws_key_pair" "key" {
@@ -18,25 +18,25 @@ resource "aws_security_group" "sg" {
   description = "Security group for instance ${module.label.id}"
   vpc_id      = aws_vpc.vpc.id
   ingress {
-    description      = "Ingress HTTPS"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "Ingress HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description      = "Ingress HTTP"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "Ingress HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description      = "Ingress SSH"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "Ingress SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port        = 0
@@ -49,7 +49,7 @@ resource "aws_security_group" "sg" {
 }
 
 resource "aws_network_interface" "eni" {
-  subnet_id   = aws_subnet.public_subnet_1a.id
+  subnet_id = aws_subnet.public_subnet_1a.id
   security_groups = [
     aws_security_group.sg.id
   ]
@@ -57,15 +57,15 @@ resource "aws_network_interface" "eni" {
 }
 
 resource "aws_eip" "eip" {
-  vpc                       = true
-  network_interface         = aws_network_interface.eni.id
-  tags = module.label.tags
+  vpc               = true
+  network_interface = aws_network_interface.eni.id
+  tags              = module.label.tags
 }
 
 resource "aws_spot_instance_request" "spot_instance" {
-  spot_price    = var.instance.spot_price
-  ami           = var.instance.ami
-  instance_type = var.instance.type
+  spot_price                  = var.instance.spot_price
+  ami                         = var.instance.ami
+  instance_type               = var.instance.type
   associate_public_ip_address = true
   credit_specification {
     cpu_credits = "standard"
@@ -73,15 +73,15 @@ resource "aws_spot_instance_request" "spot_instance" {
   # iam_instance_profile  = ""
   key_name = aws_key_pair.key.key_name
   network_interface {
-    network_interface_id = aws_network_interface.eni.id
-    device_index         = 0
+    network_interface_id  = aws_network_interface.eni.id
+    device_index          = 0
     delete_on_termination = true
   }
-  user_data = var.instance.user_data != "" ? var.instance.user_data : ""
-  volume_tags  = module.label.tags
+  user_data   = var.instance.user_data != "" ? var.instance.user_data : ""
+  volume_tags = module.label.tags
   root_block_device {
     delete_on_termination = true
-    volume_size = 20
-    volume_type = "gp3"
+    volume_size           = 20
+    volume_type           = "gp3"
   }
 }
