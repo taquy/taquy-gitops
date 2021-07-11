@@ -24,6 +24,9 @@ module "subnets" {
 }
 
 module "rt" {
+  depends_on = [
+    module.subnets
+  ]
   source    = "./rt"
   namespace = var.namespace
   tags      = var.tags
@@ -43,5 +46,5 @@ module "eni" {
   namespace = var.namespace
   tags      = var.tags
   vm_sg_id  = module.sg.vm_sg_id
-  vm_subnet_id = module.
+  vm_subnet_id = module.subnets.public_subnet_1a
 }
