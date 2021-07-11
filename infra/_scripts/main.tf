@@ -3,9 +3,6 @@ module "secrets" {
   source    = "./modules/aws-secret-manager"
   namespace = var.secrets.namespace
   secrets   = var.secrets.secrets
-  tags = {
-    project = "taquy"
-  }
 }
 
 module "ec2" {
