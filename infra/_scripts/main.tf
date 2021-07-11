@@ -17,7 +17,8 @@ module "compute" {
   depends_on = [
     module.network
   ]
-  vpc_id    = module.network.outputs.vpc_id
+  vpc_id    = module.network.vpc_id
+  subnet_id = module.network.public_subnet_1a_id
   name      = var.compute.name
   namespace = var.compute.namespace
   key_path  = var.compute.key_path

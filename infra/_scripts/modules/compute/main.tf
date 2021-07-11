@@ -51,7 +51,7 @@ resource "aws_security_group" "sg" {
 }
 
 resource "aws_network_interface" "eni" {
-  subnet_id = aws_subnet.public_subnet_1a.id
+  subnet_id = var.subnet_id
   security_groups = [
     aws_security_group.sg.id
   ]

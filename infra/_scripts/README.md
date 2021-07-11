@@ -1,6 +1,8 @@
-terraform workspace new taquy
+bash plan.sh
+bash apply.sh
 
-bash run.sh
+openssl genrsa -out /home/qt/.ssh/taquy-vm 2048
+openssl rsa -in /home/qt/.ssh/taquy-vm -outform PEM -pubout -out /home/qt/.ssh/taquy-vm.pub
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

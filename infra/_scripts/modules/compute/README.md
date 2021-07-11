@@ -38,6 +38,7 @@
 | <a name="input_key_path"></a> [key\_path](#input\_key\_path) | Path to ssh public key at local machine | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name of ec2 stacks | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace of resources | `string` | n/a | yes |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | EC2 Subnet ID | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for resources | `map(string)` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | EC2 VPC ID | `string` | n/a | yes |
 

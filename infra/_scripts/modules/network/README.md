@@ -47,5 +47,9 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_private_subnet_1a_id"></a> [private\_subnet\_1a\_id](#output\_private\_subnet\_1a\_id) | Private subnet 1 |
+| <a name="output_private_subnet_2b_id"></a> [private\_subnet\_2b\_id](#output\_private\_subnet\_2b\_id) | Private subnet 2 |
+| <a name="output_public_subnet_1a_id"></a> [public\_subnet\_1a\_id](#output\_public\_subnet\_1a\_id) | Public subnet 1 |
+| <a name="output_public_subnet_1b_id"></a> [public\_subnet\_1b\_id](#output\_public\_subnet\_1b\_id) | Public subnet 2 |
 | <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | VPC ID |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

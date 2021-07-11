@@ -19,6 +19,11 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "subnet_id" {
+  description = "EC2 Subnet ID"
+  type        = string
+}
+
 variable "key_path" {
   description = "Path to ssh public key at local machine"
   type        = string
