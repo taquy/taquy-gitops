@@ -15,19 +15,19 @@ variable "vpc_id" {
 }
 
 variable "private_subnet_1a" {
-  type = string
+  type        = string
   description = "Private subnet AZ #1"
 }
 variable "private_subnet_2b" {
-  type = string
+  type        = string
   description = "Private subnet AZ #2"
 }
 
 variable "public_subnet_1a" {
-  type = string
+  type        = string
   description = "Public subnet AZ #1"
 }
 variable "public_subnet_2b" {
-  type = string
+  type        = string
   description = "Public subnet AZ #2"
 }

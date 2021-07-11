@@ -13,3 +13,7 @@ variable "vpc_id" {
   description = "Subnets's VPC"
   type        = string
 }
+variable "vpc_cidr" {
+  description = "Subnets's VPC CIDR block"
+  type        = string
+}

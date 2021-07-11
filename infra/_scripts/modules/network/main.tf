@@ -21,16 +21,21 @@ module "subnets" {
   namespace = var.namespace
   tags      = var.tags
   vpc_id    = aws_vpc.vpc.id
+  vpc_cidr  = aws_vpc.vpc.cidr_block
 }
 
 module "rt" {
   depends_on = [
     module.subnets
   ]
-  source    = "./rt"
-  namespace = var.namespace
-  tags      = var.tags
-  vpc_id    = aws_vpc.vpc.id
+  source            = "./rt"
+  namespace         = var.namespace
+  tags              = var.tags
+  vpc_id            = aws_vpc.vpc.id
+  private_subnet_1a = module.subnets.private_subnet_1a
+  public_subnet_1a  = module.subnets.public_subnet_1a
+  private_subnet_2b = module.subnets.private_subnet_2b
+  public_subnet_2b  = module.subnets.public_subnet_2b
 }
 
 
@@ -42,9 +47,9 @@ module "sg" {
 }
 
 module "eni" {
-  source    = "./eni"
-  namespace = var.namespace
-  tags      = var.tags
-  vm_sg_id  = module.sg.vm_sg_id
+  source       = "./eni"
+  namespace    = var.namespace
+  tags         = var.tags
+  vm_sg_id     = module.sg.vm_sg_id
   vm_subnet_id = module.subnets.public_subnet_1a
 }
