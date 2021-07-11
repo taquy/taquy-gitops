@@ -12,7 +12,7 @@ echo "Created groups:" $(cat /etc/group | grep $GROUP)
 
 useradd -m -g $GROUP -u 2000 $USER
 # change primary group
-usermod -g $GROUP $USER 
+usermod -g $GROUP $USER
 echo "Created user:" $(getent passwd | awk -F: '{ print $1}' | grep $USER)
 
 cd / && ls -la | grep 'data'
@@ -21,7 +21,7 @@ chown $USER:$GROUP $DATA_DIR
 sudo chmod u+rwx,g+rwx,o+r-wx $DATA_DIR -R
 cd / && ls -la | grep 'data'
 
-# install docker  
+# install docker
 curl -fsSL test.docker.com -o get-docker.sh && sh get-docker.sh
 yum install docker -y
 systemctl start docker
