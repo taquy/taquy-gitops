@@ -31,7 +31,7 @@ module "iam" {
   source         = "./modules/iam"
   namespace      = var.network.namespace
   source_ip      = concat(var.my_ip, var.network.source_ip, [
-    module.compute.
+    module.network.vm_public_ip
   ])
   tags           = var.network.tags
 }

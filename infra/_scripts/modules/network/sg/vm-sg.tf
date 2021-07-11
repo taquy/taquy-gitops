@@ -21,7 +21,7 @@ locals {
   }
 }
 
-resource "aws_security_group" "sg" {
+resource "aws_security_group" "vm_sg" {
   name        = module.label.id
   description = "Security group for instance ${module.label.id}"
   vpc_id      = var.vpc_id
@@ -37,12 +37,12 @@ resource "aws_security_group" "sg" {
   })
 }
 
-resource "aws_security_group_rule" "sg_rules" {
+resource "aws_security_group_rule" "vm_sg_rules" {
   for_each = local.sg_rules.ingress
   type              = "ingress"
   from_port         = each.value.port != "" ? each.value.port : each.value.from_port
   to_port         = each.value.port != "" ? each.value.port : each.value.to_port
   protocol          = "tcp"
   cidr_blocks       = each.value.cidr_blocks
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.vm_sg.id
 }

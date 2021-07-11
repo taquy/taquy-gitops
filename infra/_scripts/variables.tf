@@ -1,6 +1,7 @@
 
-variable my_ip {
-  description 
+variable "my_ip" {
+  description = "Current deployer source IP"
+  type = "string"
 }
 variable "secrets" {
   description = "Secret manager module parameters"

@@ -23,3 +23,11 @@ output "private_subnet_2b_id" {
   value       = aws_subnet.private_subnet_2b.id
 }
 
+output "vm_public_ip" {
+  description = "Elastic public IP of VM"
+  value       = aws_eip.vm_eip.public_ip
+}
+
+
+
+
