@@ -11,7 +11,7 @@ resource "random_id" "sid" {
   byte_length = 4
 }
 
-resource "aws_iam_role" "instance_role" {
+resource "aws_iam_role" "vm_role" {
   name = "${var.namespace}-vm"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -27,4 +27,9 @@ resource "aws_iam_role" "instance_role" {
     ]
   })
   tags = module.label.tags
+}
+
+resource "aws_iam_instance_profile" "vm_profile" {
+  name = "${module.label.id}-vm"
+  role = aws_iam_role.vm_role.name
 }

@@ -9,8 +9,9 @@ python /home/qt/.secrets/encrypt.py
 python /home/qt/.secrets/decrypt.py
 
 MY_IP=$(curl checkip.amazonaws.com)
+echo "My current IP is $MY_IP"
 
 terraform workspace select taquy &&
 	terraform init &&
 	terraform plan --out tf.plan --var-file=taquy.tfvars &&
-	-var 'source_ip=$MY_IP'
+	-var 'my_ip=$MY_IP'
