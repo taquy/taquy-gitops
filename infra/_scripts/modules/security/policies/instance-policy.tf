@@ -12,6 +12,72 @@ module "roles" {
   source = "../roles"
 }
 
+locals {
+  source_ip = var.source_ip
+  statements = {
+    "${var.namespace}EcrPushImages" = {
+      actions = [
+        "ecr:DescribeImageScanFindings",
+        "ecr:GetLifecyclePolicyPreview",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:DescribeImages",
+        "ecr:DescribeRepositories",
+        "ecr:ListTagsForResource",
+        "ecr:ListImages",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetRepositoryPolicy",
+        "ecr:GetLifecyclePolicy"
+      ],
+      resources = [
+        "arn:aws:ecr:${var.region}:${var.account_id}:repository/*",
+      ]
+    },
+     "${var.namespace}EcrAuthentication" = {
+      actions = [
+        "ecr:GetRegistryPolicy",
+        "ecr:DescribeRegistry",
+        "ecr:GetAuthorizationToken"
+      ],
+      resources = "*"
+    },
+     "${var.namespace}CwLogs" = {
+      actions = [
+        "logs:CreateLogStream",
+        "logs:DescribeLogStreams",
+        "logs:CreateLogGroup"
+      ],
+      resources = "arn:aws:logs:${var.region}:${var.account_id}:log-group:*"
+    },
+     "${var.namespace}PutLogs" = {
+      actions = "logs:PutLogEvents",
+      resources = "arn:aws:logs:${var.region}:${var.account_id}:log-group:*:log-stream:*"
+    },
+     "${var.namespace}S3GetDeployObjects" = {
+      actions = "s3:GetObject",
+      resources = "arn:aws:s3:::taquy-deploy/*"
+    },
+     "${var.namespace}S3ListBuckets" = {
+      actions = [
+        "s3:ListBucket",
+        "s3:ListAllMyBuckets"
+      ],
+      resources = "*"
+    },
+     "${var.namespace}S3UpdateObjects" = {
+        actions = [
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:PutObjectAcl"
+        ],
+        resources = [
+          "arn:aws:s3:::taquy-master/*",
+          "arn:aws:s3:::taquy-backup/*"
+        ]
+    }
+  }
+}
+
 resource "aws_iam_policy" "policy" {
   depends_on = [
     module.roles.aws_iam_role.instance_role,
@@ -21,123 +87,21 @@ resource "aws_iam_policy" "policy" {
   description = "Instance policy for ${var.namespace}-vm"
   policy = jsonencode({
     "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "VisualEditor0",
-        "Effect" : "Allow",
-        "Action" : [
-          "ecr:DescribeImageScanFindings",
-          "ecr:GetLifecyclePolicyPreview",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:DescribeImages",
-          "ecr:DescribeRepositories",
-          "ecr:ListTagsForResource",
-          "ecr:ListImages",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetRepositoryPolicy",
-          "ecr:GetLifecyclePolicy"
-        ],
-        "Resource" : "arn:aws:ecr:${var.region}:${var.account_id}:repository/*",
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
+    "Statement" : flatten([
+      for sid, statement in locals.statements : [
+        {
+          "Sid" : sid,
+          "Effect" : "Allow",
+          "Action" : statement.actions,
+          "Resource" : statement.resources,
+          "Condition" : {
+            "IpAddress" : {
+              "aws:SourceIp" : var.source_ip
+            }
           }
         }
-      },
-      {
-        "Sid" : "VisualEditor1",
-        "Effect" : "Allow",
-        "Action" : [
-          "ecr:GetRegistryPolicy",
-          "ecr:DescribeRegistry",
-          "ecr:GetAuthorizationToken"
-        ],
-        "Resource" : "*",
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      },
-      {
-        "Sid" : "VisualEditor2",
-        "Effect" : "Allow",
-        "Action" : [
-          "logs:CreateLogStream",
-          "logs:DescribeLogStreams",
-          "logs:CreateLogGroup"
-        ],
-        "Resource" : "arn:aws:logs:${var.region}:${var.account_id}:log-group:*",
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      },
-      {
-        "Sid" : "VisualEditor3",
-        "Effect" : "Allow",
-        "Action" : "logs:PutLogEvents",
-        "Resource" : "arn:aws:logs:${var.region}:${var.account_id}:log-group:*:log-stream:*"
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      },
-      {
-        "Sid" : "VisualEditor4",
-        "Effect" : "Allow",
-        "Action" : "s3:GetObject",
-        "Resource" : "arn:aws:s3:::taquy-deploy/*",
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      },
-      {
-        "Sid" : "VisualEditor5",
-        "Effect" : "Allow",
-        "Action" : "s3:ListBucket",
-        "Resource" : "*",
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      },
-      {
-        "Sid" : "VisualEditor6",
-        "Effect" : "Allow",
-        "Action" : "s3:ListAllMyBuckets",
-        "Resource" : "*",
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      },
-      {
-        "Sid" : "VisualEditor7",
-        "Effect" : "Allow",
-        "Action" : [
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:PutObjectAcl"
-        ],
-        "Resource" : [
-          "arn:aws:s3:::taquy-master/*",
-          "arn:aws:s3:::taquy-backup/*"
-        ],
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : var.source_ip
-          }
-        }
-      }
-    ]
+      ]
+    ])
   })
 }
 

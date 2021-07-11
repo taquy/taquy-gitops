@@ -1,8 +1,7 @@
 bash plan.sh
 bash apply.sh
 
-openssl genrsa -out /home/qt/.ssh/taquy-vm 2048
-openssl rsa -in /home/qt/.ssh/taquy-vm -outform PEM -pubout -out /home/qt/.ssh/taquy-vm.pub
+ssh-keygen -f /home/qt/.ssh/taquy-vm -N "" -b 2048 -t rsa -q
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

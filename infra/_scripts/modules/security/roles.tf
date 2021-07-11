@@ -8,6 +8,10 @@ module "label" {
   tags        = var.tags
 }
 
+resource "random_id" "sid" {
+  byte_length = 4
+}
+
 resource "aws_iam_role" "instance_role" {
   name = "${var.namespace}-vm"
   assume_role_policy = jsonencode({
@@ -16,7 +20,7 @@ resource "aws_iam_role" "instance_role" {
       {
         Action = "sts:AssumeRole"
         Effect = "Allow"
-        Sid    = ""
+        Sid    = random_id.sid.hex
         Principal = {
           Service = "ec2.amazonaws.com"
         }

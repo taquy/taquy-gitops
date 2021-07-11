@@ -72,7 +72,6 @@ resource "aws_spot_instance_request" "spot_instance" {
   spot_price                  = var.instance.spot_price
   ami                         = var.instance.ami
   instance_type               = var.instance.type
-  associate_public_ip_address = true
   credit_specification {
     cpu_credits = "standard"
   }
@@ -81,7 +80,6 @@ resource "aws_spot_instance_request" "spot_instance" {
   network_interface {
     network_interface_id  = aws_network_interface.eni.id
     device_index          = 0
-    delete_on_termination = true
   }
   user_data = var.instance.user_data != "" ? var.instance.user_data : ""
   volume_tags = merge(module.label.tags, {
