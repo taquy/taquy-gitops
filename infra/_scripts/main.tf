@@ -6,8 +6,20 @@ module "secrets" {
 }
 
 module "network" {
-  source    = "./modules/network"
+  source         = "./modules/network"
   namespace      = var.network.namespace
-  vpc_cidr_block      = var.network.vpc_cidr_block
-  tags      = var.network.tags
+  vpc_cidr_block = var.network.vpc_cidr_block
+  tags           = var.network.tags
+}
+
+module "compute" {
+  source = "./modules/compute"
+  depends_on = [
+    module.network
+  ]
+  vpc_id    = module.network.vpc_id
+  name      = var.compute.name
+  namespace = var.compute.namespace
+  instance  = var.compute.instance
+  tags      = var.compute.tags
 }

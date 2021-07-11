@@ -116,7 +116,7 @@ resource "aws_ec2_managed_prefix_list" "pl_public_subnets" {
 
 # routes
 resource "aws_route" "public_route" {
-  route_table_id              = aws_route_table.public_route_table.id
+  route_table_id             = aws_route_table.public_route_table.id
   destination_prefix_list_id = aws_ec2_managed_prefix_list.pl_public_subnets.id
-  gateway_id = aws_internet_gateway.igw.id
+  gateway_id                 = aws_internet_gateway.igw.id
 }

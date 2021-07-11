@@ -16,7 +16,7 @@ resource "aws_key_pair" "key" {
 resource "aws_security_group" "sg" {
   name        = module.label.id
   description = "Security group for instance ${module.label.id}"
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
   ingress {
     description = "Ingress HTTPS"
     from_port   = 443
@@ -45,7 +45,9 @@ resource "aws_security_group" "sg" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = module.label.id
+  })
 }
 
 resource "aws_network_interface" "eni" {
@@ -53,13 +55,17 @@ resource "aws_network_interface" "eni" {
   security_groups = [
     aws_security_group.sg.id
   ]
-  tags = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = module.label.id
+  })
 }
 
 resource "aws_eip" "eip" {
   vpc               = true
   network_interface = aws_network_interface.eni.id
-  tags              = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = module.label.id
+  })
 }
 
 resource "aws_spot_instance_request" "spot_instance" {
@@ -77,8 +83,13 @@ resource "aws_spot_instance_request" "spot_instance" {
     device_index          = 0
     delete_on_termination = true
   }
-  user_data   = var.instance.user_data != "" ? var.instance.user_data : ""
-  volume_tags = module.label.tags
+  user_data = var.instance.user_data != "" ? var.instance.user_data : ""
+  volume_tags = merge(module.label.tags, {
+    "Name" = module.label.id
+  })
+  tags = merge(module.label.tags, {
+    "Name" = module.label.id
+  })
   root_block_device {
     delete_on_termination = true
     volume_size           = 20

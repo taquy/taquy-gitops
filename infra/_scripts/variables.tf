@@ -14,7 +14,7 @@ variable "secrets" {
 variable "network" {
   description = "Network module parameters"
   type = object({
-    namespace           = string
+    namespace      = string
     vpc_cidr_block = string
     tags           = optional(map(string))
   })
