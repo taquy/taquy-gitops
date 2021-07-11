@@ -32,7 +32,7 @@ locals {
         "arn:aws:ecr:${var.region}:${var.account_id}:repository/*",
       ]
     },
-     "${var.namespace}EcrAuthentication" = {
+    "${var.namespace}EcrAuthentication" = {
       actions = [
         "ecr:GetRegistryPolicy",
         "ecr:DescribeRegistry",
@@ -40,7 +40,7 @@ locals {
       ],
       resources = "*"
     },
-     "${var.namespace}CwLogs" = {
+    "${var.namespace}CwLogs" = {
       actions = [
         "logs:CreateLogStream",
         "logs:DescribeLogStreams",
@@ -48,31 +48,31 @@ locals {
       ],
       resources = "arn:aws:logs:${var.region}:${var.account_id}:log-group:*"
     },
-     "${var.namespace}PutLogs" = {
-      actions = "logs:PutLogEvents",
+    "${var.namespace}PutLogs" = {
+      actions   = "logs:PutLogEvents",
       resources = "arn:aws:logs:${var.region}:${var.account_id}:log-group:*:log-stream:*"
     },
-     "${var.namespace}S3GetDeployObjects" = {
-      actions = "s3:GetObject",
+    "${var.namespace}S3GetDeployObjects" = {
+      actions   = "s3:GetObject",
       resources = "arn:aws:s3:::taquy-deploy/*"
     },
-     "${var.namespace}S3ListBuckets" = {
+    "${var.namespace}S3ListBuckets" = {
       actions = [
         "s3:ListBucket",
         "s3:ListAllMyBuckets"
       ],
       resources = "*"
     },
-     "${var.namespace}S3UpdateObjects" = {
-        actions = [
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:PutObjectAcl"
-        ],
-        resources = [
-          "arn:aws:s3:::taquy-master/*",
-          "arn:aws:s3:::taquy-backup/*"
-        ]
+    "${var.namespace}S3UpdateObjects" = {
+      actions = [
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:PutObjectAcl"
+      ],
+      resources = [
+        "arn:aws:s3:::taquy-master/*",
+        "arn:aws:s3:::taquy-backup/*"
+      ]
     }
   }
 }

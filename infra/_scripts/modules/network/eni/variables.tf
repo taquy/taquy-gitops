@@ -9,7 +9,7 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "vpc_id" {
-  description = "Security group's VPC"
+variable "sg_id" {
+  description = "Network interface's security group"
   type        = string
 }
