@@ -14,9 +14,6 @@ resource "aws_key_pair" "key" {
 }
 
 resource "aws_spot_instance_request" "spot_instance" {
-  depends_on = [
-    module.iam
-  ]
   spot_price    = var.instance.spot_price
   ami           = var.instance.ami
   instance_type = var.instance.type
@@ -26,7 +23,7 @@ resource "aws_spot_instance_request" "spot_instance" {
   iam_instance_profile = var.vm_profile_arn
   key_name             = aws_key_pair.key.key_name
   network_interface {
-    network_interface_id = aws_network_interface.eni.id
+    network_interface_id = var.vm_eni
     device_index         = 0
   }
   user_data = var.instance.user_data != "" ? var.instance.user_data : ""

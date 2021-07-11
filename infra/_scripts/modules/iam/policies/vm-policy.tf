@@ -1,3 +1,15 @@
+data "aws_region" "current_region" {
+
+}
+
+data "aws_caller_identity" "current_identity" {
+  
+}
+
+locals {
+  region = data.aws_region.current_region.name
+  account_id = data.aws_caller_identity.current_identity.account_id
+}
 
 module "label" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
@@ -5,10 +17,6 @@ module "label" {
   delimiter   = "-"
   label_order = ["namespace"]
   tags        = var.tags
-}
-
-module "roles" {
-  source = "../roles"
 }
 
 locals {
@@ -29,7 +37,7 @@ locals {
         "ecr:GetLifecyclePolicy"
       ],
       resources = [
-        "arn:aws:ecr:${var.region}:${var.account_id}:repository/*",
+        "arn:aws:ecr:${local.region}:${local.account_id}:repository/*",
       ]
     },
     "${var.namespace}EcrAuthentication" = {
@@ -46,11 +54,11 @@ locals {
         "logs:DescribeLogStreams",
         "logs:CreateLogGroup"
       ],
-      resources = "arn:aws:logs:${var.region}:${var.account_id}:log-group:*"
+      resources = "arn:aws:logs:${local.region}:${local.account_id}:log-group:*"
     },
     "${var.namespace}PutLogs" = {
       actions   = "logs:PutLogEvents",
-      resources = "arn:aws:logs:${var.region}:${var.account_id}:log-group:*:log-stream:*"
+      resources = "arn:aws:logs:${local.region}:${local.account_id}:log-group:*:log-stream:*"
     },
     "${var.namespace}S3GetDeployObjects" = {
       actions   = "s3:GetObject",
@@ -78,16 +86,13 @@ locals {
 }
 
 resource "aws_iam_policy" "policy" {
-  depends_on = [
-    module.roles.aws_iam_role.instance_role,
-  ]
   name        = "${var.namespace}-vm"
   path        = "/"
   description = "Instance policy for ${var.namespace}-vm"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : flatten([
-      for sid, statement in locals.statements : [
+      for sid, statement in local.statements : [
         {
           "Sid" : sid,
           "Effect" : "Allow",
@@ -107,7 +112,7 @@ resource "aws_iam_policy" "policy" {
 resource "aws_iam_policy_attachment" "policy_attachment" {
   name       = "${var.namespace}-vm"
   users      = []
-  roles      = [module.roles.aws_iam_role.instance_role.name]
+  roles      = [var.vm_role]
   groups     = []
-  policy_arn = policy.policy.arn
+  policy_arn = aws_iam_policy.policy.arn
 }

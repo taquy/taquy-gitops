@@ -38,7 +38,6 @@ module "rt" {
   public_subnet_2b  = module.subnets.public_subnet_2b
 }
 
-
 module "sg" {
   source    = "./sg"
   namespace = var.namespace

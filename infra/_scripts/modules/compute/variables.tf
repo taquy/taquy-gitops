@@ -14,6 +14,11 @@ variable "vm_profile_arn" {
   type        = string
 }
 
+variable "vm_eni" {
+  description = "VM's elastic network interface id"
+  type        = string
+}
+
 variable "name" {
   description = "Name of ec2 stacks"
   type        = string

@@ -17,9 +17,10 @@ module "iam" {
     module.network
   ]
   namespace = var.network.namespace
-  source_ip = concat(var.my_ip, var.network.source_ip, [
-    module.network.vm_public_ip
-  ])
+  source_ip = [
+    module.network.vm_public_ip,
+    var.my_ip
+  ]
   tags = var.network.tags
 }
 
@@ -34,5 +35,6 @@ module "compute" {
   instance       = var.compute.instance
   vm_profile_arn = module.iam.vm_profile_arn
   tags           = var.compute.tags
+  vm_eni     = module.network.vm_eni
 }
 

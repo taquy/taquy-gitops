@@ -18,7 +18,7 @@ resource "aws_network_interface" "vm_eni" {
 
 resource "aws_eip" "vm_eip" {
   depends_on = [
-    aws_network_interface.eni
+    aws_network_interface.vm_eni
   ]
   vpc               = true
   network_interface = aws_network_interface.vm_eni.id
