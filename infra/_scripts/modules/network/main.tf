@@ -55,12 +55,16 @@ resource "aws_internet_gateway" "igw" {
 # route tables
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.vpc.id
-  tags = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = "${var.namespace}-private-rt"
+  })
 }
 
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.vpc.id
-  tags = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = "${var.namespace}-public-rt"
+  })
 }
 
 # route table associations
@@ -97,7 +101,9 @@ resource "aws_ec2_managed_prefix_list" "pl_public_subnets" {
     cidr        = cidrsubnet(aws_vpc.vpc.cidr_block, 8, 4)
     description = "Public subnet 2b"
   }
-  tags = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = "${var.namespace}-public-pl"
+  })
 }
 
 # routes
