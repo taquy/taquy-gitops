@@ -1,9 +1,3 @@
-
-variable "namespace" {
-  description = "Namespace of resources"
-  type        = string
-}
-
 variable "secrets" {
   description = "Secret manager module parameters"
   type = object({
@@ -21,7 +15,9 @@ variable "ec2" {
   type = object({
     name = string
     namespace = string
+    region = string
     key_path = string
+    tags        = optional(map(string))
     instance = object({
       spot_price = string
       ami = string

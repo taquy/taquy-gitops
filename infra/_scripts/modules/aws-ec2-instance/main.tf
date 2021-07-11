@@ -83,7 +83,7 @@ resource "aws_spot_instance_request" "spot_instance" {
   credit_specification {
     cpu_credits = "standard"
   }
-  iam_instance_profile  = ""
+  # iam_instance_profile  = ""
   key_name = aws_key_pair.key_name
   network_interface {
     network_interface_id = aws_network_interface.eni.id

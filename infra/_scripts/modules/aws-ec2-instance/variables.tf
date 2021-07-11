@@ -1,4 +1,9 @@
 
+variable "tags" {
+  description = "Tags for resources"
+  type = map(string)
+}
+
 variable "region" {
   description = "Region of resources"
   type        = string
