@@ -1,3 +1,4 @@
+
 variable "namespace" {
   description = "Namespace of resources"
   type        = string
@@ -8,7 +9,7 @@ variable "tags" {
   type        = string
 }
 
-variable "source_ip" {
-  description = "Source IPs"
+variable "vpc_id" {
+  description = "Security group's VPC"
   type        = string
 }

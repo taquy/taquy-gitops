@@ -13,10 +13,6 @@ resource "aws_key_pair" "key" {
   public_key = file(var.key_path)
 }
 
-module "iam" {
-  source = "../iam"
-}
-
 resource "aws_spot_instance_request" "spot_instance" {
   depends_on = [
     module.iam
@@ -27,7 +23,7 @@ resource "aws_spot_instance_request" "spot_instance" {
   credit_specification {
     cpu_credits = "standard"
   }
-  iam_instance_profile  = module.iam.vm_profile_arn
+  iam_instance_profile  = var.vm_profile_arn
   key_name = aws_key_pair.key.key_name
   network_interface {
     network_interface_id  = aws_network_interface.eni.id

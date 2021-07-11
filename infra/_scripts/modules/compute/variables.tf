@@ -9,18 +9,13 @@ variable "namespace" {
   type        = string
 }
 
+variable "vm_profile_arn" {
+  description = "Instance profile role arn"
+  type        = string
+}
+
 variable "name" {
   description = "Name of ec2 stacks"
-  type        = string
-}
-
-variable "vpc_id" {
-  description = "EC2 VPC ID"
-  type        = string
-}
-
-variable "subnet_id" {
-  description = "EC2 Subnet ID"
   type        = string
 }
 

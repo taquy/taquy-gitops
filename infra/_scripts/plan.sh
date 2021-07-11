@@ -13,5 +13,5 @@ echo "My current IP is $MY_IP"
 
 terraform workspace select taquy &&
 	terraform init &&
-	terraform plan --out tf.plan --var-file=taquy.tfvars &&
-	-var 'my_ip=$MY_IP'
+	terraform plan --out tf.plan --var-file=taquy.tfvars -var 'my_ip=$MY_IP'
+	
