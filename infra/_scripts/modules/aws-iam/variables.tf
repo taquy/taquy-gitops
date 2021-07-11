@@ -1,9 +1,3 @@
-
-variable "region" {
-  description = "Region of resources"
-  type        = string
-}
-
 variable "namespace" {
   description = "Namespace of resources"
   type        = string

@@ -2,14 +2,10 @@ module "label" {
   source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   namespace = var.namespace
   name      = var.name
-
   delimiter = "-"
-
   label_order = ["namespace", "name"]
-
   tags = var.tags
 }
-
 
 resource "aws_key_pair" "key" {
   key_name   = module.label.id
@@ -24,7 +20,7 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "subnet" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.0.0/24"
-  availability_zone = "ap-southeast-1"
+  availability_zone = var.region
   tags = module.label.tags
 }
 
@@ -34,7 +30,7 @@ resource "aws_security_group" "sg" {
   vpc_id      = aws_vpc.vpc.id
   ingress {
     description      = "Ingress HTTPS"
-    from_port        = 22
+    from_port        = 443
     to_port          = 443
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
