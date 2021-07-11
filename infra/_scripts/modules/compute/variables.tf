@@ -4,11 +4,6 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "region" {
-  description = "Region of resources"
-  type        = string
-}
-
 variable "namespace" {
   description = "Namespace of resources"
   type        = string
@@ -16,6 +11,11 @@ variable "namespace" {
 
 variable "name" {
   description = "Name of ec2 stacks"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "EC2 VPC ID"
   type        = string
 }
 

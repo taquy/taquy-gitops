@@ -15,7 +15,9 @@ resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_support   = true
   enable_dns_hostnames = true
-  tags                 = module.label.tags
+  tags = merge(module.label.tags, {
+    "Name" = var.namespace
+  })
 }
 
 resource "aws_subnet" "private_subnet_1a" {

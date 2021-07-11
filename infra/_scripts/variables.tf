@@ -20,20 +20,19 @@ variable "network" {
   })
 }
 
-
-# variable "compute" {
-#   description = "compute module parameters"
-#   type = object({
-#     name = string
-#     namespace = string
-#     region = string
-#     key_path = string
-#     tags        = optional(map(string))
-#     instance = object({
-#       spot_price = string
-#       ami = string
-#       type = string
-#       user_data = optional(string)
-#     })
-#   })
-# }
+variable "compute" {
+  description = "compute module parameters"
+  type = object({
+    name      = string
+    namespace = string
+    region    = string
+    key_path  = string
+    tags      = optional(map(string))
+    instance = object({
+      spot_price = string
+      ami        = string
+      type       = string
+      user_data  = optional(string)
+    })
+  })
+}

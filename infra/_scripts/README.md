@@ -34,6 +34,7 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_compute"></a> [compute](#input\_compute) | compute module parameters | <pre>object({<br>    name      = string<br>    namespace = string<br>    region    = string<br>    key_path  = string<br>    tags      = optional(map(string))<br>    instance = object({<br>      spot_price = string<br>      ami        = string<br>      type       = string<br>      user_data  = optional(string)<br>    })<br>  })</pre> | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Network module parameters | <pre>object({<br>    namespace      = string<br>    vpc_cidr_block = string<br>    tags           = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | Secret manager module parameters | <pre>object({<br>    namespace = string<br>    secrets = map(object({<br>      description = optional(string)<br>      data_path   = optional(string)<br>      data_value  = optional(string)<br>      tags        = optional(map(string))<br>    }))<br>  })</pre> | n/a | yes |
 
