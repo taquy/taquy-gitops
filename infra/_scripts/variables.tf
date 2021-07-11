@@ -1,3 +1,7 @@
+
+variable my_ip {
+  description 
+}
 variable "secrets" {
   description = "Secret manager module parameters"
   type = object({
@@ -36,3 +40,13 @@ variable "compute" {
     })
   })
 }
+
+variable "iam" {
+  description = "iam module parameters"
+  type = object({
+    namespace      = string
+    source_ip      = optional(map(string))
+    tags           = optional(map(string))
+  })
+}
+

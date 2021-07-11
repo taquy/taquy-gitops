@@ -98,27 +98,9 @@ resource "aws_route_table_association" "rt_public_subnet_2b" {
   route_table_id = aws_route_table.public_route_table.id
 }
 
-# prefix list
-resource "aws_ec2_managed_prefix_list" "pl_public_subnets" {
-  name           = module.label.id
-  address_family = "IPv4"
-  max_entries    = 2
-  entry {
-    cidr        = cidrsubnet(aws_vpc.vpc.cidr_block, 8, 2)
-    description = "Public subnet 2a"
-  }
-  entry {
-    cidr        = cidrsubnet(aws_vpc.vpc.cidr_block, 8, 4)
-    description = "Public subnet 2b"
-  }
-  tags = merge(module.label.tags, {
-    "Name" = "${var.namespace}-public-pl"
-  })
-}
-
 # routes
 resource "aws_route" "public_route" {
   route_table_id             = aws_route_table.public_route_table.id
-  destination_prefix_list_id = aws_ec2_managed_prefix_list.pl_public_subnets.id
+  destination_cidr_block    = "0.0.0.0/0"
   gateway_id                 = aws_internet_gateway.igw.id
 }

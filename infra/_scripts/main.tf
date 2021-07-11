@@ -25,3 +25,13 @@ module "compute" {
   instance  = var.compute.instance
   tags      = var.compute.tags
 }
+
+
+module "iam" {
+  source         = "./modules/iam"
+  namespace      = var.network.namespace
+  source_ip      = concat(var.my_ip, var.network.source_ip, [
+    module.compute.
+  ])
+  tags           = var.network.tags
+}
