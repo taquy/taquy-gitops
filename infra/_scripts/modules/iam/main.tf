@@ -18,9 +18,13 @@ module "label" {
   tags        = var.tags
 }
 
+locals {
+  instance_role_name = "${module.label.id}-instance"
+}
+
 # define roles
 resource "aws_iam_role" "vm_role" {
-  name = module.label.id
+  name = local.instance_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -38,15 +42,16 @@ resource "aws_iam_role" "vm_role" {
 }
 
 resource "aws_iam_instance_profile" "vm_profile" {
-  name = module.label.id
+  name = local.instance_role_name
   role = aws_iam_role.vm_role.name
 }
 
 # define policies
-module "vm_policy" {
+module "policy" {
   source    = "./policies"
   namespace = var.namespace
-  name = module.label.id
   source_ip = var.source_ip
-  vm_role = aws_iam_role.vm_role.name
+  roles = {
+    instance_role_name = aws_iam_role.vm_role.name
+  }
 }

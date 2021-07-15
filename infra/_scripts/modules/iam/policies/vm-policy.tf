@@ -78,9 +78,9 @@ locals {
 }
 
 resource "aws_iam_policy" "policy" {
-  name        = var.name
+  name        = var.roles.instance_role_name
   path        = "/"
-  description = "Instance policy for ${var.name}"
+  description = "Instance policy for ${var.roles.instance_role_name}"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : flatten([
@@ -102,9 +102,9 @@ resource "aws_iam_policy" "policy" {
 }
 
 resource "aws_iam_policy_attachment" "policy_attachment" {
-  name       = var.name
+  name       = var.roles.instance_role_name
   users      = []
-  roles      = [var.vm_role]
+  roles      = [var.roles.instance_role_name]
   groups     = []
   policy_arn = aws_iam_policy.policy.arn
 }
