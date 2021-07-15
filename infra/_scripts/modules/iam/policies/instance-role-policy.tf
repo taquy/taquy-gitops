@@ -7,6 +7,8 @@ data "aws_caller_identity" "current_identity" {
 }
 
 locals {
+  role_name = var.roles.instance_role.name
+  role_arn = var.roles.instance_role.arn
   region = data.aws_region.current_region.name
   account_id = data.aws_caller_identity.current_identity.account_id
 }
@@ -78,9 +80,9 @@ locals {
 }
 
 resource "aws_iam_policy" "policy" {
-  name        = var.roles.instance_role_name
+  name        = local.role_name
   path        = "/"
-  description = "Instance policy for ${var.roles.instance_role_name}"
+  description = "Instance policy for ${local.role_name}"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : flatten([
@@ -102,9 +104,9 @@ resource "aws_iam_policy" "policy" {
 }
 
 resource "aws_iam_policy_attachment" "policy_attachment" {
-  name       = var.roles.instance_role_name
+  name       = local.role_name
   users      = []
-  roles      = [var.roles.instance_role_name]
+  roles      = [local.role_name]
   groups     = []
   policy_arn = aws_iam_policy.policy.arn
 }

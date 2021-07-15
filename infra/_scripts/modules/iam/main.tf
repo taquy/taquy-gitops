@@ -19,12 +19,14 @@ module "label" {
 }
 
 locals {
-  instance_role_name = "${module.label.id}-instance"
+  instance_role = "${module.label.id}-instance"
+  jenkins_node_sa = "${module.label.id}-jenkins-node"
+  jenkins_job_role = "${module.label.id}-jenkins-job"
 }
 
 # define roles
-resource "aws_iam_role" "vm_role" {
-  name = local.instance_role_name
+resource "aws_iam_role" "instance_role" {
+  name = local.instance_role
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -41,9 +43,35 @@ resource "aws_iam_role" "vm_role" {
   tags = module.label.tags
 }
 
-resource "aws_iam_instance_profile" "vm_profile" {
-  name = local.instance_role_name
+resource "aws_iam_instance_profile" "instance_profile" {
+  name = local.instance_role
   role = aws_iam_role.vm_role.name
+}
+
+# define jenkins user
+resource "aws_iam_user" "jenkins_node_user" {
+  name = local.jenkins_node_user_name
+  path = "/"
+  tags = module.label.tags
+}
+
+# define jenkins job role
+resource "aws_iam_role" "jenkins_job_role" {
+  name = local.jenkins_job_role
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = random_id.sid.hex
+        Principal = {
+          AWS = "${aws_iam_user.jenkins_node_user.arn}"
+        }
+      },
+    ]
+  })
+  tags = module.label.tags
 }
 
 # define policies
@@ -51,7 +79,22 @@ module "policy" {
   source    = "./policies"
   namespace = var.namespace
   source_ip = var.source_ip
+  
+  users = {
+    # jenkins node user is allowed to assume jenkins job role
+    jenkins_node_user = {
+      name = aws_iam_user.jenkins_node_user.name
+      arn = aws_iam_user.jenkins_node_user.arn
+    }
+  }
   roles = {
-    instance_role_name = aws_iam_role.vm_role.name
+    instance_role = {
+      name = aws_iam_role.instance_role.name
+      arn = aws_iam_role.instance_role.arn
+    }
+    jenkins_job_role = {
+      name = aws_iam_role.jenkins_job_role.name
+      arn = aws_iam_role.jenkins_job_role.arn
+    }
   }
 }
