@@ -15,45 +15,19 @@ locals {
   role_name = var.users.jenkins_node_user.name
   source_ip = var.source_ip
   statements = {
-    "${var.namespace}EcrReadImages" = {
+    "${var.namespace}AssumeRole" = {
       actions = [
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecr:DescribeImages",
-        "ecr:DescribeRepositories",
-        "ecr:ListImages",
+        "sts:AssumeRole",
       ],
       resources = [
-        "arn:aws:ecr:${local.region}:${local.account_id}:repository/node",
+        var.roles.jenkins_job_role.arn,
       ]
     },
-    "${var.namespace}EcrPushImages" = {
+    "${var.namespace}GetSessionToken" = {
       actions = [
-        "ecr:CompleteLayerUpload",
-        "ecr:UploadLayerPart",
-        "ecr:InitiateLayerUpload",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:PutImage"
+        "sts:GetSessionToken",
+        "sts:GetCallerIdentity"
       ],
-      resources = [
-        "arn:aws:ecr:${local.region}:${local.account_id}:repository/taquy-api",
-      ]
-    },
-    "${var.namespace}EcrAuthentication" = {
-      actions = [
-        "ecr:GetAuthorizationToken"
-      ],
-      resources = "*"
-    },
-    "${var.namespace}GetSecrets" = {
-      actions = [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:ListSecrets"
-      ],
-      resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:*"
-    },
-    "${var.namespace}GetIdentity" = {
-      actions   = "sts:GetCallerIdentity",
       resources = "*"
     },
   }
@@ -85,7 +59,7 @@ resource "aws_iam_policy" "policy" {
 
 resource "aws_iam_policy_attachment" "policy_attachment" {
   name       = local.role_name
-  users      = [local.role_name]
+  users      = [var.users.jenkins_node_user.name]
   roles      = []
   groups     = []
   policy_arn = aws_iam_policy.policy.arn
