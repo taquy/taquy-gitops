@@ -9,10 +9,10 @@ data "aws_caller_identity" "current_identity" {
 locals {
   region = data.aws_region.current_region.name
   account_id = data.aws_caller_identity.current_identity.account_id
-}
 
-locals {
-  role_name = var.users.jenkins_node_user.name
+  role_name = var.roles.jenkins_job_role.name
+  role_arn = var.roles.jenkins_job_role.role_arn
+  
   source_ip = var.source_ip
   statements = {
     "${var.namespace}EcrReadImages" = {
