@@ -14,5 +14,5 @@ output "public_subnet_1a" {
 }
 output "public_subnet_2b" {
   description = "Public subnet AZ #2"
-  value       = aws_subnet.private_subnet_1a.id
+  value       = aws_subnet.public_subnet_2b.id
 }

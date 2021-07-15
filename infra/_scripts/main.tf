@@ -24,17 +24,16 @@ module "iam" {
   tags = var.network.tags
 }
 
-module "compute" {
-  source = "./modules/compute"
-  depends_on = [
-    module.iam
-  ]
-  name           = var.compute.name
-  namespace      = var.compute.namespace
-  key_path       = var.compute.key_path
-  instance       = var.compute.instance
-  vm_profile_arn = module.iam.vm_profile_arn
-  tags           = var.compute.tags
-  vm_eni     = module.network.vm_eni
-}
-
+# module "compute" {
+#   source = "./modules/compute"
+#   depends_on = [
+#     module.iam
+#   ]
+#   name           = var.compute.name
+#   namespace      = var.compute.namespace
+#   key_path       = var.compute.key_path
+#   instance       = var.compute.instance
+#   vm_profile_arn = module.iam.vm_profile_arn
+#   tags           = var.compute.tags
+#   vm_eni     = module.network.vm_eni
+# }

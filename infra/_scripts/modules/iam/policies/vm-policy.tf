@@ -11,14 +11,6 @@ locals {
   account_id = data.aws_caller_identity.current_identity.account_id
 }
 
-module "label" {
-  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
-  namespace   = var.namespace
-  delimiter   = "-"
-  label_order = ["namespace"]
-  tags        = var.tags
-}
-
 locals {
   source_ip = var.source_ip
   statements = {
@@ -86,9 +78,9 @@ locals {
 }
 
 resource "aws_iam_policy" "policy" {
-  name        = "${var.namespace}-vm"
+  name        = var.name
   path        = "/"
-  description = "Instance policy for ${var.namespace}-vm"
+  description = "Instance policy for ${var.name}"
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : flatten([
@@ -110,7 +102,7 @@ resource "aws_iam_policy" "policy" {
 }
 
 resource "aws_iam_policy_attachment" "policy_attachment" {
-  name       = "${var.namespace}-vm"
+  name       = var.name
   users      = []
   roles      = [var.vm_role]
   groups     = []

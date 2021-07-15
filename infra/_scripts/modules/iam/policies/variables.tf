@@ -4,9 +4,9 @@ variable "namespace" {
   type        = string
 }
 
-variable "tags" {
-  description = "Resource tags"
-  type        = map(string)
+variable "name" {
+  description = "Name of resources"
+  type        = string
 }
 
 variable "source_ip" {
