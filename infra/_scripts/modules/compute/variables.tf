@@ -9,7 +9,7 @@ variable "namespace" {
   type        = string
 }
 
-variable "vm_profile_arn" {
+variable "instance_profile_arn" {
   description = "Instance profile role arn"
   type        = string
 }

@@ -33,7 +33,7 @@ module "iam" {
 #   namespace      = var.compute.namespace
 #   key_path       = var.compute.key_path
 #   instance       = var.compute.instance
-#   vm_profile_arn = module.iam.vm_profile_arn
+#   instance_profile_arn = module.iam.instance_profile_arn
 #   tags           = var.compute.tags
 #   vm_eni     = module.network.vm_eni
 # }

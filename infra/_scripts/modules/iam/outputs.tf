@@ -1,5 +1,5 @@
-output "vm_profile_arn" {
+output "instance_profile_arn" {
   description = "Instance profile role arn"
-  value       = aws_iam_instance_profile.vm_profile.arn
+  value       = aws_iam_instance_profile.instance_profile.arn
 }
 

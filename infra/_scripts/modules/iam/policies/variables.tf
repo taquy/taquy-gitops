@@ -9,7 +9,7 @@ variable "source_ip" {
   type        = list(string)
 }
 
-variable "roles" {
+variable "identities" {
   description = "policies's role name"
-  type        = map(string)
+  type        = any
 }
