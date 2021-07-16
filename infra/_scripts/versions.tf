@@ -6,6 +6,8 @@ provider "aws" {
   skip_requesting_account_id  = false
 }
 
+provider "random" {
+}
 terraform {
   backend "s3" {
     bucket     = "taquy-tfstate"
@@ -22,8 +24,8 @@ terraform {
       version = "~> 3.27"
     }
     random = {
-      source  = "hashicorp/random"
-      version = "~> 3.1.0"
+      source = "hashicorp/random"
+      version = "3.1.0"
     }
     template = {
       source  = "hashicorp/template"
