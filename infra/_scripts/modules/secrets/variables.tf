@@ -12,3 +12,16 @@ variable "namespace" {
   description = "Namespace of resources"
   type        = string
 }
+
+
+variable "trusted_identities" {
+  description = "Trusted principals"
+  type        = list(string)
+}
+
+variable "source_ip" {
+  description = "Source IPs"
+  type        = list(string)
+}
+
+

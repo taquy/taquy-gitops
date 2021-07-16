@@ -36,21 +36,13 @@ resource "aws_secretsmanager_secret_policy" "secret_policy" {
         {
           "Effect": "Allow",
           "Principal": {
-            "AWS": [
-              "arn:aws:iam::397818416365:role/taquy-jenkins",
-              "arn:aws:iam::397818416365:user/admin"
-            ]
+            "AWS": ${var.trusted_identities}
           },
           "Action": "secretsmanager:GetSecretValue",
           "Resource": "arn:aws:secretsmanager:ap-southeast-1:397818416365:secret:*",
            "Condition": {
                 "IpAddress": {
-                    "aws:SourceIp": [
-                      "113.161.105.75",
-                      "118.71.244.0/24",
-                      "171.229.169.0/24",
-                      "1.54.208.0/24"
-                    ]
+                    "aws:SourceIp": ${var.source_ip}
                 }
             }
         }

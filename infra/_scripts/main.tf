@@ -1,10 +1,4 @@
 
-module "secrets" {
-  source    = "./modules/secrets"
-  namespace = var.secrets.namespace
-  secrets   = var.secrets.secrets
-}
-
 module "network" {
   source         = "./modules/network"
   namespace      = var.network.namespace
@@ -23,6 +17,20 @@ module "iam" {
   ]
   pgp_key = var.pgp_key
   tags = var.network.tags
+}
+
+module "secrets" {
+  source    = "./modules/secrets"
+  namespace = var.secrets.namespace
+  secrets   = var.secrets.secrets
+  source_ip = [
+    module.network.vm_public_ip,
+    var.my_ip
+  ]
+  trusted_identities = [
+    module.iam.instance_role_arn,
+    module.iam.jenkins_node_role_arn,
+  ]
 }
 
 # module "compute" {

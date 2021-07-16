@@ -24,11 +24,16 @@ gpg --batch --yes --delete-key "$MAINTAINER_EMAIL"
 yes | gpg --pinentry-mode loopback --trust-model always --passphrase "$GPG_PASSWORD" --quick-gen-key "$MAINTAINER_USERNAME <$MAINTAINER_EMAIL>"
 
 # store public key in variable
-GPG_PUBLIC_KEY=$(gpg -a --export $MAINTAINER_EMAIL)
+PGP_KEY_FILE="pgp-public-key.txt"
+gpg -a --export $MAINTAINER_EMAIL > $PGP_KEY_FILE
+sed -i -e '1,3d' $PGP_KEY_FILE
+sed -i '$ d' $PGP_KEY_FILE
+PGP_PUBLIC_KEY=$(cat $PGP_KEY_FILE)
+rm $PGP_KEY_FILE
 
 MY_IP=$(curl checkip.amazonaws.com)
 echo "My current IP is $MY_IP"
 
 terraform workspace select taquy &&
 	terraform init &&
-	terraform plan --out tf.plan --var-file=taquy.tfvars -var "my_ip=$MY_IP" -var "pgp_key=$GPG_PUBLIC_KEY"
+	terraform plan --out tf.plan --var-file=taquy.tfvars -var "my_ip=$MY_IP" -var "pgp_key=$PGP_PUBLIC_KEY"
