@@ -44,7 +44,7 @@ resource "aws_iam_role" "instance_role" {
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = local.instance_role
+  name = "${local.instance_role}-profile"
   role = aws_iam_role.instance_role.name
 }
 
@@ -53,6 +53,11 @@ resource "aws_iam_user" "jenkins_node_user" {
   name = local.jenkins_node_user
   path = "/"
   tags = module.label.tags
+}
+
+resource "aws_iam_access_key" "jenkins_node_user_key" {
+  user = aws_iam_user.jenkins_node_user.name
+  pgp_key = var.pgp_key
 }
 
 # define jenkins job role
@@ -66,7 +71,7 @@ resource "aws_iam_role" "jenkins_job_role" {
         Effect = "Allow"
         Sid    = random_id.sid.hex
         Principal = {
-          AWS = "${aws_iam_user.jenkins_node_user.arn}"
+          AWS = aws_iam_user.jenkins_node_user.arn
         }
       },
     ]
@@ -92,8 +97,8 @@ module "policy" {
       name = aws_iam_role.instance_role.name
       arn = aws_iam_role.instance_role.arn
       users = []
-      groups = [aws_iam_role.instance_role.name]
-      roles = []
+      groups = []
+      roles = [aws_iam_role.instance_role.name]
     }
     jenkins_job = {
       name = aws_iam_role.jenkins_job_role.name

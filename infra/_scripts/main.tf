@@ -21,6 +21,7 @@ module "iam" {
     module.network.vm_public_ip,
     var.my_ip
   ]
+  pgp_key = var.pgp_key
   tags = var.network.tags
 }
 

@@ -3,6 +3,11 @@ variable "namespace" {
   type        = string
 }
 
+variable "pgp_key" {
+  description = "PGP base64 encoded public key"
+  type        = string
+}
+
 variable "tags" {
   description = "Resources tags"
   type        = map(string)
