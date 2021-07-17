@@ -17,7 +17,9 @@ resource "aws_secretsmanager_secret" "secret" {
 
   name        = module.label[each.key].id
   description = each.value.description
-  tags        = module.label[each.key].tags
+  tags = merge(module.label[each.key].tags, {
+    project = var.namespace
+  })
 }
 
 resource "aws_secretsmanager_secret_version" "secret_version" {
@@ -29,24 +31,22 @@ resource "aws_secretsmanager_secret_version" "secret_version" {
 resource "aws_secretsmanager_secret_policy" "secret_policy" {
   for_each   = var.secrets
   secret_arn = aws_secretsmanager_secret.secret[each.key].arn
-  policy     = <<POLICY
-    {
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Effect": "Allow",
-          "Principal": {
-            "AWS": ${var.trusted_identities}
-          },
-          "Action": "secretsmanager:GetSecretValue",
-          "Resource": "arn:aws:secretsmanager:ap-southeast-1:397818416365:secret:*",
-           "Condition": {
-                "IpAddress": {
-                    "aws:SourceIp": ${var.source_ip}
-                }
-            }
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : var.trusted_identities
+        },
+        "Action" : "secretsmanager:GetSecretValue",
+        "Resource" : "arn:aws:secretsmanager:ap-southeast-1:397818416365:secret:*",
+        "Condition" : {
+          "IpAddress" : {
+            "aws:SourceIp" : var.source_ip
+          }
         }
-      ]
-    }
-  POLICY
+      }
+    ]
+  })
 }

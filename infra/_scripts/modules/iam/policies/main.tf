@@ -3,13 +3,13 @@ data "aws_region" "current_region" {
 }
 
 data "aws_caller_identity" "current_identity" {
-  
+
 }
 
 locals {
-  region = data.aws_region.current_region.name
+  region     = data.aws_region.current_region.name
   account_id = data.aws_caller_identity.current_identity.account_id
-  source_ip = var.source_ip
+  source_ip  = var.source_ip
   policies = {
     jenkins_node = {
       "${var.namespace}AssumeRole" = {
@@ -168,6 +168,6 @@ resource "aws_iam_policy_attachment" "policy_attachment" {
   name       = var.identities[each.key].name
   users      = var.identities[each.key].users != [] ? var.identities[each.key].users : []
   roles      = var.identities[each.key].roles != [] ? var.identities[each.key].roles : []
-  groups      = var.identities[each.key].groups != [] ? var.identities[each.key].groups : []
+  groups     = var.identities[each.key].groups != [] ? var.identities[each.key].groups : []
   policy_arn = aws_iam_policy.policy[each.key].arn
 }

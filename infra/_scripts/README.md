@@ -12,7 +12,7 @@ ssh-keygen -f /home/qt/.ssh/taquy-vm -N "" -b 2048 -t rsa -q
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.27 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | ~> 1.3 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 2.0 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.1.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | 3.1.0 |
 | <a name="requirement_template"></a> [template](#requirement\_template) | ~> 2.0 |
 
 ## Providers
@@ -40,12 +40,14 @@ No resources.
 | <a name="input_iam"></a> [iam](#input\_iam) | iam module parameters | <pre>object({<br>    namespace = string<br>    source_ip = optional(map(string))<br>    tags      = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_my_ip"></a> [my\_ip](#input\_my\_ip) | Current deployer source IP | `string` | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Network module parameters | <pre>object({<br>    namespace      = string<br>    vpc_cidr_block = string<br>    tags           = optional(map(string))<br>  })</pre> | n/a | yes |
+| <a name="input_pgp_key"></a> [pgp\_key](#input\_pgp\_key) | PGP base64 encoded public key | `string` | n/a | yes |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | Secret manager module parameters | <pre>object({<br>    namespace = string<br>    secrets = map(object({<br>      description = optional(string)<br>      data_path   = optional(string)<br>      data_value  = optional(string)<br>      tags        = optional(map(string))<br>    }))<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| <a name="output_jenkins_node_user_key"></a> [jenkins\_node\_user\_key](#output\_jenkins\_node\_user\_key) | n/a |
 | <a name="output_secret"></a> [secret](#output\_secret) | n/a |
 | <a name="output_secret_version"></a> [secret\_version](#output\_secret\_version) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

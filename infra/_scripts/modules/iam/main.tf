@@ -3,25 +3,25 @@ resource "random_id" "sid" {
   byte_length = 4
 }
 resource "random_string" "name" {
-  length           = 6
-  special          = false
-  number = false
-  upper = false
-  lower = true
+  length  = 6
+  special = false
+  number  = false
+  upper   = false
+  lower   = true
 }
 module "label" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   namespace   = var.namespace
-  name = random_string.name.result
+  name        = random_string.name.result
   delimiter   = "-"
   label_order = ["namespace", "name"]
   tags        = var.tags
 }
 
 locals {
-  instance_role = "${module.label.id}-instance"
+  instance_role     = "${module.label.id}-instance"
   jenkins_node_user = "${module.label.id}-jenkins-node"
-  jenkins_job_role = "${module.label.id}-jenkins-job"
+  jenkins_job_role  = "${module.label.id}-jenkins-job"
 }
 
 # define roles
@@ -56,7 +56,7 @@ resource "aws_iam_user" "jenkins_node_user" {
 }
 
 resource "aws_iam_access_key" "jenkins_node_user_key" {
-  user = aws_iam_user.jenkins_node_user.name
+  user    = aws_iam_user.jenkins_node_user.name
   pgp_key = var.pgp_key
 }
 
@@ -84,28 +84,28 @@ module "policy" {
   source    = "./policies"
   namespace = var.namespace
   source_ip = var.source_ip
-  
+
   identities = {
     jenkins_node = {
-      name = aws_iam_user.jenkins_node_user.name
-      arn = aws_iam_user.jenkins_node_user.arn
-      users = [aws_iam_user.jenkins_node_user.name]
+      name   = aws_iam_user.jenkins_node_user.name
+      arn    = aws_iam_user.jenkins_node_user.arn
+      users  = [aws_iam_user.jenkins_node_user.name]
       groups = []
-      roles = []
+      roles  = []
     }
     instance = {
-      name = aws_iam_role.instance_role.name
-      arn = aws_iam_role.instance_role.arn
-      users = []
+      name   = aws_iam_role.instance_role.name
+      arn    = aws_iam_role.instance_role.arn
+      users  = []
       groups = []
-      roles = [aws_iam_role.instance_role.name]
+      roles  = [aws_iam_role.instance_role.name]
     }
     jenkins_job = {
-      name = aws_iam_role.jenkins_job_role.name
-      arn = aws_iam_role.jenkins_job_role.arn
-      users = []
+      name   = aws_iam_role.jenkins_job_role.name
+      arn    = aws_iam_role.jenkins_job_role.arn
+      users  = []
       groups = []
-      roles = [aws_iam_role.jenkins_job_role.name]
+      roles  = [aws_iam_role.jenkins_job_role.name]
     }
   }
 }

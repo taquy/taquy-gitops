@@ -24,12 +24,7 @@ gpg --batch --yes --delete-key "$MAINTAINER_EMAIL"
 yes | gpg --pinentry-mode loopback --trust-model always --passphrase "$GPG_PASSWORD" --quick-gen-key "$MAINTAINER_USERNAME <$MAINTAINER_EMAIL>"
 
 # store public key in variable
-PGP_KEY_FILE="pgp-public-key.txt"
-gpg -a --export $MAINTAINER_EMAIL > $PGP_KEY_FILE
-sed -i -e '1,3d' $PGP_KEY_FILE
-sed -i '$ d' $PGP_KEY_FILE
-PGP_PUBLIC_KEY=$(cat $PGP_KEY_FILE)
-rm $PGP_KEY_FILE
+PGP_PUBLIC_KEY=$(gpg --export $MAINTAINER_EMAIL | base64)
 
 MY_IP=$(curl checkip.amazonaws.com)
 echo "My current IP is $MY_IP"

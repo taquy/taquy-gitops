@@ -34,6 +34,8 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace of resources | `string` | n/a | yes |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets | <pre>map(object({<br>    description = optional(string)<br>    data_path   = optional(string)<br>    data_value  = optional(string)<br>    tags        = optional(map(string))<br>  }))</pre> | n/a | yes |
+| <a name="input_source_ip"></a> [source\_ip](#input\_source\_ip) | Source IPs | `list(string)` | n/a | yes |
+| <a name="input_trusted_identities"></a> [trusted\_identities](#input\_trusted\_identities) | Trusted principals | `list(string)` | n/a | yes |
 
 ## Outputs
 

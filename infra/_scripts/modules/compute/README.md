@@ -32,11 +32,12 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_instance"></a> [instance](#input\_instance) | Spot instance configuration | <pre>object({<br>    spot_price = string<br>    ami        = string<br>    type       = string<br>    user_data  = optional(string)<br>  })</pre> | n/a | yes |
+| <a name="input_instance_profile_arn"></a> [instance\_profile\_arn](#input\_instance\_profile\_arn) | Instance profile role arn | `string` | n/a | yes |
 | <a name="input_key_path"></a> [key\_path](#input\_key\_path) | Path to ssh public key at local machine | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name of ec2 stacks | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace of resources | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for resources | `map(string)` | n/a | yes |
-| <a name="input_vm_profile_arn"></a> [vm\_profile\_arn](#input\_vm\_profile\_arn) | Instance profile role arn | `string` | n/a | yes |
+| <a name="input_vm_eni"></a> [vm\_eni](#input\_vm\_eni) | VM's elastic network interface id | `string` | n/a | yes |
 
 ## Outputs
 

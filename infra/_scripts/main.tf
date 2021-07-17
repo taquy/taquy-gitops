@@ -16,7 +16,7 @@ module "iam" {
     var.my_ip
   ]
   pgp_key = var.pgp_key
-  tags = var.network.tags
+  tags    = var.network.tags
 }
 
 module "secrets" {
@@ -33,16 +33,16 @@ module "secrets" {
   ]
 }
 
-# module "compute" {
-#   source = "./modules/compute"
-#   depends_on = [
-#     module.iam
-#   ]
-#   name           = var.compute.name
-#   namespace      = var.compute.namespace
-#   key_path       = var.compute.key_path
-#   instance       = var.compute.instance
-#   instance_profile_arn = module.iam.instance_profile_arn
-#   tags           = var.compute.tags
-#   vm_eni     = module.network.vm_eni
-# }
+module "compute" {
+  source = "./modules/compute"
+  depends_on = [
+    module.iam
+  ]
+  name                 = var.compute.name
+  namespace            = var.compute.namespace
+  key_path             = var.compute.key_path
+  instance             = var.compute.instance
+  instance_profile_arn = module.iam.instance_profile_arn
+  tags                 = var.compute.tags
+  vm_eni               = module.network.vm_eni
+}
