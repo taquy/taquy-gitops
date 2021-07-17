@@ -9,9 +9,9 @@ variable "namespace" {
   type        = string
 }
 
-variable "instance_profile_arn" {
-  description = "Instance profile role arn"
-  type        = string
+variable "instance_profile" {
+  description = "Instance profile"
+  type        = map(string)
 }
 
 variable "vm_eni" {

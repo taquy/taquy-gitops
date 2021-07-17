@@ -42,7 +42,7 @@ module "compute" {
   namespace            = var.compute.namespace
   key_path             = var.compute.key_path
   instance             = var.compute.instance
-  instance_profile_arn = module.iam.instance_profile_arn
+  instance_profile = module.iam.instance_profile
   tags                 = var.compute.tags
   vm_eni               = module.network.vm_eni
 }

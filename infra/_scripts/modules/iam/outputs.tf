@@ -1,6 +1,9 @@
-output "instance_profile_arn" {
-  description = "Instance profile role arn"
-  value       = aws_iam_instance_profile.instance_profile.arn
+output "instance_profile" {
+  description = "Instance profile"
+  value       = {
+    arn = aws_iam_instance_profile.instance_profile.arn
+    name = aws_iam_instance_profile.instance_profile.name
+  }
 }
 
 output "instance_role_arn" {
