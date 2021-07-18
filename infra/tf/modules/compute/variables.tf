@@ -35,6 +35,9 @@ variable "instance" {
     spot_price = string
     ami        = string
     type       = string
-    user_data  = optional(string)
+    user_data = optional(object({
+      bucket_name = string
+      key         = string
+    }))
   })
 }
