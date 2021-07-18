@@ -9,7 +9,10 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 echo "Repository for mssql: $REPOSITORY_URI"
 
 docker pull mcr.microsoft.com/mssql/server:2019-latest
-docker tag  mcr.microsoft.com/mssql/server:2019-latest $REPOSITORY_URI:latest
+docker tag  mcr.microsoft.com/mssql/server:2019-latest $REPOSITORY_URI
 
-echo "Start pushing mssql docker image to $REPOSITORY_URI:latest"
-docker push $REPOSITORY_URI:latest
+echo "Start pushing mssql docker image to $REPOSITORY_URI"
+docker push $REPOSITORY_URI
+
+
+aws ecr get-login --no-include-email --registry-ids $ACCOUNT.dkr.ecr.$REGION.amazonaws.com/mssql --region ap--southeast-1

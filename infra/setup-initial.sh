@@ -1,4 +1,4 @@
-
+#!/usr/bin/env bash
 
 # install tools
 sudo apt install -y net-tools unzip
@@ -22,7 +22,7 @@ sudo usermod -g $GROUP $USER
 echo "Created user:" $(getent passwd | awk -F: '{ print $1}' | grep $USER)
 
 # switch user to root
-sudo su -
+sudo su - << EOF
 
 # create data directory
 cd / && ls -la | grep 'data'
@@ -49,10 +49,9 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 ./aws/install
 
-# switch user
-sudo su - taquy
-echo $(whoami)
-
 # run infra & app
+cd $HOME
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
 aws s3 cp s3://taquy-deploy/setup-app.sh ./ && bash setup-app.sh
+EOF &
+
