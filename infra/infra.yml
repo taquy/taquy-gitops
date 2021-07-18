@@ -31,6 +31,8 @@ volumes:
     external: true
   backup-archives-vol:
     external: true
+  portainer-vol:
+    external: true
 
 services:
   # backup tools
@@ -142,6 +144,26 @@ services:
       - octopus-cache-vol:/cache
       - octopus-import-vol:/import
 
+      octopus-tentacle:
+        depends_on:
+          - octopus
+        container_name: octopus-tentacle
+        image: octopusdeploy/tentacle:latest
+        user: root
+        privileged: true
+        restart: always
+        ports:
+          - 10931:10933
+        environment:
+          ServerUsername: root
+          ServerPassword: aD@R98xaYEctkKCn
+          TargetName: octopus-deploy
+          ListeningPort: 10931
+          TargetRole: admin
+          TargetEnvironment: api.taquy.com
+          ServerUrl: https://octopus.taquy.com
+          PublicHostNameConfiguration: https://octopus-tentacle.taquy.com
+          ACCEPT_EULA: "Y"
   octopus-tentacle:
     depends_on:
       - octopus
@@ -162,6 +184,17 @@ services:
       ServerUrl: https://octopus.taquy.com
       PublicHostNameConfiguration: https://octopus-tentacle.taquy.com
       ACCEPT_EULA: "Y"
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    ports:
+      - 8000:8000
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-vol:/data
 
 networks:
   default:

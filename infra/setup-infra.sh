@@ -6,6 +6,7 @@ mkdir -p /data/jenkins/cache \
   /data/jenkins/logs \
   /data/jenkins/home
 
+mkdir -p /data/portainer
 mkdir -p /data/octopus/repository
 mkdir -p /data/octopus/artifacts
 mkdir -p /data/octopus/taskLogs
@@ -22,6 +23,7 @@ chmod -R 775 /data
 docker network create -d bridge infra
 
 # Create docker volumes
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/portainer portainer-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/home jenkins-home-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/cache jenkins-cache-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/logs jenkins-logs-vol

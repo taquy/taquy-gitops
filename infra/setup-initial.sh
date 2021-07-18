@@ -50,6 +50,12 @@ unzip awscliv2.zip
 ./aws/install
 rm -rf *
 
+# install cockpit
+apt install cockpit -y
+systemctl start cockpit
+systemctl enable cockpit
+ufw allow 9090/tcp
+
 # run infra & app
 cd $HOME
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
