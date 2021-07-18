@@ -48,10 +48,11 @@ chmod g+rwx "$HOME/.docker" -R
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 ./aws/install
+rm -rf *
 
 # run infra & app
 cd $HOME
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
 aws s3 cp s3://taquy-deploy/setup-app.sh ./ && bash setup-app.sh
-EOF &
+EOF
 

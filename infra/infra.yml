@@ -33,6 +33,7 @@ volumes:
     external: true
 
 services:
+  # backup tools
   backup-cron:
     container_name: backup-cron
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup-cron:latest
@@ -47,7 +48,8 @@ services:
       # every day at 00:00
       SCHEDULE: '0 0 * * *'
       BUCKET: 'taquy-backup'
-
+  
+  # load balancing tools
   nginx:
     container_name: nginx
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:latest
@@ -71,7 +73,8 @@ services:
     depends_on:
       - nginx
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
+  
+  # cicd tools
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
@@ -159,7 +162,7 @@ services:
       ServerUrl: https://octopus.taquy.com
       PublicHostNameConfiguration: https://octopus-tentacle.taquy.com
       ACCEPT_EULA: "Y"
-
+  
 networks:
   default:
     external: true
