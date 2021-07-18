@@ -34,7 +34,6 @@ MY_IP=$(curl checkip.amazonaws.com)
 echo "My current IP is $MY_IP"
 
 # terraform workspace new taquy
-
 terraform workspace select taquy &&
 	terraform init &&
 	terraform plan --out tf.plan --var-file=taquy.tfvars -var "my_ip=$MY_IP" -var "pgp_key=$PGP_PUBLIC_KEY"

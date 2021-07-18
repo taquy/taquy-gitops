@@ -13,6 +13,15 @@ resource "aws_key_pair" "key" {
   public_key = file(var.key_path)
 }
 
+data "aws_s3_bucket_object" "user_data_obj" {
+  bucket      = var.instance.user_data.bucket_name
+  key         = var.instance.user_data.key
+}
+
+data "template_file" "user_data_tpl" {
+  template = "${data.aws_s3_bucket_object.user_data_obj.body}"
+}
+
 resource "aws_spot_instance_request" "spot_instance" {
   spot_price    = var.instance.spot_price
   ami           = var.instance.ami
@@ -27,7 +36,7 @@ resource "aws_spot_instance_request" "spot_instance" {
     network_interface_id = var.vm_eni
     device_index         = 0
   }
-  user_data = var.instance.user_data != "" ? var.instance.user_data : ""
+  user_data = data.template_file.user_data_tpl.rendered
   volume_tags = merge(module.label.tags, {
     "Name" = module.label.id
   })
