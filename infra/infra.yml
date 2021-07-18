@@ -94,7 +94,7 @@ services:
 
   mssql:
     container_name: mssql
-    image: microsoft/mssql-server-linux
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/mssql:latest
     user: root
     privileged: true
     restart: always
