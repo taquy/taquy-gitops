@@ -10,7 +10,7 @@ variable "domain_name" {
 
 variable "records" {
   description = "Records to be managed in Route53"
-  type        = object({
+  type = object({
     apps = list(string)
   })
 }

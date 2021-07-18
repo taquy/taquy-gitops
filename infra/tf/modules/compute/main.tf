@@ -14,12 +14,12 @@ resource "aws_key_pair" "key" {
 }
 
 data "aws_s3_bucket_object" "user_data_obj" {
-  bucket      = var.instance.user_data.bucket_name
-  key         = var.instance.user_data.key
+  bucket = var.instance.user_data.bucket_name
+  key    = var.instance.user_data.key
 }
 
 data "template_file" "user_data_tpl" {
-  template = "${data.aws_s3_bucket_object.user_data_obj.body}"
+  template = data.aws_s3_bucket_object.user_data_obj.body
 }
 
 resource "aws_spot_instance_request" "spot_instance" {

@@ -37,7 +37,7 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_compute"></a> [compute](#input\_compute) | compute module parameters | <pre>object({<br>    name      = string<br>    namespace = string<br>    region    = string<br>    key_path  = string<br>    tags      = optional(map(string))<br>    instance = object({<br>      spot_price = string<br>      ami        = string<br>      type       = string<br>      user_data  = optional(string)<br>    })<br>  })</pre> | n/a | yes |
+| <a name="input_compute"></a> [compute](#input\_compute) | compute module parameters | <pre>object({<br>    name      = string<br>    namespace = string<br>    region    = string<br>    key_path  = string<br>    tags      = optional(map(string))<br>    instance = object({<br>      spot_price = string<br>      ami        = string<br>      type       = string<br>      user_data = optional(object({<br>        bucket_name = string<br>        key         = string<br>      }))<br>    })<br>  })</pre> | n/a | yes |
 | <a name="input_dns"></a> [dns](#input\_dns) | dns module parameters | <pre>object({<br>    namespace   = string<br>    domain_name = string<br>    records = object({<br>      apps = list(string)<br>    })<br>    tags = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_iam"></a> [iam](#input\_iam) | iam module parameters | <pre>object({<br>    namespace = string<br>    source_ip = optional(map(string))<br>    tags      = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_my_ip"></a> [my\_ip](#input\_my\_ip) | Current deployer source IP | `string` | n/a | yes |
