@@ -7,7 +7,7 @@ output "secret_version" {
 }
 
 output "jenkins_node_user_key" {
-  value = module.iam.jenkins_node_user_key
+  value     = module.iam.jenkins_node_user_key
   sensitive = true
 }
 

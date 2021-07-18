@@ -57,3 +57,15 @@ variable "iam" {
   })
 }
 
+variable "dns" {
+  description = "dns module parameters"
+  type = object({
+    namespace   = string
+    domain_name = string
+    records = object({
+      apps = list(string)
+    })
+    tags = optional(map(string))
+  })
+}
+

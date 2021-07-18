@@ -24,6 +24,7 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_compute"></a> [compute](#module\_compute) | ./modules/compute |  |
+| <a name="module_dns"></a> [dns](#module\_dns) | ./modules/dns |  |
 | <a name="module_iam"></a> [iam](#module\_iam) | ./modules/iam |  |
 | <a name="module_network"></a> [network](#module\_network) | ./modules/network |  |
 | <a name="module_secrets"></a> [secrets](#module\_secrets) | ./modules/secrets |  |
@@ -37,6 +38,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_compute"></a> [compute](#input\_compute) | compute module parameters | <pre>object({<br>    name      = string<br>    namespace = string<br>    region    = string<br>    key_path  = string<br>    tags      = optional(map(string))<br>    instance = object({<br>      spot_price = string<br>      ami        = string<br>      type       = string<br>      user_data  = optional(string)<br>    })<br>  })</pre> | n/a | yes |
+| <a name="input_dns"></a> [dns](#input\_dns) | dns module parameters | <pre>object({<br>    namespace   = string<br>    domain_name = string<br>    records = object({<br>      apps = list(string)<br>    })<br>    tags = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_iam"></a> [iam](#input\_iam) | iam module parameters | <pre>object({<br>    namespace = string<br>    source_ip = optional(map(string))<br>    tags      = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_my_ip"></a> [my\_ip](#input\_my\_ip) | Current deployer source IP | `string` | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Network module parameters | <pre>object({<br>    namespace      = string<br>    vpc_cidr_block = string<br>    tags           = optional(map(string))<br>  })</pre> | n/a | yes |
@@ -50,4 +52,5 @@ No resources.
 | <a name="output_jenkins_node_user_key"></a> [jenkins\_node\_user\_key](#output\_jenkins\_node\_user\_key) | n/a |
 | <a name="output_secret"></a> [secret](#output\_secret) | n/a |
 | <a name="output_secret_version"></a> [secret\_version](#output\_secret\_version) | n/a |
+| <a name="output_vm_public_ip"></a> [vm\_public\_ip](#output\_vm\_public\_ip) | Elastic public IP of VM |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

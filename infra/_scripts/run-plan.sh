@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# run taint for development purpose only
+bash run-taint.sh
+
 # terraform workspace new taquy
 
 # run encrypt in case there are files haven't been encrypted yet
@@ -28,6 +32,8 @@ PGP_PUBLIC_KEY=$(gpg --export $MAINTAINER_EMAIL | base64)
 
 MY_IP=$(curl checkip.amazonaws.com)
 echo "My current IP is $MY_IP"
+
+# terraform workspace new taquy
 
 terraform workspace select taquy &&
 	terraform init &&

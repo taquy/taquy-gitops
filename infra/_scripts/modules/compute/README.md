@@ -32,7 +32,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_instance"></a> [instance](#input\_instance) | Spot instance configuration | <pre>object({<br>    spot_price = string<br>    ami        = string<br>    type       = string<br>    user_data  = optional(string)<br>  })</pre> | n/a | yes |
-| <a name="input_instance_profile_arn"></a> [instance\_profile\_arn](#input\_instance\_profile\_arn) | Instance profile role arn | `string` | n/a | yes |
+| <a name="input_instance_profile"></a> [instance\_profile](#input\_instance\_profile) | Instance profile | `map(string)` | n/a | yes |
 | <a name="input_key_path"></a> [key\_path](#input\_key\_path) | Path to ssh public key at local machine | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name of ec2 stacks | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace of resources | `string` | n/a | yes |

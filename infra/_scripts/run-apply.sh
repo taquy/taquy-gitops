@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# run taint for development purpose only
-bash run-taint.sh
-
 # create plan
 terraform apply "tf.plan"
 

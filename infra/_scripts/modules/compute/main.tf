@@ -20,7 +20,7 @@ resource "aws_spot_instance_request" "spot_instance" {
   credit_specification {
     cpu_credits = "standard"
   }
-  spot_type = "one-time"
+  spot_type            = "one-time"
   iam_instance_profile = var.instance_profile.name
   key_name             = aws_key_pair.key.key_name
   network_interface {

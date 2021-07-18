@@ -10,7 +10,7 @@ module "iam" {
   depends_on = [
     module.network
   ]
-  namespace = var.network.namespace
+  namespace = var.iam.namespace
   source_ip = [
     module.network.vm_public_ip,
     var.my_ip
@@ -33,16 +33,28 @@ module "secrets" {
   ]
 }
 
+module "dns" {
+  source = "./modules/dns"
+  depends_on = [
+    module.network
+  ]
+  namespace    = var.dns.namespace
+  vm_public_ip = module.network.vm_public_ip
+  domain_name  = var.dns.domain_name
+  records      = var.dns.records
+  tags         = var.dns.tags
+}
+
 module "compute" {
   source = "./modules/compute"
   depends_on = [
     module.iam
   ]
-  name                 = var.compute.name
-  namespace            = var.compute.namespace
-  key_path             = var.compute.key_path
-  instance             = var.compute.instance
+  name             = var.compute.name
+  namespace        = var.compute.namespace
+  key_path         = var.compute.key_path
+  instance         = var.compute.instance
   instance_profile = module.iam.instance_profile
-  tags                 = var.compute.tags
-  vm_eni               = module.network.vm_eni
+  tags             = var.compute.tags
+  vm_eni           = module.network.vm_eni
 }
