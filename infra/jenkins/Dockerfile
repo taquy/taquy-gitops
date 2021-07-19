@@ -33,7 +33,6 @@ RUN mkdir /var/log/jenkins \
   && ./aws/install  \
   # change root password
   && echo "root:$ROOT_PASSWORD" | chpasswd
-  # install plugins
 
 VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home" ]
 
