@@ -2,14 +2,23 @@
 # run ash sudo
 bash <(curl -s https://taquy-deploy.s3.ap-southeast-1.amazonaws.com/setup-initial.sh) &
 
-**Deploy Infra**
+**Deploy Services**
+```bash
+bash push-docker-image.sh backup
+bash push-docker-image.sh fluentd
+bash push-docker-image.sh jenkins
+bash push-docker-image.sh nginx
+bash push-docker-image.sh mssql
+```
+
+**Deploy Infra Stack**
 
 ```bash
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && chmod +x setup-infra.sh && bash setup-infra.sh
 ```
 
 
-**Deploy App**
+**Deploy Application Stack**
 ```bash
 aws s3 cp s3://taquy-deploy/setup-app.sh ./ && chmod +x setup-app.sh && bash setup-app.sh
 ```

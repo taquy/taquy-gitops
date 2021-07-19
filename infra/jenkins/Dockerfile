@@ -32,9 +32,10 @@ RUN mkdir /var/log/jenkins \
   && unzip -qq awscliv2.zip \
   && ./aws/install  \
   # change root password
-  && echo "root:$ROOT_PASSWORD" | chpasswd
-
+  && echo "root:$ROOT_PASSWORD" | chpasswd \
+  # install ecr helper (for jenkins node)
+  && echo "{\"credsStore\": \"ecr-login\"}" > ~/.docker/config.json \
+  && apt install -y amazon-ecr-credential-helper
 VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home" ]
-
 FROM jenkins/jenkins:latest AS PROD_STAGE
 USER jenkins

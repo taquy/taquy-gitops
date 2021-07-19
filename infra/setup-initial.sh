@@ -44,6 +44,14 @@ usermod -aG docker $USER
 chown "$USER":"$USER" /home/"$USER"/.docker -R
 chmod g+rwx "$HOME/.docker" -R
 
+# install ecr helper (for instance)
+apt install amazon-ecr-credential-helper
+cat <<EOT > $HOME/.docker/config.json 
+{
+	"credsStore": "ecr-login"
+}
+EOT
+
 # install aws-cli
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip

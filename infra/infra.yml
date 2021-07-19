@@ -36,9 +36,9 @@ volumes:
 
 services:
   # backup tools
-  backup-cron:
-    container_name: backup-cron
-    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup-cron:latest
+  taquy-backup:
+    container_name: taquy-backup
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:latest
     user: root
     privileged: true
     restart: unless-stopped
