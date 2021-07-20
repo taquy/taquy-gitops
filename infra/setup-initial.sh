@@ -23,7 +23,6 @@ echo "Created user:" $(getent passwd | awk -F: '{ print $1}' | grep $USER)
 
 # switch user to root
 sudo su - << EOF
-
 # create data directory
 cd / && ls -la | grep 'data'
 mkdir -p $DATA_DIR
@@ -64,9 +63,27 @@ systemctl start cockpit
 systemctl enable cockpit
 ufw allow 9090/tcp
 
+# create volumes
+mkdir -p /data
+cd /data
+mkdir -p es redis mongo tmp	portainer jenkins octopus mssql nginx certbot backup
+
+cd /data/jenkins && mkdir -p cache logs home
+cd /data/octopus && mkdir -p repository artifacts taskLogs cache import
+cd /data/nginx && mkdir -p logs web
+cd /data/certbot && mkdir -p logs ssl
+cd /data/backup/ && mkdir logs archives
+
+chown $USER:$GROUP $DATA_DIR
+chmod u+rwx,g+rwx,o+r-wx $DATA_DIR -R
+
+EOF
+
+# Switch to main user
+sudo su - $USER << EOF
 # run infra & app
 cd $HOME
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
 aws s3 cp s3://taquy-deploy/setup-app.sh ./ && bash setup-app.sh
-EOF
 
+EOF

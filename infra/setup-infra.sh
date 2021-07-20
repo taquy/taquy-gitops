@@ -1,24 +1,6 @@
 #!/bin/bash
 aws s3 cp s3://taquy-deploy/infra.yml ./
 
-# create folder for infra
-mkdir -p /data/jenkins/cache \
-  /data/jenkins/logs \
-  /data/jenkins/home
-
-mkdir -p /data/portainer
-mkdir -p /data/octopus/repository
-mkdir -p /data/octopus/artifacts
-mkdir -p /data/octopus/taskLogs
-mkdir -p /data/octopus/cache
-mkdir -p /data/octopus/import
-mkdir -p /data/mssql
-mkdir -p /data/nginx/logs /data/nginx/web
-mkdir -p /data/certbot/logs /data/certbot/ssl
-mkdir -p /data/backup/logs /data/backup/archives
-
-chmod -R 775 /data
-
 # Create networks
 docker network create -d bridge infra
 
@@ -40,11 +22,7 @@ docker volume create --driver local --opt o=bind --opt type=none --opt device=/d
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup/logs backup-logs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup/archives backup-archives-vol
 
-# ECR Login
-REGION=ap-southeast-1
-ACCOUNT_ID=397818416365
-REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
-aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URI --password-stdin
+# Pull AWS secret for Jenkins node
 
 # Docker run
 docker-compose -f infra.yml pull

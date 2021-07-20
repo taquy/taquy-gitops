@@ -39,13 +39,14 @@ services:
   taquy-backup:
     container_name: taquy-backup
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:latest
+    # must be root user to use root aws credentials
     user: root
     privileged: true
     restart: unless-stopped
     volumes:
       - backup-logs-vol:/data/backup/logs
       - backup-archives-vol:/data/backup/archives
-      - /root/.aws:/root/.aws/
+      - ~/.aws:~/.aws/
     environment:
       # every day at 00:00
       SCHEDULE: '0 0 * * *'
@@ -55,7 +56,7 @@ services:
   nginx:
     container_name: nginx
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:latest
-    user: root
+    user: taquy
     privileged: true
     restart: unless-stopped
     volumes:
@@ -80,7 +81,7 @@ services:
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
-    user: root
+    user: taquy
     privileged: true
     restart: always
     ports:
@@ -92,7 +93,7 @@ services:
       JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.aws:/var/jenkins_home/.aws:ro
+      - ~/.aws:/var/jenkins_home/.aws:ro
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins
@@ -100,7 +101,7 @@ services:
   mssql:
     container_name: mssql
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/mssql:latest
-    user: root
+    user: taquy
     privileged: true
     restart: always
     environment:
@@ -118,7 +119,7 @@ services:
   octopus:
     container_name: octopus
     image: octopusdeploy/octopusdeploy:latest
-    user: root
+    user: taquy
     privileged: true
     restart: always
     ports:
@@ -149,7 +150,7 @@ services:
           - octopus
         container_name: octopus-tentacle
         image: octopusdeploy/tentacle:latest
-        user: root
+        user: taquy
         privileged: true
         restart: always
         ports:
@@ -169,7 +170,7 @@ services:
       - octopus
     container_name: octopus-tentacle
     image: octopusdeploy/tentacle:latest
-    user: root
+    user: taquy
     privileged: true
     restart: always
     ports:
