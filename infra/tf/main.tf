@@ -4,6 +4,9 @@ module "network" {
   namespace      = var.network.namespace
   vpc_cidr_block = var.network.vpc_cidr_block
   tags           = var.network.tags
+  source_ip = [
+    "${var.my_ip}/32"
+  ]
 }
 module "iam" {
   source = "./modules/iam"
@@ -13,7 +16,7 @@ module "iam" {
   namespace = var.iam.namespace
   source_ip = [
     module.network.vm_public_ip,
-    var.my_ip
+    "${var.my_ip}/32"
   ]
   pgp_key = var.pgp_key
   tags    = var.network.tags
@@ -25,7 +28,7 @@ module "secrets" {
   secrets   = var.secrets.secrets
   source_ip = [
     module.network.vm_public_ip,
-    var.my_ip
+    "${var.my_ip}/32"
   ]
   trusted_identities = [
     module.iam.instance_role_arn,

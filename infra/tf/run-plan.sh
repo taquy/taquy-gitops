@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # run taint for development purpose only
-echo "Taint spot instance..."
+echo "Tainting spot instance..."
 bash run-taint.sh
 
 # push latest initialization script 
-echo "Push latest intial setup script..."
-bash ../push-docker-compose.sh
+echo "Pushing latest intial setup script..."
+cd ..
+bash push-docker-compose.sh
+cd -
 
 # decrypting secrets file
 echo "Preparing secrets credentials..."

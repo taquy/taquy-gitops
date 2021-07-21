@@ -43,6 +43,7 @@ module "sg" {
   namespace = var.namespace
   tags      = var.tags
   vpc_id    = aws_vpc.vpc.id
+  source_ip = var.source_ip
 }
 
 module "eni" {
