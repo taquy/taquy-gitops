@@ -8,22 +8,26 @@ module "label" {
 }
 
 locals {
+  internet_cidr = "0.0.0.0/0"
+}
+
+locals {
   sg_rules = {
     ingress = {
       "allow-https" = {
         port        = 443
         description = "Ingress HTTPS"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [local.internet_cidr]
       },
       "allow-http" = {
         port        = 80
         description = "Ingress HTTP"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = [local.internet_cidr]
       },
       "allow-ssh" = {
         port        = 22
         description = "Ingress SSH"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = setunion([], var.source_ip)
       }
     }
   }
@@ -37,7 +41,7 @@ resource "aws_security_group" "vm_sg" {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = setunion([], var.source_ip)
+    cidr_blocks      = [local.internet_cidr]
     ipv6_cidr_blocks = ["::/0"]
   }
   tags = merge(module.label.tags, {

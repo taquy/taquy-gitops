@@ -1,10 +1,4 @@
 #!/bin/bash
-
-if ! [ -x "$(command -v docker-compose)" ]; then
-	echo 'Error: docker-compose is not installed.' >&2
-	exit 1
-fi
-
 domains=(taquy.com portainer.taquy.com cockpit.taquy.com cms.taquy.com api.taquy.com es.taquy.com kibana.taquy.com redis.taquy.com mongo.taquy.com jenkins.taquy.com octopus.taquy.com mssql.taquy.com)
 rsa_key_size=4096
 data_path="/data/certbot/ssl"

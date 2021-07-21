@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 
 volumes:
   jenkins-home-vol:
@@ -145,26 +145,6 @@ services:
       - octopus-cache-vol:/cache
       - octopus-import-vol:/import
 
-      octopus-tentacle:
-        depends_on:
-          - octopus
-        container_name: octopus-tentacle
-        image: octopusdeploy/tentacle:latest
-        user: taquy
-        privileged: true
-        restart: always
-        ports:
-          - 10931:10933
-        environment:
-          ServerUsername: root
-          ServerPassword: aD@R98xaYEctkKCn
-          TargetName: octopus-deploy
-          ListeningPort: 10931
-          TargetRole: admin
-          TargetEnvironment: api.taquy.com
-          ServerUrl: https://octopus.taquy.com
-          PublicHostNameConfiguration: https://octopus-tentacle.taquy.com
-          ACCEPT_EULA: "Y"
   octopus-tentacle:
     depends_on:
       - octopus
