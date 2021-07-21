@@ -8,7 +8,8 @@ PGP_PUBLIC_KEY=$(gpg --export $MAINTAINER_EMAIL | base64)
 echo "Start destroying resources..."
 terraform destroy -auto-approve \
   -var-file=taquy.tfvars \
-  -var "my_ip=$MY_IP" 
+  -var "my_ip=$MY_IP" \
   -var "pgp_key=$PGP_PUBLIC_KEY" \
   -target 'module.compute.aws_spot_instance_request.spot_instance' \
-  -target 'module.iam.aws_iam_access_key.jenkins_node_user_key'
+  -target 'module.iam.aws_iam_access_key.jenkins_node_user_key' \
+  -target 'module.network.module.eni.aws_eip.vm_eip'

@@ -46,6 +46,8 @@ RUN mkdir /var/log/jenkins \
   && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   && unzip -qq awscliv2.zip \
   && ./aws/install  \
+  # set default profile for jenkins
+  && export AWS_PROFILE=jenkins \
   # change root password
   && echo "root:$ROOT_PASSWORD" | chpasswd \
   # install ecr helper (for jenkins node)
@@ -61,7 +63,8 @@ USER jenkins
 RUN echo "Dependencies check..."
 RUN docker-compose --version \
   && docker --version \
-  && aws --version
+  && aws --version \
+  && export AWS_PROFILE=jenkins
 
 RUN mkdir -p ~/.docker/ \
   && echo "{\"credsStore\": \"ecr-login\"}" > ~/.docker/config.json
