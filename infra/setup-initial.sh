@@ -5,7 +5,7 @@ sudo apt install -y net-tools unzip
 
 USER=${1:-taquy}
 GROUP=${1:-taquy}
-DATA_DIR=${1:-'/data'}
+DATA_DIR=${1:-"/data"}
 HOME=/home/$USER
 
 sudo userdel -r $USER

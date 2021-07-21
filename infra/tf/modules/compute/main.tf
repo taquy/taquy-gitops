@@ -36,7 +36,7 @@ resource "aws_spot_instance_request" "spot_instance" {
     network_interface_id = var.vm_eni
     device_index         = 0
   }
-  user_data = "${data.template_file.user_data_tpl.rendered}"
+  user_data_base64 = base64encode(data.template_file.user_data_tpl.rendered)
   volume_tags = merge(module.label.tags, {
     "Name" = module.label.id
   })

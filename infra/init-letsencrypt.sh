@@ -9,7 +9,7 @@ domains=(taquy.com portainer.taquy.com cockpit.taquy.com cms.taquy.com api.taquy
 rsa_key_size=4096
 data_path="/data/certbot/ssl"
 email="taquy.pb@gmail.com"
-staging=0
+staging=1
 docker_cp_file=infra.yml
 
 echo "### Downloading recommended TLS parameters ..."
