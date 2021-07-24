@@ -40,13 +40,13 @@ services:
     container_name: taquy-backup
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:latest
     # must be root user to use root aws credentials
-    user: root
+    user: taquy
     privileged: true
     restart: unless-stopped
     volumes:
       - backup-logs-vol:/data/backup/logs
       - backup-archives-vol:/data/backup/archives
-      - ~/.aws:~/.aws/
+      - /root/.aws:~/.aws/
     environment:
       # every day at 00:00
       SCHEDULE: '0 0 * * *'
@@ -87,13 +87,13 @@ services:
     ports:
       - 9091:8080
     environment:
-      JENKINS_USER: root
+      JENKINS_USER: taquy
       JENKINS_PASS: root1234
       JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
       JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.aws:/var/jenkins_home/.aws:ro
+      - /home/.aws:/var/jenkins_home/.aws:ro
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins

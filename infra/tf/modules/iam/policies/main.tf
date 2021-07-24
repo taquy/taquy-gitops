@@ -29,6 +29,16 @@ locals {
       },
     },
     jenkins_job = {
+      "${var.namespace}ListKeys" = {
+        actions = [
+          "kms:ListKeys", 
+          "kms:Decrypt", 
+          "kms:DescribeKey"
+        ],
+        resources = [
+          "arn:aws:ecr:${local.region}:${local.account_id}:key/235356b5-71fc-4f10-8324-e041bc259be2",
+        ]
+      },
       "${var.namespace}EcrReadImages" = {
         actions = [
           "ecr:GetDownloadUrlForLayer",

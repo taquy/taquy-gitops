@@ -99,7 +99,7 @@ services:
       - redis
     volumes:
       - app-vol:/data/tmp
-      - $HOME/.aws/credentials:/home/root/.aws/credentials:ro
+      - /root/.aws/credentials:/home/root/.aws/credentials:ro
     logging:
       driver: fluentd
       options:

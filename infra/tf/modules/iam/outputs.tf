@@ -21,6 +21,6 @@ output "jenkins_node_user_key" {
   sensitive   = true
   value = {
     id     = aws_iam_access_key.jenkins_node_user_key.id,
-    secret = aws_iam_access_key.jenkins_node_user_key.secret
+    secret = aws_iam_access_key.jenkins_node_user_key.encrypted_secret
   }
 }

@@ -21,6 +21,7 @@ python /home/qt/.secrets/decrypt.py
 # gpg credentials
 echo "Generating new PGP key for IAM user secrets output..."
 GPG_PASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
+echo $GPG_PASSWORD > "pgp-passphrase.txt"
 export MAINTAINER_USERNAME='taquy'
 export MAINTAINER_EMAIL='taquy.pb@gmail.com'
 

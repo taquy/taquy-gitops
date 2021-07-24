@@ -6,24 +6,44 @@ terraform apply "tf.plan"
 # remove decrypted files
 python /home/qt/.secrets/clean_decrypt.py
 
-# delete gpg key
-gpg --fingerprint --with-colons ${MAINTAINER_EMAIL} |\
-    grep "^fpr" |\
-    sed -n 's/^fpr:::::::::\([[:alnum:]]\+\):/\1/p' |\
-    xargs gpg --batch --yes --delete-secret-keys
-gpg --batch --yes --delete-key "$MAINTAINER_EMAIL"
-
 # parse jenkins credentials from terraform output
-JENKINS_NODE_SECRET_ID=$(terraform output -json | jq '.secret.value["instance-ssh-key"].id' -r)
-JENKINS_NODE_USER_KEY=$(terraform output -json | jq '.iam.jenkins_node_user_key' -r)
+JK_USER_SECRET_FILE="jenkins-secrets-file.txt"
+
+JK_SECRET_ID=$(terraform output -json | jq '.secret.value["jenkins-node-aws-key"].id' -r)
+JK_USER_SECRET=$(terraform output -json | jq '.jenkins_node_user_key.value' -r)
+
+PGP_PASSPHRASE=$(cat "pgp-passphrase.txt")
+
+JK_ID=$(echo $JK_USER_SECRET | jq '.id' -r)
+echo $JK_USER_SECRET | jq '.secret' -r | base64 --decode > $JK_USER_SECRET_FILE
+JK_SECRET=$(cat $JK_USER_SECRET_FILE | gpg --batch --yes --decrypt --passphrase $PGP_PASSPHRASE --pinentry-mode=loopback)
+
+echo "PGP_PASSPHRASE $PGP_PASSPHRASE"
+echo "JK_ID $JK_ID"
+echo "JK_SECRET $JK_SECRET"
+
+JK_USER_SECRET=$(jq -n \
+    --arg id "$JK_ID" \
+    --arg secret "$JK_SECRET" \
+    '{id: $id, secret: $secret}')
+echo $JK_USER_SECRET > $JK_USER_SECRET_FILE
 
 # update secrets
 aws secretsmanager update-secret \
-    --secret-id $JENKINS_NODE_SECRET_ID \
+    --secret-id $JK_SECRET_ID \
     --kms-key-id $JENKINS_CREDENTIALS_KMS_KEY \
-    --secret-string $JENKINS_NODE_USER_KEY
+    --secret-string file://$JK_USER_SECRET_FILE
 
 INSTANCE_PUBLIC_IP=$(terraform output -json | jq '.vm_public_ip.value' -r)
+
+# delete gpg key
+# gpg --fingerprint --with-colons ${MAINTAINER_EMAIL} |\
+#     grep "^fpr" |\
+#     sed -n 's/^fpr:::::::::\([[:alnum:]]\+\):/\1/p' |\
+#     xargs gpg --batch --yes --delete-secret-keys
+# gpg --batch --yes --delete-key "$MAINTAINER_EMAIL"
+
+# rm $JK_USER_SECRET_FILE
 
 echo "Launched instance public ip $INSTANCE_PUBLIC_IP"
 # ssh to new instance

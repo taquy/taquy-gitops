@@ -25,8 +25,7 @@ docker volume create --driver local --opt o=bind --opt type=none --opt device=/d
 # Pull AWS secret for Jenkins node
 
 # Docker run
-docker-compose -f infra.yml pull
-docker-compose -f infra.yml up -d
+docker-compose -f infra.yml up -d --quiet
 
 # Install SSL
 aws s3 cp s3://taquy-deploy/init-letsencrypt.sh ./

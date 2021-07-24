@@ -64,6 +64,7 @@ RUN echo "Dependencies check..."
 RUN docker-compose --version \
   && docker --version \
   && aws --version \
+  # set default jenkins profile 
   && export AWS_PROFILE=jenkins
 
 RUN mkdir -p ~/.docker/ \

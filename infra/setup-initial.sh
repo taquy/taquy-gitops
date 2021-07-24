@@ -37,31 +37,33 @@ usermod -a -G docker $USER
 
 # update docker permission
 mkdir -p "$HOME/.docker" # for app user
-mkdir ~/.docker # for root user
+mkdir -p /root/.docker # for root user
 usermod -aG docker $USER
 chown -R "$USER":"$USER" $HOME/.docker -R
 chmod g+rwx "$HOME/.docker" -R
 
+# update latest packages after all installation
+apt-get update -y
+apt-get upgrade -y
 
 # install ecr helper (for instance)
+echo "Start installing ECR helper..."
 apt install -y amazon-ecr-credential-helper
 printf '{\n\t"credsStore": "ecr-login"\n}\n' > $HOME/.docker/config.json 
-printf '{\n\t"credsStore": "ecr-login"\n}\n' > ~/.docker/config.json 
+printf '{\n\t"credsStore": "ecr-login"\n}\n' > /root/.docker/config.json 
 
 # install aws-cli
+echo "Start installing AWS CLI..."
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip -qq awscliv2.zip
 ./aws/install
 
 # install cockpit
+echo "Start installing Cockpit..."
 apt install cockpit -y
 systemctl start cockpit
 systemctl enable cockpit
 ufw allow 9090/tcp
- 
-# update latest packages after all installation
-apt-get update -y
-apt-get upgrade -y
 
 # change permission to official user
 chown -R "$USER":"$USER" $HOME -R
@@ -96,3 +98,8 @@ aws configure set aws_secret_access_key $ACCESS_SECRET --profile jenkins
 cd /home/$USER
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
 aws s3 cp s3://taquy-deploy/setup-app.sh ./ && bash setup-app.sh
+
+chown -R $USER:$GROUP $DATA_DIR
+chmod -R u+rwx,g+rwx,o+r-wx $DATA_DIR
+chown -R "$USER":"$USER" $HOME
+chmod -R g+rwx $HOME

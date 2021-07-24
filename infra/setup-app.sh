@@ -11,8 +11,7 @@ docker volume create --driver local --opt o=bind --opt type=none --opt device=/d
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/tmp app-vol
 
 # Docker run
-docker-compose -f app.yml pull
-docker-compose -f app.yml up -d
+docker-compose -f app.yml up -d --quiet-pull
 
 # Clean dangling images
 docker rmi $(docker images -f dangling=true -q)
