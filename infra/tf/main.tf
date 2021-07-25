@@ -49,6 +49,12 @@ module "secrets" {
   ]
 }
 
+module "cw" {
+  source = "./modules/cw"
+  namespace    = var.cw.namespace
+  tags         = var.cw.tags
+}
+
 module "dns" {
   source = "./modules/dns"
   depends_on = [

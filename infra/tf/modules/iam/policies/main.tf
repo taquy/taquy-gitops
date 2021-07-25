@@ -1,10 +1,6 @@
-data "aws_region" "current_region" {
+data "aws_region" "current_region" {}
 
-}
-
-data "aws_caller_identity" "current_identity" {
-
-}
+data "aws_caller_identity" "current_identity" {}
 
 locals {
   region     = data.aws_region.current_region.name

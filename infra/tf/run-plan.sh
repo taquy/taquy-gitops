@@ -4,6 +4,10 @@
 echo "Tainting spot instance..."
 # bash run-taint.sh
 
+# copy logs file to s3
+echo "Upload logs config..."
+aws s3 cp ./helpers/amazon-cloudwatch-agent.yml s3://taquy-deploy/amazon-cloudwatch-agent.yml
+
 # push latest initialization script
 echo "Pushing latest intial setup script..."
 cd ..

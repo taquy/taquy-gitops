@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# install cloudwatch logs agent
+curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+chmod +x ./awslogs-agent-setup.py
+./awslogs-agent-setup.py -n -r ap-southeast-1 -c s3://taquy-deploy/amazon-cloudwatch-agent.yml
+
 # install tools
 apt install -y net-tools unzip
 

@@ -99,6 +99,6 @@ resource "aws_kms_key" "kms" {
 }
 
 resource "aws_kms_alias" "kms_alias" {
-  name          = "taquy-secret-manager"
+  name          = "alias/taquy-secret-manager"
   target_key_id = aws_kms_key.kms.key_id
 }
