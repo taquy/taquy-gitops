@@ -4,7 +4,7 @@
 terraform apply "tf.plan"
 
 # remove decrypted files
-python /home/qt/.secrets/clean_decrypt.py
+python ./helpers/clean-up.py
 
 # parse jenkins credentials from terraform output
 JK_USER_SECRET_FILE="jenkins-secrets-file.txt"

@@ -16,6 +16,10 @@ elif [[ $PROJECT -eq "fluentd" ]]
 then
   echo "Start building $PROJECT"
   docker build . -t $REPOSITORY_URI/$PROJECT:latest
+elif [[ $PROJECT -eq "node" ]]
+then
+  echo "Start building $PROJECT"
+  docker build . -t $REPOSITORY_URI/$PROJECT:latest
 elif [[ $PROJECT -eq "jenkins" ]]
 then
   echo "Start building $PROJECT"

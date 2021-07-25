@@ -13,10 +13,10 @@ cd -
 # decrypting secrets file
 echo "Preparing secrets credentials..."
 ## run encrypt in case there are files haven't been encrypted yet
-python /home/qt/.secrets/encrypt.py
+python ./helpers/encrypt.py
 
 ## run decrypt to get temporary decrypted values
-python /home/qt/.secrets/decrypt.py
+python ./helpers/decrypt.py
 
 # gpg credentials
 echo "Generating new PGP key for IAM user secrets output..."

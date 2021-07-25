@@ -35,9 +35,9 @@ module "kms" {
 }
 
 module "secrets" {
-  source    = "./modules/secrets"
-  namespace = var.secrets.namespace
-  secrets   = var.secrets.secrets
+  source     = "./modules/secrets"
+  namespace  = var.secrets.namespace
+  secrets    = var.secrets.secrets
   kms_key_id = module.kms.key_id
   source_ip = [
     module.network.vm_public_ip,

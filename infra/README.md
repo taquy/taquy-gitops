@@ -9,6 +9,7 @@ bash push-docker-image.sh fluentd
 bash push-docker-image.sh jenkins
 bash push-docker-image.sh nginx
 bash push-docker-image.sh mssql
+bash push-docker-image.sh node
 ```
 
 **Deploy Infra Stack**
