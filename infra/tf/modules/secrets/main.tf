@@ -1,3 +1,15 @@
+
+data "aws_region" "current_region" {
+}
+
+data "aws_caller_identity" "current_identity" {
+}
+
+locals {
+  region     = data.aws_region.current_region.name
+  account_id = data.aws_caller_identity.current_identity.account_id
+}
+
 module "label" {
   for_each = var.secrets
 
@@ -28,6 +40,18 @@ resource "aws_secretsmanager_secret_version" "secret_version" {
   secret_string = each.value.data_path != "" ? file(each.value.data_path) : defaults(each.value.data_value, "")
 }
 
+data "aws_kms_key" "kms" {
+  key_id = var.kms_id
+}
+
+resource "aws_kms_grant" "kms_grant" {
+  for_each = var.kms_trusted_identities
+  name              = each.key
+  key_id            = data.aws_kms_key.kms.id
+  grantee_principal = each.value
+  operations        = ["Encrypt", "DescribeKey"]
+}
+
 resource "aws_secretsmanager_secret_policy" "secret_policy" {
   for_each   = var.secrets
   secret_arn = aws_secretsmanager_secret.secret[each.key].arn
@@ -40,7 +64,7 @@ resource "aws_secretsmanager_secret_policy" "secret_policy" {
           "AWS" : var.trusted_identities
         },
         "Action" : "secretsmanager:GetSecretValue",
-        "Resource" : "arn:aws:secretsmanager:ap-southeast-1:397818416365:secret:*",
+        "Resource" : "arn:aws:secretsmanager:${local.region}:${local.account_id}:secret:*",
         "Condition" : {
           "IpAddress" : {
             "aws:SourceIp" : var.source_ip

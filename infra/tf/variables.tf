@@ -9,6 +9,11 @@ variable "pgp_key" {
   type        = string
 }
 
+variable "kms_id" {
+  description = "CMK to encrypt secrets"
+  type        = string
+}
+
 variable "secrets" {
   description = "Secret manager module parameters"
   type = object({

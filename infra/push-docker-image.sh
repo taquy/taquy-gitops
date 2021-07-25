@@ -28,7 +28,7 @@ then
 elif [[ $PROJECT -eq "nginx" ]]
 then
   echo "Start building $PROJECT"
-  docker build . -t $REPOSITORY_URI/$PROJECT:latest
+  docker build . -t $REPOSITORY_URI/$PROJECT:latest --no-cache
 fi
 
 docker push $REPOSITORY_URI/$PROJECT:latest

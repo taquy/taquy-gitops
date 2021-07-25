@@ -11,9 +11,9 @@ output "instance_role_arn" {
   value       = aws_iam_role.instance_role.arn
 }
 
-output "jenkins_node_role_arn" {
-  description = "Jenkins node role arn"
-  value       = aws_iam_user.jenkins_node_user.arn
+output "jenkins_job_role_arn" {
+  description = "Jenkins job role arn"
+  value       = aws_iam_role.jenkins_job_role.arn
 }
 
 output "jenkins_node_user_key" {

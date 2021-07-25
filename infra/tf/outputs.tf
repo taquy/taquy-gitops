@@ -11,6 +11,11 @@ output "jenkins_node_user_key" {
   sensitive = true
 }
 
+output "jenkins_job_role_arn" {
+  value     = module.iam.jenkins_job_role_arn
+  sensitive = true
+}
+
 output "vm_public_ip" {
   description = "Elastic public IP of VM"
   value       = module.network.vm_public_ip

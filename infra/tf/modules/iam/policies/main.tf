@@ -29,9 +29,16 @@ locals {
       },
     },
     jenkins_job = {
-      "${var.namespace}ListKeys" = {
+      "${var.namespace}KmsList" = {
         actions = [
-          "kms:ListKeys", 
+          "kms:ListKeys"
+        ],
+        resources = [
+          "arn:aws:ecr:${local.region}:${local.account_id}:key/*",
+        ]
+      },
+      "${var.namespace}KmsGetKey" = {
+        actions = [
           "kms:Decrypt", 
           "kms:DescribeKey"
         ],
@@ -82,6 +89,30 @@ locals {
       },
     },
     instance = {
+      "${var.namespace}KmsList" = {
+        actions = [
+          "kms:ListKeys"
+        ],
+        resources = [
+          "arn:aws:ecr:${local.region}:${local.account_id}:key/*",
+        ]
+      },
+      "${var.namespace}KmsGetKey" = {
+        actions = [
+          "kms:Decrypt", 
+          "kms:DescribeKey"
+        ],
+        resources = [
+          "arn:aws:ecr:${local.region}:${local.account_id}:key/235356b5-71fc-4f10-8324-e041bc259be2",
+        ]
+      },
+      "${var.namespace}GetSecrets" = {
+        actions = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecrets"
+        ],
+        resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:*"
+      },
       "${var.namespace}EcrPushImages" = {
         actions = [
           "ecr:DescribeImageScanFindings",

@@ -30,10 +30,15 @@ module "secrets" {
     module.network.vm_public_ip,
     "${var.my_ip}/32"
   ]
+  kms_id = var.kms_id
   trusted_identities = [
     module.iam.instance_role_arn,
-    module.iam.jenkins_node_role_arn,
+    module.iam.jenkins_job_role_arn
   ]
+  kms_trusted_identities = {
+    "jenkins_job_role_arn" = module.iam.jenkins_job_role_arn
+    "instance_role_arn" = module.iam.instance_role_arn
+  }
 }
 
 module "dns" {

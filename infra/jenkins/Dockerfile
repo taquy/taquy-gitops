@@ -65,7 +65,7 @@ RUN docker-compose --version \
   && docker --version \
   && aws --version \
   # set default jenkins profile 
-  && export AWS_PROFILE=jenkins
+  && export AWS_PROFILE="jenkins-job"
 
 RUN mkdir -p ~/.docker/ \
   && echo "{\"credsStore\": \"ecr-login\"}" > ~/.docker/config.json

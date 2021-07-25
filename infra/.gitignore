@@ -25,3 +25,6 @@
 **/build-harness
 
 *.plan
+
+**/jenkins-secrets-file.txt
+**/pgp-passphrase.txt

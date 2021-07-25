@@ -91,8 +91,12 @@ apt install -y jq
 JENKINS_NODE_SECRET=$(aws secretsmanager get-secret-value --secret-id taquy-jenkins-node-aws-key | jq .SecretString)
 ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .id')
 ACCESS_SECRET=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .secret')
-aws configure set aws_access_key_id $ACCESS_KEY --profile jenkins
-aws configure set aws_secret_access_key $ACCESS_SECRET --profile jenkins
+ROLE_ARN=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .role')
+aws configure set aws_access_key_id $ACCESS_KEY --profile "jenkins-node"
+aws configure set aws_secret_access_key $ACCESS_SECRET --profile "jenkins-node"
+
+aws configure set role_arn $ROLE_ARN --profile "jenkins-job"
+aws configure set source_profile "jenkins-node" --profile "jenkins-job"
 
 # run infra & app
 cd /home/$USER
