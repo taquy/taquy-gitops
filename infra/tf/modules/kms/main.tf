@@ -4,18 +4,23 @@ data "aws_region" "current_region" {}
 
 data "aws_caller_identity" "current_identity" {}
 
+locals {
+  region     = data.aws_region.current_region.name
+  account_id = data.aws_caller_identity.current_identity.account_id
+}
+
 module "label" {
   source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   namespace = var.namespace
   delimiter = "-"
   label_order = ["namespace"]
-  tags = each.value.tags
+  tags = var.tags
 }
 
 resource "aws_kms_key" "kms" {
   description             = "KMS key 1"
   key_usage = "ENCRYPT_DECRYPT"
-  deletion_window_in_days = 10
+  deletion_window_in_days = 7
   policy = jsonencode({
     "Version": "2012-10-17",
     "Id": "key-consolepolicy-3",
@@ -24,7 +29,7 @@ resource "aws_kms_key" "kms" {
             "Sid": "Enable IAM User Permissions",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:iam::397818416365:root"
+                "AWS": "arn:aws:iam::${local.account_id}:root"
             },
             "Action": "kms:*",
             "Resource": "*"

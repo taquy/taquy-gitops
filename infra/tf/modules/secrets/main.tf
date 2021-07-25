@@ -27,6 +27,7 @@ resource "aws_secretsmanager_secret" "secret" {
 
   name        = module.label[each.key].id
   description = each.value.description
+  kms_key_id = var.kms_key_id
   tags = merge(module.label[each.key].tags, {
     project = var.namespace
   })

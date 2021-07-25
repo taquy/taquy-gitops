@@ -8,6 +8,7 @@ module "network" {
     "${var.my_ip}/32"
   ]
 }
+
 module "iam" {
   source = "./modules/iam"
   depends_on = [
@@ -37,6 +38,7 @@ module "secrets" {
   source    = "./modules/secrets"
   namespace = var.secrets.namespace
   secrets   = var.secrets.secrets
+  kms_key_id = module.kms.key_id
   source_ip = [
     module.network.vm_public_ip,
     "${var.my_ip}/32"

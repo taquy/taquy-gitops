@@ -23,4 +23,11 @@ variable "source_ip" {
   type        = list(string)
 }
 
+variable "kms_key_id" {
+  description = "KMS key id"
+  type        = string
+}
+
+
+
 
