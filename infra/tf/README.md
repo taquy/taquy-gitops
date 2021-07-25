@@ -26,6 +26,7 @@ No providers.
 | <a name="module_compute"></a> [compute](#module\_compute) | ./modules/compute |  |
 | <a name="module_dns"></a> [dns](#module\_dns) | ./modules/dns |  |
 | <a name="module_iam"></a> [iam](#module\_iam) | ./modules/iam |  |
+| <a name="module_kms"></a> [kms](#module\_kms) | ./modules/kms |  |
 | <a name="module_network"></a> [network](#module\_network) | ./modules/network |  |
 | <a name="module_secrets"></a> [secrets](#module\_secrets) | ./modules/secrets |  |
 
@@ -40,6 +41,7 @@ No resources.
 | <a name="input_compute"></a> [compute](#input\_compute) | compute module parameters | <pre>object({<br>    name      = string<br>    namespace = string<br>    region    = string<br>    key_path  = string<br>    tags      = optional(map(string))<br>    instance = object({<br>      spot_price = string<br>      ami        = string<br>      type       = string<br>      user_data = optional(object({<br>        bucket_name = string<br>        key         = string<br>      }))<br>    })<br>  })</pre> | n/a | yes |
 | <a name="input_dns"></a> [dns](#input\_dns) | dns module parameters | <pre>object({<br>    namespace   = string<br>    domain_name = string<br>    records = object({<br>      apps = list(string)<br>    })<br>    tags = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_iam"></a> [iam](#input\_iam) | iam module parameters | <pre>object({<br>    namespace = string<br>    source_ip = optional(map(string))<br>    tags      = optional(map(string))<br>  })</pre> | n/a | yes |
+| <a name="input_kms"></a> [kms](#input\_kms) | KMS module for encryption | <pre>object({<br>    namespace  = string<br>    tags       = optional(map(string))<br>    key_admins = list(string)<br>    key_users  = list(string)<br>  })</pre> | n/a | yes |
 | <a name="input_my_ip"></a> [my\_ip](#input\_my\_ip) | Current deployer source IP | `string` | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Network module parameters | <pre>object({<br>    namespace      = string<br>    vpc_cidr_block = string<br>    tags           = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_pgp_key"></a> [pgp\_key](#input\_pgp\_key) | PGP base64 encoded public key | `string` | n/a | yes |
@@ -49,6 +51,7 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_jenkins_job_role_arn"></a> [jenkins\_job\_role\_arn](#output\_jenkins\_job\_role\_arn) | n/a |
 | <a name="output_jenkins_node_user_key"></a> [jenkins\_node\_user\_key](#output\_jenkins\_node\_user\_key) | n/a |
 | <a name="output_secret"></a> [secret](#output\_secret) | n/a |
 | <a name="output_secret_version"></a> [secret\_version](#output\_secret\_version) | n/a |

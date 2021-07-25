@@ -12,7 +12,7 @@ JK_USER_SECRET_FILE="jenkins-secrets-file.txt"
 JK_SECRET_ID=$(terraform output -json | jq '.secret.value["jenkins-node-aws-key"].id' -r)
 JK_USER_SECRET=$(terraform output -json | jq '.jenkins_node_user_key.value' -r)
 
-PGP_PASSPHRASE_FILE="pgp-passphrase"
+PGP_PASSPHRASE_FILE="pgp-passphrase.txt"
 PGP_PASSPHRASE=$(cat $PGP_PASSPHRASE_FILE)
 
 JK_ID=$(echo $JK_USER_SECRET | jq '.id' -r)

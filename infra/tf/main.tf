@@ -22,6 +22,17 @@ module "iam" {
   tags    = var.network.tags
 }
 
+module "kms" {
+  source     = "./modules/kms"
+  tags       = var.kms.tags
+  namespace  = var.kms.namespace
+  key_admins = concat(var.kms.key_admins, [])
+  key_users = concat(var.kms.key_users, [
+    module.iam.instance_role_arn,
+    module.iam.jenkins_job_role_arn
+  ])
+}
+
 module "secrets" {
   source    = "./modules/secrets"
   namespace = var.secrets.namespace
@@ -30,15 +41,10 @@ module "secrets" {
     module.network.vm_public_ip,
     "${var.my_ip}/32"
   ]
-  kms_id = var.kms_id
   trusted_identities = [
     module.iam.instance_role_arn,
     module.iam.jenkins_job_role_arn
   ]
-  kms_trusted_identities = {
-    "jenkins_job_role_arn" = module.iam.jenkins_job_role_arn
-    "instance_role_arn" = module.iam.instance_role_arn
-  }
 }
 
 module "dns" {

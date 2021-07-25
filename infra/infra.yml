@@ -34,7 +34,7 @@ volumes:
   portainer-vol:
     external: true
 
-services:
+services: # 8 services
   # backup tools
   taquy-backup:
     container_name: taquy-backup
@@ -46,7 +46,7 @@ services:
     volumes:
       - backup-logs-vol:/data/backup/logs
       - backup-archives-vol:/data/backup/archives
-      - /root/.aws:~/.aws/
+      - /root/.aws:/home/root/.aws/
     environment:
       # every day at 00:00
       SCHEDULE: '0 0 * * *'

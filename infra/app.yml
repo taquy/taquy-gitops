@@ -10,7 +10,7 @@ volumes:
   app-vol:
     external: true
 
-services:
+services: # 6 services
   fluentd:
     container_name: fluentd
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:latest

@@ -16,6 +16,6 @@ variable "vpc_id" {
 
 variable "source_ip" {
   description = "Source IPs"
-  default = ["0.0.0.0/0"]
+  default     = ["0.0.0.0/0"]
   type        = list(string)
 }

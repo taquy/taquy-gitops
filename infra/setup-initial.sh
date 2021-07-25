@@ -49,8 +49,8 @@ apt-get upgrade -y
 # install ecr helper (for instance)
 echo "Start installing ECR helper..."
 apt install -y amazon-ecr-credential-helper
-printf '{\n\t"credsStore": "ecr-login"\n}\n' > $HOME/.docker/config.json 
-printf '{\n\t"credsStore": "ecr-login"\n}\n' > /root/.docker/config.json 
+printf '{\n\t"credsStore": "ecr-login"\n}\n' > $HOME/.docker/config.json
+printf '{\n\t"credsStore": "ecr-login"\n}\n' > /root/.docker/config.json
 
 # install aws-cli
 echo "Start installing AWS CLI..."

@@ -9,9 +9,14 @@ variable "pgp_key" {
   type        = string
 }
 
-variable "kms_id" {
-  description = "CMK to encrypt secrets"
-  type        = string
+variable "kms" {
+  description = "KMS module for encryption"
+  type = object({
+    namespace  = string
+    tags       = optional(map(string))
+    key_admins = list(string)
+    key_users  = list(string)
+  })
 }
 
 variable "secrets" {

@@ -16,11 +16,3 @@ output "secret_version" {
     }
   })
 }
-
-output "aws_kms_grant" {
-  value = aws_kms_grant.kms_grant
-}
-
-output "kms" {
-  value = data.aws_kms_key.kms
-}

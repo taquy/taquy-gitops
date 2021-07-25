@@ -4,7 +4,7 @@
 echo "Tainting spot instance..."
 bash run-taint.sh
 
-# push latest initialization script 
+# push latest initialization script
 echo "Pushing latest intial setup script..."
 cd ..
 bash push-docker-compose.sh

@@ -39,7 +39,7 @@ locals {
       },
       "${var.namespace}KmsGetKey" = {
         actions = [
-          "kms:Decrypt", 
+          "kms:Decrypt",
           "kms:DescribeKey"
         ],
         resources = [
@@ -99,7 +99,7 @@ locals {
       },
       "${var.namespace}KmsGetKey" = {
         actions = [
-          "kms:Decrypt", 
+          "kms:Decrypt",
           "kms:DescribeKey"
         ],
         resources = [

@@ -50,6 +50,6 @@
 |------|-------------|
 | <a name="output_instance_profile"></a> [instance\_profile](#output\_instance\_profile) | Instance profile |
 | <a name="output_instance_role_arn"></a> [instance\_role\_arn](#output\_instance\_role\_arn) | Instance role arn |
-| <a name="output_jenkins_node_role_arn"></a> [jenkins\_node\_role\_arn](#output\_jenkins\_node\_role\_arn) | Jenkins node role arn |
+| <a name="output_jenkins_job_role_arn"></a> [jenkins\_job\_role\_arn](#output\_jenkins\_job\_role\_arn) | Jenkins job role arn |
 | <a name="output_jenkins_node_user_key"></a> [jenkins\_node\_user\_key](#output\_jenkins\_node\_user\_key) | Jenkins node user access key |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
