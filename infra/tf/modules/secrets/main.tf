@@ -36,7 +36,7 @@ resource "aws_secretsmanager_secret" "secret" {
 resource "aws_secretsmanager_secret_version" "secret_version" {
   for_each      = var.secrets
   secret_id     = aws_secretsmanager_secret.secret[each.key].id
-  secret_string = each.value.data_path != "" ? file(each.value.data_path) : defaults(each.value.data_value, "")
+  secret_string = lookup(each.value, "data_path", "") != null ? file(each.value.data_path) : (lookup(each.value, "data_value", "") != null ? each.value.data_value : "empty")
 }
 
 resource "aws_secretsmanager_secret_policy" "secret_policy" {
