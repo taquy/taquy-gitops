@@ -99,6 +99,8 @@ sysctl -w vm.max_map_count=262144
 # setup jenkins node service account secret
 apt install -y jq
 
+# aws secretsmanager list-secrets
+
 JENKINS_NODE_SECRET=$(aws secretsmanager get-secret-value --secret-id taquy-jenkins-node-aws-key | jq .SecretString)
 ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .id')
 ACCESS_SECRET=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .secret')

@@ -123,7 +123,7 @@ services: # 8 services
     privileged: true
     restart: always
     ports:
-      - 9091:8080
+      - 9092:8080
       - 11111:10943
     environment:
       ACCEPT_EULA: "Y"

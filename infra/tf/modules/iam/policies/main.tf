@@ -30,16 +30,23 @@ locals {
           "kms:ListKeys"
         ],
         resources = [
-          "arn:aws:ecr:${local.region}:${local.account_id}:key/*",
+          "*",
         ]
       },
       "${var.namespace}KmsGetKey" = {
         actions = [
           "kms:Decrypt",
-          "kms:DescribeKey"
         ],
         resources = [
           "arn:aws:ecr:${local.region}:${local.account_id}:key/235356b5-71fc-4f10-8324-e041bc259be2",
+        ]
+      },
+       "${var.namespace}KmsDescribeKey" = {
+        actions = [
+          "kms:DescribeKey"
+        ],
+        resources = [
+          "arn:aws:ecr:${local.region}:${local.account_id}:key/*",
         ]
       },
       "${var.namespace}EcrReadImages" = {
@@ -75,9 +82,14 @@ locals {
       "${var.namespace}GetSecrets" = {
         actions = [
           "secretsmanager:GetSecretValue",
-          "secretsmanager:ListSecrets"
         ],
         resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:*"
+      },
+       "${var.namespace}ListSecrets" = {
+        actions = [
+          "secretsmanager:ListSecrets"
+        ],
+        resources = "*"
       },
       "${var.namespace}GetIdentity" = {
         actions   = "sts:GetCallerIdentity",
@@ -137,11 +149,16 @@ locals {
       },
       "${var.namespace}CwLogs" = {
         actions = [
-          "logs:CreateLogStream",
           "logs:DescribeLogStreams",
-          "logs:CreateLogGroup"
+          "logs:CreateLogStream",
         ],
         resources = "arn:aws:logs:${local.region}:${local.account_id}:log-group:*"
+      },
+      "${var.namespace}CwLogs" = {
+        actions = [
+          "logs:CreateLogGroup"
+        ],
+        resources = "*"
       },
       "${var.namespace}PutLogs" = {
         actions   = "logs:PutLogEvents",

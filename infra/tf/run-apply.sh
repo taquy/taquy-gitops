@@ -47,5 +47,5 @@ rm $PGP_PASSPHRASE_FILE
 echo "Launched instance public ip $INSTANCE_PUBLIC_IP"
 # ssh to new instance
 ssh-keygen -f "/home/qt/.ssh/known_hosts" -R $INSTANCE_PUBLIC_IP
+ssh-keyscan $INSTANCE_PUBLIC_IP >> "/home/qt/.ssh/known_hosts"
 ssh -i /home/qt/.ssh/taquy-vm ubuntu@$INSTANCE_PUBLIC_IP
-

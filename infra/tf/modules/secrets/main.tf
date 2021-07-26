@@ -21,12 +21,12 @@ module "label" {
 
   source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   namespace = var.namespace
-  prefix    = each.key
   name      = random_string.random_name.result
 
   delimiter = "-"
 
-  label_order = ["namespace", "prefix", "name"]
+  attributes = [each.key]
+  label_order = ["namespace", "attributes", "name"]
 
   tags = each.value.tags
 }

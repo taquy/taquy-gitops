@@ -44,7 +44,7 @@ PGP_PUBLIC_KEY=$(gpg --export $MAINTAINER_EMAIL | base64)
 
 # prepare IP to whitelist
 echo "Finding your IP to be whitelisted in IAM..."
-MY_IP=$(curl checkip.amazonaws.com)
+MY_IP=$(curl -s checkip.amazonaws.com)
 echo "Your current IP is $MY_IP"
 
 # terraform workspace new taquy
