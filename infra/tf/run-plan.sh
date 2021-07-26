@@ -11,7 +11,7 @@ aws s3 cp ./helpers/amazon-cloudwatch-agent.yml s3://taquy-deploy/amazon-cloudwa
 # push latest initialization script
 echo "Pushing latest intial setup script..."
 cd ..
-# bash push-docker-compose.sh
+bash push-docker-compose.sh
 cd -
 
 # decrypting secrets file
