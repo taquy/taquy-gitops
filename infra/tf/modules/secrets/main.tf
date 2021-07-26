@@ -8,16 +8,25 @@ locals {
   account_id = data.aws_caller_identity.current_identity.account_id
 }
 
+resource "random_string" "random_name" {
+  length  = 6
+  special = false
+  upper   = false
+  lower   = true
+  number  = false
+}
+
 module "label" {
   for_each = var.secrets
 
   source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   namespace = var.namespace
-  name      = each.key
+  prefix    = each.key
+  name      = random_string.random_name.result
 
   delimiter = "-"
 
-  label_order = ["namespace", "name"]
+  label_order = ["namespace", "prefix", "name"]
 
   tags = each.value.tags
 }

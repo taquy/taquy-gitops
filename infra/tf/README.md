@@ -24,6 +24,7 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_compute"></a> [compute](#module\_compute) | ./modules/compute |  |
+| <a name="module_cw"></a> [cw](#module\_cw) | ./modules/cw |  |
 | <a name="module_dns"></a> [dns](#module\_dns) | ./modules/dns |  |
 | <a name="module_iam"></a> [iam](#module\_iam) | ./modules/iam |  |
 | <a name="module_kms"></a> [kms](#module\_kms) | ./modules/kms |  |
@@ -39,6 +40,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_compute"></a> [compute](#input\_compute) | compute module parameters | <pre>object({<br>    name      = string<br>    namespace = string<br>    region    = string<br>    key_path  = string<br>    tags      = optional(map(string))<br>    instance = object({<br>      spot_price = string<br>      ami        = string<br>      type       = string<br>      user_data = optional(object({<br>        bucket_name = string<br>        key         = string<br>      }))<br>    })<br>  })</pre> | n/a | yes |
+| <a name="input_cw"></a> [cw](#input\_cw) | CloudWatch module parameters | <pre>object({<br>    namespace = string<br>    tags      = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_dns"></a> [dns](#input\_dns) | dns module parameters | <pre>object({<br>    namespace   = string<br>    domain_name = string<br>    records = object({<br>      apps = list(string)<br>    })<br>    tags = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_iam"></a> [iam](#input\_iam) | iam module parameters | <pre>object({<br>    namespace = string<br>    source_ip = optional(map(string))<br>    tags      = optional(map(string))<br>  })</pre> | n/a | yes |
 | <a name="input_kms"></a> [kms](#input\_kms) | KMS module for encryption | <pre>object({<br>    namespace  = string<br>    tags       = optional(map(string))<br>    key_admins = list(string)<br>    key_users  = list(string)<br>  })</pre> | n/a | yes |

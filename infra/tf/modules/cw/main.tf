@@ -7,7 +7,7 @@ module "label" {
 }
 
 resource "aws_cloudwatch_log_group" "cw_log_instance" {
-  name = "${module.label.id}-instance"
+  name              = "${module.label.id}-instance"
   retention_in_days = 1
-  tags = module.label.tags
+  tags              = module.label.tags
 }

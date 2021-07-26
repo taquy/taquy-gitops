@@ -35,8 +35,8 @@ variable "secrets" {
 variable "cw" {
   description = "CloudWatch module parameters"
   type = object({
-    namespace      = string
-    tags           = optional(map(string))
+    namespace = string
+    tags      = optional(map(string))
   })
 }
 

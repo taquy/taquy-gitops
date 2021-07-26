@@ -50,9 +50,9 @@ module "secrets" {
 }
 
 module "cw" {
-  source = "./modules/cw"
-  namespace    = var.cw.namespace
-  tags         = var.cw.tags
+  source    = "./modules/cw"
+  namespace = var.cw.namespace
+  tags      = var.cw.tags
 }
 
 module "dns" {

@@ -30,7 +30,6 @@ echo $JK_USER_SECRET > $JK_USER_SECRET_FILE
 # update secrets
 aws secretsmanager update-secret \
     --secret-id $JK_SECRET_ID \
-    --kms-key-id $JENKINS_CREDENTIALS_KMS_KEY \
     --secret-string file://$JK_USER_SECRET_FILE
 
 INSTANCE_PUBLIC_IP=$(terraform output -json | jq '.vm_public_ip.value' -r)
