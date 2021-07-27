@@ -85,7 +85,7 @@ locals {
         ],
         resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:*"
       },
-       "${var.namespace}ListSecrets" = {
+      "${var.namespace}ListSecrets" = {
         actions = [
           "secretsmanager:ListSecrets"
         ],
@@ -117,9 +117,14 @@ locals {
       "${var.namespace}GetSecrets" = {
         actions = [
           "secretsmanager:GetSecretValue",
+        ],
+        resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:taquy-jenkins-node-aws-key",
+      },
+      "${var.namespace}ListSecrets" = {
+        actions = [
           "secretsmanager:ListSecrets"
         ],
-        resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:*"
+        resources = "*"
       },
       "${var.namespace}EcrPushImages" = {
         actions = [

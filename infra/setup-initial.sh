@@ -3,13 +3,20 @@
 # install cloudwatch logs agent
 apt update
 apt -y upgrade
+
+## install python
 apt install -y software-properties-common
 add-apt-repository -y ppa:deadsnakes/ppa -y
 apt update
 apt install -y python
-curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
-chmod +x ./awslogs-agent-setup.py
-./awslogs-agent-setup.py -n -r ap-southeast-1 -c s3://taquy-deploy/amazon-cloudwatch-agent.yml
+
+## install cloudwatch agent
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+## run cloudwatch agent
+aws s3 cp s3://taquy-deploy/cw-agent.cfg ./
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:cw-agent.cfg
 
 # install tools
 apt install -y net-tools unzip
@@ -21,6 +28,11 @@ HOME="/home/$USER"
 
 userdel -r $USER
 rm -rf $HOME
+
+## change hostname
+hostnamectl set-hostname $USER
+HOSTNAME=$(hostnamectl)
+echo "Changed hostname $HOSTNAME"
 
 groupdel $GROUP
 groupadd -g 2000 -f $GROUP
@@ -101,7 +113,14 @@ apt install -y jq
 
 # aws secretsmanager list-secrets
 
-JENKINS_NODE_SECRET=$(aws secretsmanager get-secret-value --secret-id taquy-jenkins-node-aws-key | jq .SecretString)
+JENKINS_NODE_SECRET_ID=$(aws secretsmanager list-secrets \
+  --filters Key=tag-key,Values=Attributes \
+  Key=tag-value,Values=taquy-jenkins-node-aws-key\
+)
+JENKINS_NODE_SECRET_ID=$(echo $JENKINS_NODE_SECRET_ID | jq -r ".SecretList[0].Name")
+JENKINS_NODE_SECRET=$(aws secretsmanager get-secret-value --secret-id $JENKINS_NODE_SECRET_ID)
+echo $JENKINS_NODE_SECRET
+
 ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .id')
 ACCESS_SECRET=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .secret')
 ROLE_ARN=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .role')
