@@ -2,7 +2,7 @@
 
 # run taint for development purpose only
 echo "Tainting spot instance..."
-bash run-taint.sh
+# bash run-taint.sh
 
 # copy logs file to s3
 echo "Upload logs config..."

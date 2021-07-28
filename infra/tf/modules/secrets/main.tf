@@ -25,7 +25,7 @@ module "label" {
 
   delimiter = "-"
 
-  attributes = [each.key]
+  attributes  = [each.key]
   label_order = ["namespace", "attributes", "name"]
 
   tags = each.value.tags
