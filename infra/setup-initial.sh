@@ -112,14 +112,13 @@ sysctl -w vm.max_map_count=262144
 apt install -y jq
 
 # aws secretsmanager list-secrets
-
 JENKINS_NODE_SECRET_ID=$(aws secretsmanager list-secrets \
   --filters Key=tag-key,Values=Attributes \
   Key=tag-value,Values=taquy-jenkins-node-aws-key\
 )
 JENKINS_NODE_SECRET_ID=$(echo $JENKINS_NODE_SECRET_ID | jq -r ".SecretList[0].Name")
 JENKINS_NODE_SECRET=$(aws secretsmanager get-secret-value --secret-id $JENKINS_NODE_SECRET_ID)
-echo $JENKINS_NODE_SECRET
+# aws secretsmanager get-secret-value --secret-id taquy-jenkins-node-aws-key-wlpeuw
 
 ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .id')
 ACCESS_SECRET=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .secret')

@@ -9,6 +9,14 @@ locals {
   account_id = data.aws_caller_identity.current_identity.account_id
 }
 
+resource "random_string" "random_name" {
+  length  = 6
+  special = false
+  upper   = false
+  lower   = true
+  number  = false
+}
+
 module "label" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   namespace   = var.namespace
@@ -99,6 +107,6 @@ resource "aws_kms_key" "kms" {
 }
 
 resource "aws_kms_alias" "kms_alias" {
-  name          = "alias/taquy-secret-manager"
+  name          = "alias/taquy-secret-manager-${random_string.random_name.result}"
   target_key_id = aws_kms_key.kms.key_id
 }

@@ -33,20 +33,13 @@ locals {
           "*",
         ]
       },
-      "${var.namespace}KmsGetKey" = {
+      "${var.namespace}KmsUsage" = {
         actions = [
           "kms:Decrypt",
-        ],
-        resources = [
-          "arn:aws:ecr:${local.region}:${local.account_id}:key/235356b5-71fc-4f10-8324-e041bc259be2",
-        ]
-      },
-       "${var.namespace}KmsDescribeKey" = {
-        actions = [
           "kms:DescribeKey"
         ],
         resources = [
-          "arn:aws:ecr:${local.region}:${local.account_id}:key/*",
+          "arn:aws:kms:${local.region}:${local.account_id}:key/*",
         ]
       },
       "${var.namespace}EcrReadImages" = {
@@ -97,34 +90,32 @@ locals {
       },
     },
     instance = {
-      "${var.namespace}KmsList" = {
+      "${var.namespace}KmsListKeys" = {
         actions = [
           "kms:ListKeys"
         ],
-        resources = [
-          "arn:aws:ecr:${local.region}:${local.account_id}:key/*",
-        ]
+        resources = "*"
       },
-      "${var.namespace}KmsGetKey" = {
+      "${var.namespace}KmsAccess" = {
         actions = [
           "kms:Decrypt",
           "kms:DescribeKey"
         ],
         resources = [
-          "arn:aws:ecr:${local.region}:${local.account_id}:key/235356b5-71fc-4f10-8324-e041bc259be2",
+          "arn:aws:kms:${local.region}:${local.account_id}:key/*",
         ]
-      },
-      "${var.namespace}GetSecrets" = {
-        actions = [
-          "secretsmanager:GetSecretValue",
-        ],
-        resources = "arn:aws:logs:${local.region}:${local.account_id}:secret:taquy-jenkins-node-aws-key",
       },
       "${var.namespace}ListSecrets" = {
         actions = [
           "secretsmanager:ListSecrets"
         ],
-        resources = "*"
+        resources = "*",
+      },
+      "${var.namespace}GetSecrets" = {
+        actions = [
+          "secretsmanager:GetSecretValue",
+        ],
+        resources = "arn:aws:secretsmanager:${local.region}:${local.account_id}:secret:${var.namespace}*",
       },
       "${var.namespace}EcrPushImages" = {
         actions = [
@@ -152,20 +143,20 @@ locals {
         ],
         resources = "*"
       },
-      "${var.namespace}CwLogs" = {
+      "${var.namespace}CreateLogsGroups" = {
+        actions = [
+          "logs:CreateLogGroup",
+        ],
+        resources = "arn:aws:logs:${local.region}:${local.account_id}:*"
+      },
+      "${var.namespace}CreateLogsStreams" = {
         actions = [
           "logs:DescribeLogStreams",
           "logs:CreateLogStream",
         ],
         resources = "arn:aws:logs:${local.region}:${local.account_id}:log-group:*"
       },
-      "${var.namespace}CwLogs" = {
-        actions = [
-          "logs:CreateLogGroup"
-        ],
-        resources = "*"
-      },
-      "${var.namespace}PutLogs" = {
+      "${var.namespace}PutLogsEvents" = {
         actions   = "logs:PutLogEvents",
         resources = "arn:aws:logs:${local.region}:${local.account_id}:log-group:*:log-stream:*"
       },
