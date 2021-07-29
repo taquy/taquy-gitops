@@ -11,10 +11,30 @@ apt update
 apt install -y python
 
 ## install cloudwatch agent
-wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+ARCH=$(uname -m)
+echo "The architecture is $ARCH"
+rm -rf amazon-cloudwatch-agent.deb*
+
+echo "Installing cloudwatch agent"
+if [ "$ARCH" == "aarch64" ]; then
+  wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb
+else
+  wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+fi
+dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+# Install aws-cli
+echo "Installing AWS CLI..."
+if [ "$ARCH" == "aarch64" ]; then
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+else
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+fi
+unzip -qq awscliv2.zip
+./aws/install --update
 
 ## run cloudwatch agent
+echo "Start cloudwatch agent"
 aws s3 cp s3://taquy-deploy/cw-agent.cfg ./
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:cw-agent.cfg
 
@@ -74,12 +94,6 @@ echo "Start installing ECR helper..."
 apt install -y amazon-ecr-credential-helper
 printf '{\n\t"credsStore": "ecr-login"\n}\n' > $HOME/.docker/config.json
 printf '{\n\t"credsStore": "ecr-login"\n}\n' > /root/.docker/config.json
-
-# install aws-cli
-echo "Start installing AWS CLI..."
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip -qq awscliv2.zip
-./aws/install
 
 # install cockpit
 echo "Start installing Cockpit..."
