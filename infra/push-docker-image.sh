@@ -24,6 +24,13 @@ elif [[ $PROJECT -eq "jenkins" ]]
 then
   echo "Start building $PROJECT"
   docker build . -t $REPOSITORY_URI/$PROJECT --build-arg root1234 --no-cache
+# build docker compose
+elif [[ $PROJECT -eq "compose" ]]
+then
+  echo "Start building $PROJECT"
+  bash setup.sh
+  docker tag docker-compose:aarch64 $REPOSITORY_URI/$PROJECT:aarch64
+  docker push $REPOSITORY_URI/$PROJECT:aarch64
 elif [[ $PROJECT -eq "mssql" ]]
 then
   echo "Start building $PROJECT"

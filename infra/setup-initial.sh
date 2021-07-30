@@ -11,11 +11,10 @@ apt update
 apt install -y python
 
 ## install cloudwatch agent
+rm -rf amazon-cloudwatch-agent.deb*
 ARCH=$(uname -m)
 echo "The architecture is $ARCH"
-rm -rf amazon-cloudwatch-agent.deb*
-
-echo "Installing cloudwatch agent"
+echo "Install cloudwatch agent"
 if [ "$ARCH" == "aarch64" ]; then
   wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb
 else
@@ -24,12 +23,8 @@ fi
 dpkg -i -E ./amazon-cloudwatch-agent.deb
 
 # Install aws-cli
-echo "Installing AWS CLI..."
-if [ "$ARCH" == "aarch64" ]; then
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
-else
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-fi
+echo "Start installing AWS CLI..."
+curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
 unzip -qq awscliv2.zip
 ./aws/install --update
 
@@ -77,6 +72,20 @@ apt install -y docker.io
 curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 usermod -a -G docker $USER
+
+# install docker-compose
+git clone https://github.com/docker/compose.git
+cd compose
+git checkout 1.29.2
+sed -i -e 's:^VENV=/code/.tox/py36:VENV=/code/.venv; python3 -m venv $VENV:' script/build/linux-entrypoint
+sed -i -e '/requirements-build.txt/ i $VENV/bin/pip install -q -r requirements.txt' script/build/linux-entrypoint
+docker build -t docker-compose:aarch64 .
+docker run --rm --entrypoint="script/build/linux-entrypoint" -v $(pwd)/dist:/code/dist -v $(pwd)/.git:/code/.git "docker-compose:aarch64"
+sudo cp dist/docker-compose-Linux-armv7l /usr/local/bin/docker-compose
+sudo chown root:root /usr/local/bin/docker-compose
+sudo chmod 0755 /usr/local/bin/docker-compose
+docker-compose version
+cd ..
 
 # update docker permission
 mkdir -p "$HOME/.docker" # for app user
