@@ -15,9 +15,10 @@ resource "aws_key_pair" "key" {
 }
 
 # create ami
-resource "aws_ami" "example" {
-  name                = module.label.id
+resource "aws_ami" "ami_ubuntu_arm64" {
+  name                = "${var.namespace}-ubuntu-arm64"
   virtualization_type = "hvm"
+  architecture = "arm64"
   root_device_name    = "/dev/sda1"
 
   ebs_block_device {
@@ -27,7 +28,7 @@ resource "aws_ami" "example" {
   }
 
   tags = merge(module.label.tags, {
-    "Name" = module.label.id
+    "Name" = "${var.namespace}-ubuntu-arm64"
   })
 }
 
