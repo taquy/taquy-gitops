@@ -1,121 +1,11 @@
 #!/usr/bin/env bash
 
-# install cloudwatch logs agent
-apt update
-apt -y upgrade
-
-## install python
-apt install -y software-properties-common
-add-apt-repository -y ppa:deadsnakes/ppa -y
-apt update
-apt install -y python
-
-## install cloudwatch agent
-rm -rf amazon-cloudwatch-agent.deb*
-ARCH=$(uname -m)
-echo "The architecture is $ARCH"
-echo "Install cloudwatch agent"
-if [ "$ARCH" == "aarch64" ]; then
-  wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb
-else
-  wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-fi
-dpkg -i -E ./amazon-cloudwatch-agent.deb
-
-# Install aws-cli
-echo "Start installing AWS CLI..."
-curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
-unzip -qq awscliv2.zip
-./aws/install --update
-
-## run cloudwatch agent
+# run cloudwatch agent
 echo "Start cloudwatch agent"
 aws s3 cp s3://taquy-deploy/cw-agent.cfg ./
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:cw-agent.cfg
 
-# install tools
-apt install -y net-tools unzip
-
-USER="taquy"
-GROUP="taquy"
-DATA_DIR="/data"
-HOME="/home/$USER"
-
-userdel -r $USER
-rm -rf $HOME
-
-## change hostname
-hostnamectl set-hostname $USER
-HOSTNAME=$(hostnamectl)
-echo "Changed hostname $HOSTNAME"
-
-groupdel $GROUP
-groupadd -g 2000 -f $GROUP
-echo "Created groups:" $(cat /etc/group | grep $GROUP)
-
-useradd -m -g $GROUP -u 2000 $USER
-echo -e "1\n1" | passwd $USER
-# change primary group
-usermod -g $GROUP $USER
-echo "Created user:" $(getent passwd | awk -F: '{ print $1}' | grep $USER)
-
-# create data directory
-cd / && ls -la | grep 'data'
-mkdir -p $DATA_DIR
-chown -R $USER:$GROUP $DATA_DIR
-chmod u+rwx,g+rwx,o+r-wx $DATA_DIR -R
-cd / && ls -la | grep 'data'
-
-# install docker & docker-compose
-apt-get update -y
-apt install -y docker.io
-curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-usermod -a -G docker $USER
-
-# install docker-compose
-git clone https://github.com/docker/compose.git
-cd compose
-git checkout 1.29.2
-sed -i -e 's:^VENV=/code/.tox/py36:VENV=/code/.venv; python3 -m venv $VENV:' script/build/linux-entrypoint
-sed -i -e '/requirements-build.txt/ i $VENV/bin/pip install -q -r requirements.txt' script/build/linux-entrypoint
-docker build -t docker-compose:aarch64 .
-docker run --rm --entrypoint="script/build/linux-entrypoint" -v $(pwd)/dist:/code/dist -v $(pwd)/.git:/code/.git "docker-compose:aarch64"
-sudo cp dist/docker-compose-Linux-armv7l /usr/local/bin/docker-compose
-sudo chown root:root /usr/local/bin/docker-compose
-sudo chmod 0755 /usr/local/bin/docker-compose
-docker-compose version
-cd ..
-
-# update docker permission
-mkdir -p "$HOME/.docker" # for app user
-mkdir -p /root/.docker # for root user
-usermod -aG docker $USER
-chown -R "$USER":"$USER" $HOME/.docker -R
-chmod g+rwx "$HOME/.docker" -R
-
-# update latest packages after all installation
-apt-get update -y
-apt-get upgrade -y
-
-# install ecr helper (for instance)
-echo "Start installing ECR helper..."
-apt install -y amazon-ecr-credential-helper
-printf '{\n\t"credsStore": "ecr-login"\n}\n' > $HOME/.docker/config.json
-printf '{\n\t"credsStore": "ecr-login"\n}\n' > /root/.docker/config.json
-
-# install cockpit
-echo "Start installing Cockpit..."
-apt install cockpit -y
-systemctl start cockpit
-systemctl enable cockpit
-ufw allow 9090/tcp
-
-# change permission to official user
-chown -R "$USER":"$USER" $HOME -R
-chmod g+rwx $HOME -R
-
-# create volumes
+# create volume directory
 cd $DATA_DIR
 mkdir -p es redis mongo tmp	portainer jenkins octopus mssql nginx certbot backup
 
@@ -128,19 +18,14 @@ cd $DATA_DIR/backup/ && mkdir logs archives
 chown -R $USER:$GROUP $DATA_DIR
 chmod u+rwx,g+rwx,o+r-wx -R $DATA_DIR
 
-# Setup memory for VM
-sysctl -w vm.max_map_count=262144
-
-# setup jenkins node service account secret
-apt install -y jq
-
 # aws secretsmanager list-secrets
 JENKINS_NODE_SECRET_ID=$(aws secretsmanager list-secrets \
   --filters Key=tag-key,Values=Attributes \
-  Key=tag-value,Values=taquy-jenkins-node-aws-key\
+  Key=tag-value,Values=taquy-jenkins-node-aws-key \
 )
 JENKINS_NODE_SECRET_ID=$(echo $JENKINS_NODE_SECRET_ID | jq -r ".SecretList[0].Name")
-JENKINS_NODE_SECRET=$(aws secretsmanager get-secret-value --secret-id $JENKINS_NODE_SECRET_ID)
+JENKINS_NODE_SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $JENKINS_NODE_SECRET_ID)
+JENKINS_NODE_SECRET=$(echo $JENKINS_NODE_SECRET_JSON | jq -r ".SecretString")
 # aws secretsmanager get-secret-value --secret-id taquy-jenkins-node-aws-key-wlpeuw
 
 ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .id')

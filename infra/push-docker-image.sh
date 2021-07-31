@@ -7,38 +7,31 @@ REGION=ap-southeast-1
 ACCOUNT=$(aws sts get-caller-identity | jq .Account -r )
 REPOSITORY_URI=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com
 
-if [[ $PROJECT -eq "backup" ]]
+if [[ $PROJECT == "backup" ]]
 then
   ARGS=$2
-  echo "Start building $PROJECT"
+  echo "Start building backup"
   docker build $ARGS . -t $REPOSITORY_URI/$PROJECT:latest
-elif [[ $PROJECT -eq "fluentd" ]]
+elif [[ $PROJECT == "fluentd" ]]
 then
-  echo "Start building $PROJECT"
+  echo "Start building fluentd"
   docker build . -t $REPOSITORY_URI/$PROJECT:latest
-elif [[ $PROJECT -eq "node" ]]
+elif [[ $PROJECT == "node" ]]
 then
-  echo "Start building $PROJECT"
+  echo "Start building node"
   docker build . -t $REPOSITORY_URI/$PROJECT:latest
-elif [[ $PROJECT -eq "jenkins" ]]
+elif [[ $PROJECT == "jenkins" ]]
 then
-  echo "Start building $PROJECT"
+  echo "Start building jenkins"
   docker build . -t $REPOSITORY_URI/$PROJECT --build-arg root1234 --no-cache
-# build docker compose
-elif [[ $PROJECT -eq "compose" ]]
+elif [[ $PROJECT == "mssql" ]]
 then
-  echo "Start building $PROJECT"
-  bash setup.sh
-  docker tag docker-compose:aarch64 $REPOSITORY_URI/$PROJECT:aarch64
-  docker push $REPOSITORY_URI/$PROJECT:aarch64
-elif [[ $PROJECT -eq "mssql" ]]
-then
-  echo "Start building $PROJECT"
+  echo "Start building mssql"
   docker pull mcr.microsoft.com/mssql/server:2019-latest
   docker tag mcr.microsoft.com/mssql/server:2019-latest $REPOSITORY_URI
-elif [[ $PROJECT -eq "nginx" ]]
+elif [[ $PROJECT == "nginx" ]]
 then
-  echo "Start building $PROJECT"
+  echo "Start building nginx"
   docker build . -t $REPOSITORY_URI/$PROJECT:latest --no-cache
 fi
 
