@@ -29,6 +29,13 @@ variable "key_path" {
   type        = string
 }
 
+variable "ami" {
+  description = "AMI configuration"
+  type = object({
+    snapshot_id = string
+  })
+}
+
 variable "instance" {
   description = "Spot instance configuration"
   type = object({

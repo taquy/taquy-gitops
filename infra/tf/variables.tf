@@ -54,9 +54,12 @@ variable "compute" {
   type = object({
     name      = string
     namespace = string
-    region    = string
-    key_path  = string
-    tags      = optional(map(string))
+    ami = object({
+      snapshot_id = string
+    })
+    region   = string
+    key_path = string
+    tags     = optional(map(string))
     instance = object({
       spot_price = string
       ami        = string

@@ -25,6 +25,7 @@
 
 | Name | Type |
 |------|------|
+| [aws_ami.example](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ami) | resource |
 | [aws_key_pair.key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
 | [aws_spot_instance_request.spot_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/spot_instance_request) | resource |
 | [aws_s3_bucket_object.user_data_obj](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/s3_bucket_object) | data source |
@@ -34,6 +35,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_ami"></a> [ami](#input\_ami) | AMI configuration | <pre>object({<br>    snapshot_id = string<br>  })</pre> | n/a | yes |
 | <a name="input_instance"></a> [instance](#input\_instance) | Spot instance configuration | <pre>object({<br>    spot_price = string<br>    ami        = string<br>    type       = string<br>    user_data = optional(object({<br>      bucket_name = string<br>      key         = string<br>    }))<br>  })</pre> | n/a | yes |
 | <a name="input_instance_profile"></a> [instance\_profile](#input\_instance\_profile) | Instance profile | `map(string)` | n/a | yes |
 | <a name="input_key_path"></a> [key\_path](#input\_key\_path) | Path to ssh public key at local machine | `string` | n/a | yes |

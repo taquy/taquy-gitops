@@ -73,6 +73,7 @@ module "compute" {
     module.iam
   ]
   name             = var.compute.name
+  ami              = var.compute.ami
   namespace        = var.compute.namespace
   key_path         = var.compute.key_path
   instance         = var.compute.instance
