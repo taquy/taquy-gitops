@@ -1,6 +1,21 @@
 **Initial Deploy**
-# run ash sudo
+```
+# run bash sudo
 bash <(curl -s https://taquy-deploy.s3.ap-southeast-1.amazonaws.com/setup-initial.sh) &
+```
+
+**Setup AMI**
+```
+# push ami scripts
+aws s3 cp ./ami s3://taquy-deploy/ --recursive --acl public-read
+
+# setup for arm64
+curl -sf -L https://taquy-deploy.s3.ap-southeast-1.amazonaws.com/ubuntu-arm64.sh | sudo sh
+
+# setup for x86_x64
+curl -sf -L https://taquy-deploy.s3.ap-southeast-1.amazonaws.com/ubuntu-x86_64.sh | sudo sh
+
+```
 
 **Deploy Services**
 ```bash

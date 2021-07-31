@@ -1,8 +1,14 @@
+sudo -s
+
 # define app user
 USER="taquy"
 GROUP="taquy"
 DATA_DIR="/data"
 HOME="/home/$USER"
+
+# clean up previous app user
+userdel -r $USER
+rm -rf $HOME
 
 # update systep
 apt update
@@ -33,10 +39,6 @@ apt install -y net-tools htop unzip jq
 
 # set memory for VM
 sysctl -w vm.max_map_count=262144
-
-# clean up previous app user
-userdel -r $USER
-rm -rf $HOME
 
 # change hostname
 hostnamectl set-hostname $USER
