@@ -37,7 +37,7 @@ JK_USER_SECRET=$(jq -n \
     --arg id "$JK_ID" \
     --arg secret "$JK_SECRET" \
     --arg role "$JK_ROLE" \
-    '{id: $id, secret: $secret}')
+    '{id: $id, secret: $secret, role: $role}')
 echo $JK_USER_SECRET > $JK_USER_SECRET_FILE
 
 # update secrets
