@@ -68,3 +68,7 @@ echo "Start ssh into instance with ip $INSTANCE_PUBLIC_IP"
 ssh-keygen -f "/home/qt/.ssh/known_hosts" -R $INSTANCE_PUBLIC_IP
 ssh-keyscan $INSTANCE_PUBLIC_IP >> "/home/qt/.ssh/known_hosts"
 ssh -i /home/qt/.ssh/taquy-vm ubuntu@$INSTANCE_PUBLIC_IP
+
+# remove plan file
+PLAN_FILE="plan.txt"
+rm $PLAN_FILE

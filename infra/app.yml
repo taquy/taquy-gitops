@@ -13,7 +13,7 @@ volumes:
 services: # 6 services
   fluentd:
     container_name: fluentd
-    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/fluentd:amd
     restart: always
     depends_on:
       - es
@@ -86,7 +86,7 @@ services: # 6 services
 
   application:
     container_name: taquy-api
-    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-api:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-api:amd
     ports:
      - 90:3000
     restart: always

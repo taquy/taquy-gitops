@@ -18,11 +18,9 @@ apt -y upgrade
 apt install -y software-properties-common
 add-apt-repository -y ppa:deadsnakes/ppa -y
 apt update
-apt install -y python unzip python3-pip
+apt install -y python unzip python3-pip net-tools htop jq
 
 ## install cloudwatch agent
-ARCH=$(uname -m)
-echo "The architecture is $ARCH"
 wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 
 echo "Install cloudwatch agent"
@@ -33,9 +31,6 @@ echo "Start installing AWS CLI..."
 curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
 unzip -qq awscliv2.zip
 ./aws/install --update
-
-# install tools
-apt install -y net-tools htop unzip jq
 
 # set memory for VM
 sysctl -w vm.max_map_count=262144

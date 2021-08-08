@@ -21,6 +21,8 @@ resource "aws_ami" "ami_ubuntu_arm64" {
   architecture = "arm64"
   root_device_name    = "/dev/sda1"
 
+  ena_support = var.instance.type == "t4g.xlarge" ? true : false
+
   ebs_block_device {
     device_name = "/dev/sda1"
     snapshot_id = var.ami.snapshot_id
@@ -29,6 +31,25 @@ resource "aws_ami" "ami_ubuntu_arm64" {
 
   tags = merge(module.label.tags, {
     "Name" = "${var.namespace}-ubuntu-arm64"
+  })
+}
+
+resource "aws_ami" "ami_ubuntu_x86_64" {
+  name                = "${var.namespace}-ubuntu-arm64"
+  virtualization_type = "hvm"
+  architecture = "x86_64"
+  root_device_name    = "/dev/sda1"
+
+  ena_support = var.instance.type == "t3.xlarge" ? true : false
+
+  ebs_block_device {
+    device_name = "/dev/sda1"
+    snapshot_id = var.ami.snapshot_id
+    volume_size = 10
+  }
+
+  tags = merge(module.label.tags, {
+    "Name" = "${var.namespace}-ubuntu-x86_64"
   })
 }
 
@@ -44,7 +65,7 @@ data "template_file" "user_data_tpl" {
 
 resource "aws_spot_instance_request" "spot_instance" {
   spot_price           = var.instance.spot_price
-  ami                  = var.instance.ami
+  ami                  = var.instance.ami != "" ? var.instance.ami : aws_ami.ami_ubuntu_x86_64.id
   instance_type        = var.instance.type
   spot_type            = "one-time"
   iam_instance_profile = var.instance_profile.name
@@ -61,6 +82,7 @@ resource "aws_spot_instance_request" "spot_instance" {
   tags = merge(module.label.tags, {
     "Name" = module.label.id
   })
+
   root_block_device {
     delete_on_termination = true
     volume_size           = 20

@@ -51,12 +51,16 @@ echo "Your current IP is $MY_IP"
 echo "Start running creating terraform plan..."
 terraform workspace select taquy
 
+echo "Start init terraform..."
 terraform init
 
+echo "Start run terraform plan..."
 terraform plan \
     --out tf.plan \
     --var-file=taquy.tfvars \
     -var "my_ip=$MY_IP" \
     -var "pgp_key=$PGP_PUBLIC_KEY"
 
-terraform show tf.plan -no-color > plan.txt
+PLAN_FILE="plan.txt"
+echo "Start show terraform plan in ..."
+terraform show tf.plan -no-color > $PLAN_FILE

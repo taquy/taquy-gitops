@@ -38,7 +38,7 @@ services: # 8 services
   # backup tools
   taquy-backup:
     container_name: taquy-backup
-    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:amd64
     # must be root user to use root aws credentials
     user: root
     privileged: true
@@ -55,7 +55,7 @@ services: # 8 services
   # load balancing tools
   nginx:
     container_name: nginx
-    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:amd64
     user: root
     privileged: true
     restart: unless-stopped
@@ -80,7 +80,7 @@ services: # 8 services
   # cicd tools
   jenkins:
     container_name: jenkins
-    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:latest
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:amd64
     user: root
     privileged: true
     restart: always

@@ -15,7 +15,6 @@ echo "user: $GROUP"
 echo "data directory: $DATA_DIR"
 echo "home directory: $HOME"
 
-
 # create volume directory
 echo "Create volume directory $DATA_DIR"
 cd $DATA_DIR
