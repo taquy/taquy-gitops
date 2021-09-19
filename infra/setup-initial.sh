@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# on remote machine
+
+# install awscli version 2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+apt install -y unzip
+unzip awscliv2.zip
+rm -rf /usr/local/aws-cli/v2/2.2.39
+./aws/install --update
+
 # run cloudwatch agent
 echo "Start cloudwatch agent"
 aws s3 cp s3://taquy-deploy/cw-agent.cfg ./
@@ -15,9 +24,50 @@ echo "user: $GROUP"
 echo "data directory: $DATA_DIR"
 echo "home directory: $HOME"
 
+# change hostname
+hostnamectl set-hostname $USER
+hostname $USER
+
+# create user
+mkdir -p $HOME $HOME/.ssh
+groupadd $GROUP
+useradd -g $GROUP -b $HOME $USER
+
+# at local machine
+scp -i ~/.ssh/taquy-vm -r ~/.ssh/taquy-vm.pub root@$REMOTE_HOST:/home/taquy/.ssh/authorized_keys
+usermod -aG sudo $USER
+usermod -d $HOME $USER
+
+# disable root login or password login
+nano /etc/ssh/sshd_config
+
+#----------------------------------
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+UsePAM no
+PubkeyAuthentication yes
+AuthorizedKeysFile      .ssh/authorized_keys
+AllowUsers taquy
+#----------------------------------
+
+systemctl reload ssh
+systemctl reload sshd
+chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
+
+# check current shell running
+ps -p $$
+
+# optional: change user password
+passwd root
+passwd taquy
+
+# update permission of home folder
+chown -R $USER:$GROUP $HOME
+
 # create volume directory
 echo "Create volume directory $DATA_DIR"
 cd $DATA_DIR
+mkdir -p $DATA_DIR
 mkdir -p es redis mongo tmp	portainer jenkins octopus mssql nginx certbot backup
 
 cd $DATA_DIR/jenkins && mkdir -p cache logs home

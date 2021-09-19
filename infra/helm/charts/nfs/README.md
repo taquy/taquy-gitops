@@ -1,0 +1,1 @@
+https://levelup.gitconnected.com/how-to-use-nfs-in-kubernetes-cluster-configuring-the-nfs-server-1bf4116641d4
