@@ -4,7 +4,7 @@
 
 # install awscli version 2
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-apt install -y unzip
+apt install -y jq unzip
 unzip awscliv2.zip
 rm -rf /usr/local/aws-cli/v2/2.2.39
 ./aws/install --update
@@ -81,30 +81,45 @@ chmod u+rwx,g+rwx,o+r-wx -R $DATA_DIR
 
 # get jenkins node id
 echo "Finding jenkins node secret info..."
-JENKINS_NODE_SECRET_ID=$(aws secretsmanager list-secrets \
+JENKINS_NODE_SECRET_JSON=$(aws secretsmanager list-secrets \
   --filters Key=tag-key,Values=Attributes \
   Key=tag-value,Values=taquy-jenkins-node-aws-key \
 )
-echo "Jenkins node secret info: $JENKINS_NODE_SECRET_ID"
+echo "Jenkins node secret info: $JENKINS_NODE_SECRET_JSON"
 
 # get jenkins secret id
-JENKINS_NODE_SECRET_ID=$(echo $JENKINS_NODE_SECRET_ID | jq -r ".SecretList[0].Name")
-JENKINS_NODE_SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $JENKINS_NODE_SECRET_ID)
-JENKINS_NODE_SECRET=$(echo $JENKINS_NODE_SECRET_JSON | jq -r ".SecretString")
+JENKINS_NODE_SECRET_ID=$(echo $JENKINS_NODE_SECRET_JSON | jq -r ".SecretList[0].Name")
 echo "Jenkins secret id: $JENKINS_NODE_SECRET_ID"
 
+JENKINS_NODE_SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $JENKINS_NODE_SECRET_ID)
+JENKINS_NODE_SECRET=$(echo $JENKINS_NODE_SECRET_JSON | jq -r ".SecretString")
+
+
 # get access key, secrets
-ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .id')
-ACCESS_SECRET=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .secret')
-ROLE_ARN=$(echo $JENKINS_NODE_SECRET | jq -rc '. | fromjson | .role')
+ACCESS_KEY=$(echo $JENKINS_NODE_SECRET | jq -rc '.id')
+ACCESS_SECRET=$(echo $JENKINS_NODE_SECRET | jq -rc '.secret')
+ROLE_ARN=$(echo $JENKINS_NODE_SECRET | jq -rc '.role')
 echo "Jenkins role arn: $ROLE_ARN"
 
 # config aws credentials
 echo "Config aws credentials..."
+
+# set profile for jenkins node
 aws configure set aws_access_key_id $ACCESS_KEY --profile "jenkins-node"
 aws configure set aws_secret_access_key $ACCESS_SECRET --profile "jenkins-node"
+REGION=$(aws configure get region)
+aws configure set region $REGION --profile "jenkins-node"
+aws sts get-caller-identity --profile jenkins-node
+
+# set profile for jenkins job
 aws configure set role_arn $ROLE_ARN --profile "jenkins-job"
+REGION=$(aws configure get region)
+aws configure set region $REGION --profile "jenkins-job"
 aws configure set source_profile "jenkins-node" --profile "jenkins-job"
+aws sts get-caller-identity --profile jenkins-job
+
+# copy configuration to $USER home
+cp -r /root/.aws $HOME
 
 # run infra & app
 echo "Starting run docker-compose infra and app..."
