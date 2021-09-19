@@ -44,6 +44,7 @@ variable "network" {
   description = "Network module parameters"
   type = object({
     namespace      = string
+    vm_public_ip      = string
     vpc_cidr_block = string
     tags           = optional(map(string))
   })
@@ -52,6 +53,7 @@ variable "network" {
 variable "compute" {
   description = "compute module parameters"
   type = object({
+    enabled = bool
     name      = string
     namespace = string
     ami = object({

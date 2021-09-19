@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # run taint for development purpose only
-echo "Tainting spot instance..."
-bash run-taint.sh
+# echo "Tainting spot instance..."
+# bash run-taint.sh
 
-# copy logs file to s3
-echo "Upload logs config..."
-aws s3 cp ./helpers/cw-agent.cfg s3://taquy-deploy/cw-agent.cfg
+# # copy logs file to s3
+# echo "Upload logs config..."
+# aws s3 cp ./helpers/cw-agent.cfg s3://taquy-deploy/cw-agent.cfg
 
-# push latest initialization script
-echo "Pushing latest intial setup script..."
-cd ..
-bash push-docker-compose.sh
-cd -
+# # push latest initialization script
+# echo "Pushing latest intial setup script..."
+# cd ..
+# bash push-docker-compose.sh
+# cd -
 
 # decrypting secrets file
 echo "Preparing secrets credentials..."

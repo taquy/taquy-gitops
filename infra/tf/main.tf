@@ -4,6 +4,7 @@ module "network" {
   namespace      = var.network.namespace
   vpc_cidr_block = var.network.vpc_cidr_block
   tags           = var.network.tags
+  vm_public_ip = var.network.vm_public_ip
   source_ip = [
     "${var.my_ip}/32"
   ]
@@ -69,6 +70,7 @@ module "dns" {
 
 module "compute" {
   source = "./modules/compute"
+  count = var.compute.enabled ? 1 : 0
   depends_on = [
     module.iam
   ]

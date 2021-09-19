@@ -20,3 +20,11 @@ variable "source_ip" {
   default     = ["0.0.0.0/0"]
   type        = list(string)
 }
+
+variable "vm_public_ip" {
+  description = "VM Public IP"
+  default     = ""
+  type        = string
+}
+
+

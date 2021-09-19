@@ -19,6 +19,11 @@ else
   docker buildx build --platform linux/amd64 --tag $REPOSITORY_URI/$PROJECT:amd64 --push .
 fi
 
+if [[ $PROJECT == "nginx" ]]
+then
+  aws s3 cp nginx/nginx.conf s3://taquy-deploy/nginx.conf
+fi
+
 docker buildx imagetools inspect $REPOSITORY_URI/$PROJECT 
 
 # delete untagged images (if there is any)

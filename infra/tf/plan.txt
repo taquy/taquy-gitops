@@ -1,0 +1,30 @@
+
+Warning: Experimental feature "module_variable_optional_attrs" is active
+
+  on versions.tf line 19, in terraform:
+  19:   experiments      = [module_variable_optional_attrs]
+
+Experimental features are subject to breaking changes in future minor or patch
+releases, based on feedback.
+
+If you have feedback on the design of this feature, please open a GitHub issue
+to discuss it.
+
+(and 6 more similar warnings elsewhere)
+
+
+Warning: Interpolation-only expressions are deprecated
+
+  on modules/compute/main.tf line 49, in resource "aws_spot_instance_request" "spot_instance":
+  49:   ami                  = "${var.instance.ami != "" ? var.instance.ami : aws_ami.ami_ubuntu_arm64.id}"
+
+Terraform 0.11 and earlier required all non-constant expressions to be
+provided via interpolation syntax, but this pattern is now deprecated. To
+silence this warning, remove the "${ sequence from the start and the }"
+sequence from the end of this expression, leaving just the inner expression.
+
+Template interpolation syntax is still used to construct strings from
+expressions when the template includes multiple interpolation sequences or a
+mixture of literal strings and interpolations. This deprecation applies only
+to templates that consist entirely of a single interpolation sequence.
+

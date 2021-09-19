@@ -1,7 +1,7 @@
 FROM nginx:1.19.10-alpine
-COPY ./nginx.conf /etc/nginx/nginx.conf
+#COPY ./nginx.conf /etc/nginx/nginx.conf
 
-VOLUME ["/var/www/html", "/var/log/nginx/"]
+VOLUME ["/var/www/html", "/var/log/nginx/", "/etc/nginx"]
 
 EXPOSE 80/TCP
 EXPOSE 443/TCP

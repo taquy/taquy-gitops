@@ -66,8 +66,9 @@ chown -R $USER:$GROUP $HOME
 
 # create volume directory
 echo "Create volume directory $DATA_DIR"
-cd $DATA_DIR
 mkdir -p $DATA_DIR
+
+cd $DATA_DIR
 mkdir -p es redis mongo tmp	portainer jenkins octopus mssql nginx certbot backup
 
 cd $DATA_DIR/jenkins && mkdir -p cache logs home
@@ -121,7 +122,41 @@ aws sts get-caller-identity --profile jenkins-job
 # copy configuration to $USER home
 cp -r /root/.aws $HOME
 
-# run infra & app
+# install libraries (use root account)
+apt-get remove docker docker-engine docker.io containerd runc
+apt-get update
+apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# install docker compose
+curl -L https://github.com/docker/compose/releases/download/1.28.5/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+groupadd docker
+usermod -aG docker $USER
+
+# setup ecr helper
+apt install -y amazon-ecr-credential-helper
+mkdir -p  ~/.docker
+tee -a ~/.docker/config.json > /dev/null <<EOT
+{
+	"credsStore": "ecr-login"
+}
+EOT
+cat ~/.docker/config.json
+
+# run infra & app (run as $USER)
 echo "Starting run docker-compose infra and app..."
 cd /home/$USER
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh

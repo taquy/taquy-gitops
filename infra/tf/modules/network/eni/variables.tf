@@ -13,7 +13,15 @@ variable "vm_sg_id" {
   description = "Network interface's security group for VM"
   type        = string
 }
+
 variable "vm_subnet_id" {
   description = "Network interface's subnet for VM"
   type        = string
 }
+
+variable "vm_public_ip" {
+  description = "VM public IP"
+  default = ""
+  type        = string
+}
+
