@@ -69,16 +69,46 @@ echo "Create volume directory $DATA_DIR"
 mkdir -p $DATA_DIR
 
 cd $DATA_DIR
-mkdir -p es redis mongo tmp	portainer jenkins octopus mssql nginx certbot backup
+mkdir -p es redis mongo jenkins octopus mssql nginx certbot backup
+mkdir -p tmp
+mkdir -p portainer
 
 cd $DATA_DIR/jenkins && mkdir -p cache logs home
 cd $DATA_DIR/octopus && mkdir -p repository artifacts taskLogs cache import
-cd $DATA_DIR/nginx && mkdir -p logs web
-cd $DATA_DIR/certbot && mkdir -p logs ssl
+cd $DATA_DIR/nginx && mkdir -p logs conf
+cd $DATA_DIR/certbot && mkdir -p conf www logs
 cd $DATA_DIR/backup/ && mkdir logs archives
 
 chown -R $USER:$GROUP $DATA_DIR
 chmod u+rwx,g+rwx,o+r-wx -R $DATA_DIR
+
+# .
+# ├── backup
+# │   ├── archives
+# │   └── logs
+# ├── certbot
+# │   ├── conf
+# │   ├── logs
+# │   └── www
+# ├── es
+# ├── jenkins
+# │   ├── cache
+# │   ├── home
+# │   └── logs
+# ├── mongo
+# ├── mssql
+# ├── nginx
+# │   ├── conf
+# │   └── logs
+# ├── octopus
+# │   ├── artifacts
+# │   ├── cache
+# │   ├── import
+# │   ├── repository
+# │   └── taskLogs
+# ├── portainer
+# ├── redis
+# └── tmp
 
 # get jenkins node id
 echo "Finding jenkins node secret info..."
@@ -160,7 +190,9 @@ cat ~/.docker/config.json
 echo "Starting run docker-compose infra and app..."
 cd /home/$USER
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
-aws s3 cp s3://taquy-deploy/setup-app.sh ./ && bash setup-app.sh
+
+aws s3 cp s3://taquy-deploy/setup-app.sh ./
+bash setup-app.sh
 
 # update permissions to app user
 echo "Change permissions to $USER..."

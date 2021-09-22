@@ -7,6 +7,12 @@ REGION=ap-southeast-1
 ACCOUNT=$(aws sts get-caller-identity | jq .Account -r )
 REPOSITORY_URI=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com
 
+if [[ $PROJECT == "nginx" ]]
+then
+  echo "Upload config of $PROJECT"
+  aws s3 cp nginx/nginx.conf s3://taquy-deploy/nginx.conf
+fi
+
 echo "Start building $PROJECT"
 
 if [[ $PROJECT == "mssql" ]]
@@ -17,11 +23,6 @@ else
   echo "Build and push image for $REPOSITORY_URI/$PROJECT"
   docker buildx build --platform linux/arm64 --tag $REPOSITORY_URI/$PROJECT:arm64 --push .
   docker buildx build --platform linux/amd64 --tag $REPOSITORY_URI/$PROJECT:amd64 --push .
-fi
-
-if [[ $PROJECT == "nginx" ]]
-then
-  aws s3 cp nginx/nginx.conf s3://taquy-deploy/nginx.conf
 fi
 
 docker buildx imagetools inspect $REPOSITORY_URI/$PROJECT 
