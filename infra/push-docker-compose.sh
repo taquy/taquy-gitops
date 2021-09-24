@@ -16,5 +16,3 @@ aws s3 cp setup-infra.sh s3://taquy-deploy/
 
 # push initial deploy script
 aws s3 cp ./setup-initial.sh s3://taquy-deploy/ --acl public-read
-
-# aws s3 cp nginx-certbot s3://taquy-deploy/nginx-certbot --recursive

@@ -29,12 +29,14 @@ docker volume create --driver local --opt o=bind --opt type=none --opt device=/d
 # Pull AWS secret for Jenkins node
 
 # Pull nginx config
+rm -r /data/nginx/conf || true
 aws s3 cp s3://taquy-deploy/nginx-config.zip /data/nginx/nginx-config.zip
-unzip /data/nginx/nginx-config.zip
-rm /data/nginx/nginx-config.zip
-rm -r /data/nginx/conf
+unzip /data/nginx/nginx-config.zip -d /data/nginx
+rm /data/nginx/nginx-config.zip || true
 mv /data/nginx/nginx/config /data/nginx/conf
-rm -r /data/nginx/nginx
+rm -r /data/nginx/nginx || true
+# nginx insecured
+mv /data/nginx/conf/nginx-insecured.conf /data/nginx/conf/nginx.conf
 
 # Docker run
 aws s3 cp s3://taquy-deploy/infra.yml ./

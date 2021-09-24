@@ -57,8 +57,7 @@ services: # 8 services
   # load balancing tools
   nginx:
     container_name: nginx
-    # image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:amd64
-    image: nginx:1.15-alpine
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:amd64
     restart: unless-stopped
     volumes:
       - certbot-conf-vol:/etc/letsencrypt
@@ -70,15 +69,15 @@ services: # 8 services
       - "80:80"
       - "443:443"
 
-  certbot:
-    container_name: certbot
-    image: certbot/certbot:latest
-    restart: unless-stopped
-    volumes:
-      - certbot-conf-vol:/etc/letsencrypt
-      - certbot-www-vol:/var/www/certbot
-      - certbot-logs-vol:/var/log/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  # certbot:
+  #   container_name: certbot
+  #   image: certbot/certbot:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - certbot-conf-vol:/etc/letsencrypt
+  #     - certbot-www-vol:/var/www/certbot
+  #     - certbot-logs-vol:/var/log/letsencrypt
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   # cicd tools
   jenkins:
@@ -148,10 +147,10 @@ services: # 8 services
       - octopus-cache-vol:/cache
       - octopus-import-vol:/import
 
-  octopus-tentacle:
+  tentacle:
     depends_on:
       - octopus
-    container_name: octopus-tentacle
+    container_name: tentacle
     image: octopusdeploy/tentacle:latest
     user: root
     privileged: true
@@ -165,8 +164,8 @@ services: # 8 services
       ListeningPort: 10931
       TargetRole: admin
       TargetEnvironment: api.taquy.dev
-      ServerUrl: https://octopus.taquy.dev
-      PublicHostNameConfiguration: https://octopus-tentacle.taquy.dev
+      ServerUrl: http://octopus.taquy.dev
+      PublicHostNameConfiguration: http://tentacle.taquy.dev
       ACCEPT_EULA: "Y"
 
   portainer:

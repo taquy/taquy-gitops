@@ -189,10 +189,12 @@ cat ~/.docker/config.json
 # run infra & app (run as $USER)
 echo "Starting run docker-compose infra and app..."
 cd /home/$USER
+
+rm -rf setup-infra.sh
 aws s3 cp s3://taquy-deploy/setup-infra.sh ./ && bash setup-infra.sh
 
-aws s3 cp s3://taquy-deploy/setup-app.sh ./
-bash setup-app.sh
+setup-app.sh
+aws s3 cp s3://taquy-deploy/setup-app.sh ./ && bash setup-app.sh
 
 # update permissions to app user
 echo "Change permissions to $USER..."
