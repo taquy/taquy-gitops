@@ -56,7 +56,7 @@ RUN mkdir /var/log/jenkins \
   && curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose \
   && chmod +x /usr/local/bin/docker-compose
 
-VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home" ]
+VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home", "/usr/local/jenkins-casc.yaml" ]
 
 USER jenkins
 

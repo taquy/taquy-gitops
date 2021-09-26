@@ -5,6 +5,8 @@ zip -r nginx-config.zip nginx/config/
 aws s3 cp nginx-config.zip s3://taquy-deploy/nginx-config.zip
 rm nginx-config.zip
 
+aws s3 cp jenkins/casc.yml s3://taquy-deploy/jenkins-casc.yaml
+
 # push app
 aws s3 cp app.yml s3://taquy-deploy/
 aws s3 cp setup-app.sh s3://taquy-deploy/

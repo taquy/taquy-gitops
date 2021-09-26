@@ -7,14 +7,7 @@ REGION=ap-southeast-1
 ACCOUNT=$(aws sts get-caller-identity | jq .Account -r )
 REPOSITORY_URI=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com
 
-if [[ $PROJECT == "nginx" ]]
-then
-  echo "Upload config of $PROJECT"
-  aws s3 cp nginx/nginx.conf s3://taquy-deploy/nginx.conf
-fi
-
 echo "Start building $PROJECT"
-
 if [[ $PROJECT == "mssql" ]]
 then
   docker pull mcr.microsoft.com/mssql/server:2019-latest

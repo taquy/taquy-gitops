@@ -38,6 +38,10 @@ rm -r /data/nginx/nginx || true
 # nginx insecured
 mv /data/nginx/conf/nginx-insecured.conf /data/nginx/conf/nginx.conf
 
+# Pull Jenkins CASC
+aws s3 cp s3://taquy-deploy/jenkins-casc.yaml /data/jenkins/jenkins-casc.yaml
+
+
 # Docker run
 aws s3 cp s3://taquy-deploy/infra.yml ./
 docker-compose -f infra.yml rm -f
@@ -45,9 +49,9 @@ docker-compose -f infra.yml pull
 docker-compose -f infra.yml up -d --quiet
 
 # Install SSL
-aws s3 cp s3://taquy-deploy/init-letsencrypt.sh ./
-chmod +x init-letsencrypt.sh
-./init-letsencrypt.sh
+# aws s3 cp s3://taquy-deploy/init-letsencrypt.sh ./
+# chmod +x init-letsencrypt.sh
+# ./init-letsencrypt.sh
 
 # Clean dangling images
 docker rmi $(docker images -f dangling=true -q)

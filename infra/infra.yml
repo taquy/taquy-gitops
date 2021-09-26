@@ -89,9 +89,11 @@ services: # 8 services
     ports:
       - 9091:8080
     environment:
+      BUILD_URL: https://jenkins.taquy.dev
       JENKINS_USER: root
       JENKINS_PASS: root1234
       JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
+      CASC_JENKINS_CONFIG: /usr/local/jenkins-casc.yaml
       JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -99,6 +101,7 @@ services: # 8 services
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins
+      - /data/jenkins/jenkins-casc.yaml:/usr/local/jenkins-casc.yaml
 
   mssql:
     container_name: mssql
@@ -161,11 +164,10 @@ services: # 8 services
       ServerUsername: root
       ServerPassword: aD@R98xaYEctkKCn
       TargetName: octopus-deploy
-      ListeningPort: 10931
       TargetRole: admin
       TargetEnvironment: api.taquy.dev
-      ServerUrl: http://octopus.taquy.dev
-      PublicHostNameConfiguration: http://tentacle.taquy.dev
+      ServerUrl: https://octopus.taquy.dev
+      PublicHostNameConfiguration: https://tentacle.taquy.dev
       ACCEPT_EULA: "Y"
 
   portainer:

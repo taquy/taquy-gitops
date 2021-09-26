@@ -1,35 +1,51 @@
 jenkins:
+  scmCheckoutRetryCount: 0
   securityRealm:
     local:
       allowsSignup: false
+      enableCaptcha: true
       users:
         - id: "admin"
           password: "admin"
         - id: "dev"
           password: "dev"
+  slaveAgentPort: 50000
+  views:
+  - all:
+      name: "all"
   authorizationStrategy:
-    globalMatrix:
-      permissions:
-        - "*:authenticated"
-  tool:
-    git:
-      installations:
-        - name: git
-          home: /usr/local/bin/git
-
-  credentials:
-    system:
-      domainCredentials:
-        - credentials:
-          - basicSSHUserPrivateKey:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  mode: NORMAL
+  numExecutors: 4
+  primaryView:
+    all:
+      name: "all"
+  quietPeriod: 5
+tool:
+  git:
+    installations:
+      - name: git
+        home: /usr/local/bin/git
+credentials:
+  system:
+    domainCredentials:
+      - domain :
+          name: "github.com"
+          description: "GitHub"
+        credentials:
+        - basicSSHUserPrivateKey:
             scope: SYSTEM
-            id: ssh_with_passphrase_provided
-            username: ssh_root
-            passphrase: ${SSH_KEY_PASSWORD}
-            description: "SSH passphrase with private key file. Private key provided"
+            id: taquy-git
+            username: taquy
+            passphrase: ""
+            description: "SSH key to access taquy git"
             privateKeySource:
               directEntry:
                 privateKey: ${SSH_PRIVATE_KEY}
-  numExecutors: 4
-  # jobs:
-  #   - file: /usr/local/jenkins-casc.groovy
+# jobs:
+#   - file: /usr/local/jenkins-casc.groovy
