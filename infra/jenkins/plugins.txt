@@ -23,7 +23,8 @@ timestamper:latest
 workflow-aggregator:latest
 ws-cleanup:latest
 amazon-ecr:latest
-job-dsl
-workflow-job
-workflow-cps
-pipeline-model-definition
+job-dsl:latest
+workflow-job:latest
+workflow-cps:latest
+pipeline-model-definition:latest
+aws-secrets-manager-credentials-provider:0.5.4

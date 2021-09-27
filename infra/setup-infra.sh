@@ -35,8 +35,6 @@ unzip /data/nginx/nginx-config.zip -d /data/nginx
 rm /data/nginx/nginx-config.zip || true
 mv /data/nginx/nginx/config /data/nginx/conf
 rm -r /data/nginx/nginx || true
-# nginx insecured
-mv /data/nginx/conf/nginx-insecured.conf /data/nginx/conf/nginx.conf
 
 # Pull Jenkins CASC
 aws s3 cp s3://taquy-deploy/jenkins-casc.yaml /data/jenkins/jenkins-casc.yaml

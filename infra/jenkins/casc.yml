@@ -9,13 +9,13 @@ jenkins:
           password: "admin"
         - id: "dev"
           password: "dev"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
   slaveAgentPort: 50000
   views:
   - all:
       name: "all"
-  authorizationStrategy:
-    loggedInUsersCanDoAnything:
-      allowAnonymousRead: false
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: false
@@ -31,21 +31,26 @@ tool:
     installations:
       - name: git
         home: /usr/local/bin/git
-credentials:
-  system:
-    domainCredentials:
-      - domain :
-          name: "github.com"
-          description: "GitHub"
-        credentials:
-        - basicSSHUserPrivateKey:
-            scope: SYSTEM
-            id: taquy-git
-            username: taquy
-            passphrase: ""
-            description: "SSH key to access taquy git"
-            privateKeySource:
-              directEntry:
-                privateKey: ${SSH_PRIVATE_KEY}
+# credentials:
+#   system:
+#     domainCredentials:
+#       - domain :
+#           name: "github.com"
+#           description: "GitHub"
+#         credentials:
+#         - basicSSHUserPrivateKey:
+#             scope: SYSTEM
+#             id: taquy-git
+#             username: taquy
+#             passphrase: ""
+#             description: "SSH key to access taquy git"
+#             privateKeySource:
+#               directEntry:
+#                 privateKey: ${SSH_PRIVATE_KEY}
+unclassified:
+  location:
+    url: https://jenkins.taquy.dev
+  awsCredentialsProvider:
+    cache: false
 # jobs:
 #   - file: /usr/local/jenkins-casc.groovy

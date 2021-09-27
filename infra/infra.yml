@@ -35,20 +35,19 @@ volumes:
     external: true
   portainer-vol:
     external: true
+  # sso
+
 
 services: # 8 services
   # backup tools
   taquy-backup:
     container_name: taquy-backup
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:amd64
-    # must be root user to use root aws credentials
-    user: root
-    privileged: true
     restart: unless-stopped
     volumes:
       - backup-logs-vol:/data/backup/logs
       - backup-archives-vol:/data/backup/archives
-      - /root/.aws:/home/root/.aws/
+      - ~/.aws:/home/root/.aws/
     environment:
       # every day at 00:00
       SCHEDULE: '0 0 * * *'
@@ -59,15 +58,13 @@ services: # 8 services
     container_name: nginx
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/nginx:amd64
     restart: unless-stopped
+    network_mode: "host"
     volumes:
       - certbot-conf-vol:/etc/letsencrypt
       - certbot-www-vol:/var/www/certbot
       - nginx-conf-vol:/etc/nginx/conf.d
       - nginx-logs-vol:/var/log/nginx
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-    ports:
-      - "80:80"
-      - "443:443"
 
   # certbot:
   #   container_name: certbot
@@ -79,25 +76,119 @@ services: # 8 services
   #     - certbot-logs-vol:/var/log/letsencrypt
   #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+  # sso
+  # https://dockstarter.com/apps/heimdall/
+  # heimdall:
+  #   image: ghcr.io/linuxserver/heimdall
+  #   container_name: heimdall
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #   volumes:
+  #     - /data/heimdall/conf:/config
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   restart: unless-stopped
+
+  # https://github.com/authelia/authelia/blob/master/examples/compose/lite/docker-compose.yml
+  # https://www.youtube.com/watch?v=u6H-Qwf4nZA&t=949s&ab_channel=TechnoTim
+  # authelia:
+  #   image: authelia/authelia
+  #   container_name: authelia
+  #   volumes:
+  #     - ./authelia:/config
+  #   networks:
+  #     - net
+  #   labels:
+  #     - 'traefik.enable=true'
+  #     - 'traefik.http.routers.authelia.rule=Host(`authelia.example.com`)'
+  #     - 'traefik.http.routers.authelia.entrypoints=https'
+  #     - 'traefik.http.routers.authelia.tls=true'
+  #     - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
+  #     - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://authelia.example.com'  # yamllint disable-line rule:line-length
+  #     - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+  #     - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+  #   expose:
+  #     - 9091
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     disable: true
+  #   environment:
+  #     - TZ=Australia/Melbourne
+  
+  # infra-redis:
+  #   image: redis:alpine
+  #   container_name: infra-redis
+  #   volumes:
+  #     - ./redis:/data
+  #   networks:
+  #     - net
+  #   expose:
+  #     - 6379
+  #   restart: unless-stopped
+  #   environment:
+  #     - TZ=Australia/Melbourne
+
+  # traefik:
+  #   image: traefik:2.4
+  #   container_name: traefik
+  #   volumes:
+  #     - ./traefik:/etc/traefik
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   networks:
+  #     - net
+  #   labels:
+  #     - 'traefik.enable=true'
+  #     - 'traefik.http.routers.api.rule=Host(`traefik.example.com`)'
+  #     - 'traefik.http.routers.api.entrypoints=https'
+  #     - 'traefik.http.routers.api.service=api@internal'
+  #     - 'traefik.http.routers.api.tls=true'
+  #     - 'traefik.http.routers.api.tls.certresolver=letsencrypt'
+  #     - 'traefik.http.routers.api.middlewares=authelia@docker'
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   command:
+  #     - '--api'
+  #     - '--providers.docker=true'
+  #     - '--providers.docker.exposedByDefault=false'
+  #     - '--entrypoints.http=true'
+  #     - '--entrypoints.http.address=:80'
+  #     - '--entrypoints.http.http.redirections.entrypoint.to=https'
+  #     - '--entrypoints.http.http.redirections.entrypoint.scheme=https'
+  #     - '--entrypoints.https=true'
+  #     - '--entrypoints.https.address=:443'
+  #     - '--certificatesResolvers.letsencrypt.acme.email=your-email@your-domain.com'
+  #     - '--certificatesResolvers.letsencrypt.acme.storage=/etc/traefik/acme.json'
+  #     - '--certificatesResolvers.letsencrypt.acme.httpChallenge.entryPoint=http'
+  #     - '--log=true'
+  #     - '--log.level=DEBUG'
+
   # cicd tools
   jenkins:
     container_name: jenkins
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:amd64
-    user: root
-    privileged: true
     restart: always
     ports:
       - 9091:8080
     environment:
+      AWS_DEFAULT_REGION: "ap-southeast-1"
       BUILD_URL: https://jenkins.taquy.dev
       JENKINS_USER: root
       JENKINS_PASS: root1234
-      JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false
       CASC_JENKINS_CONFIG: /usr/local/jenkins-casc.yaml
-      JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
+      JAVA_OPTS: -Xmx8192m \
+        -Djenkins.install.runSetupWizard=false \
+        -Daws.region=ap-southeast-1
+      JENKINS_OPTS: --argumentsRealm.roles.user=admin \
+         --argumentsRealm.passwd.admin=admin \
+         --argumentsRealm.roles.admin=admin
+      AWS_PROFILE: "jenkins-job"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/.aws:/var/jenkins_home/.aws:ro
+      - ~/.aws:/var/jenkins_home/.aws:ro
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins
@@ -107,8 +198,7 @@ services: # 8 services
     container_name: mssql
     image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/mssql:latest
     user: root
-    privileged: true
-    restart: always
+    restart: unless-stopped
     environment:
       SA_PASSWORD: "aD@R98xaYEctkKCn"
       ACCEPT_EULA: "Y"
@@ -124,8 +214,6 @@ services: # 8 services
   octopus:
     container_name: octopus
     image: octopusdeploy/octopusdeploy:latest
-    user: root
-    privileged: true
     restart: always
     ports:
       - 9092:8080
@@ -155,8 +243,6 @@ services: # 8 services
       - octopus
     container_name: tentacle
     image: octopusdeploy/tentacle:latest
-    user: root
-    privileged: true
     restart: always
     ports:
       - 10931:10933

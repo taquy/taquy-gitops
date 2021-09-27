@@ -12,10 +12,6 @@ COPY casc.groovy /usr/local/jenkins-casc.groovy
 COPY plugins.txt /usr/share/jenkins/plugins.txt
 
 ENV CASC_JENKINS_CONFIG /usr/local/jenkins-casc.yaml
-ENV JENKINS_USER root
-ENV JENKINS_PASS root1234
-ENV JAVA_OPTS="-Xmx8192m -Djenkins.install.runSetupWizard=false"
-ENV JENKINS_OPTS="--handlerCountMax=300 --logfile=/var/log/jenkins/jenkins.log --webroot=/var/cache/jenkins/war --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin"
 
 USER root
 
@@ -63,9 +59,7 @@ USER jenkins
 RUN echo "Dependencies check..."
 RUN docker-compose --version \
   && docker --version \
-  && aws --version \
-  # set default jenkins profile
-  && export AWS_PROFILE="jenkins-job"
-
+  && aws --version
+  
 RUN mkdir -p ~/.docker/ \
   && echo "{\"credsStore\": \"ecr-login\"}" > ~/.docker/config.json
