@@ -36,7 +36,11 @@ volumes:
   portainer-vol:
     external: true
   # sso
-
+  # monitoring
+  pihole-vol:
+    external: true
+  pihole-dns-vol:
+    external: true
 
 services: # 8 services
   # backup tools
@@ -166,6 +170,28 @@ services: # 8 services
   #     - '--log=true'
   #     - '--log.level=DEBUG'
 
+  # monitoring 
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "9094:80/tcp"
+    environment:
+      TZ: 'Vietnam/Hanoi'
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    # Volumes store your data between container upgrades
+    volumes:
+      - pihole-vol:/etc/pihole/'
+      - pihole-dns-vol/:/etc/dnsmasq.d/'
+    # Recommended but not required (DHCP needs NET_ADMIN)
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
   # cicd tools
   jenkins:
     container_name: jenkins
@@ -179,16 +205,12 @@ services: # 8 services
       JENKINS_USER: root
       JENKINS_PASS: root1234
       CASC_JENKINS_CONFIG: /usr/local/jenkins-casc.yaml
-      JAVA_OPTS: -Xmx8192m \
-        -Djenkins.install.runSetupWizard=false \
-        -Daws.region=ap-southeast-1
-      JENKINS_OPTS: --argumentsRealm.roles.user=admin \
-         --argumentsRealm.passwd.admin=admin \
-         --argumentsRealm.roles.admin=admin
+      JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false -Daws.region=ap-southeast-1
+      JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
       AWS_PROFILE: "jenkins-job"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.aws:/var/jenkins_home/.aws:ro
+      - ~/.aws:/var/jenkins_home/.aws
       - jenkins-home-vol:/var/jenkins_home
       - jenkins-cache-vol:/var/cache/jenkins
       - jenkins-logs-vol:/var/log/jenkins

@@ -4,27 +4,34 @@ docker network create -d bridge infra
 
 # Create docker volumes
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/portainer portainer-vol
+# jenkins
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/home jenkins-home-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/cache jenkins-cache-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/jenkins/logs jenkins-logs-vol
-
+# octopus
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/octopus/repository octopus-repository-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/octopus/artifacts octopus-artifacts-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/octopus/taskLogs octopus-taskLogs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/octopus/cache octopus-cache-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/octopus/import octopus-import-vol
-
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/mssql mssql-vol
-
+# nginx & certbot
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/nginx/logs nginx-logs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/nginx/conf nginx-conf-vol
-
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/logs certbot-logs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/conf certbot-conf-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/certbot/www certbot-www-vol
-
+# cron backup
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup/logs backup-logs-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/backup/archives backup-archives-vol
+# monitoring
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/pihole/etc pihole-vol
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/pihole/dns pihole-dns-vol
+# sso
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/infra-redis infra-redis
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/authelia authelia
+docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/traefik traefik
+
 
 # Pull AWS secret for Jenkins node
 

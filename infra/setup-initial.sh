@@ -69,7 +69,7 @@ echo "Create volume directory $DATA_DIR"
 mkdir -p $DATA_DIR
 
 cd $DATA_DIR
-mkdir -p es redis mongo jenkins octopus mssql nginx certbot backup
+mkdir -p es redis mongo jenkins octopus mssql nginx certbot backup pihole infra-redis authelia traefik
 mkdir -p tmp
 mkdir -p portainer
 
@@ -78,6 +78,7 @@ cd $DATA_DIR/octopus && mkdir -p repository artifacts taskLogs cache import
 cd $DATA_DIR/nginx && mkdir -p logs conf
 cd $DATA_DIR/certbot && mkdir -p conf www logs
 cd $DATA_DIR/backup/ && mkdir logs archives
+cd $DATA_DIR/pihole/ && mkdir etc dns
 
 chown -R $USER:$GROUP $DATA_DIR
 chmod u+rwx,g+rwx,o+r-wx -R $DATA_DIR
@@ -148,6 +149,13 @@ REGION=$(aws configure get region)
 aws configure set region $REGION --profile "jenkins-job"
 aws configure set source_profile "jenkins-node" --profile "jenkins-job"
 aws sts get-caller-identity --profile jenkins-job
+
+cat <<EOT >> ~/.aws/credentials
+[jenkins-job]
+role_arn = $ROLE_ARN
+source_profile = jenkins-node
+region = ap-southeast-1
+EOT
 
 # copy configuration to $USER home
 cp -r /root/.aws $HOME
