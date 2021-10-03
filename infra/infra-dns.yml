@@ -1,7 +1,12 @@
 version: '3'
 
+networks:
+  taquy-traefik:
+    external: true
 volumes:
   traefik-ssl-vol:
+    external: true
+  infra-redis-vol:
     external: true
 
 services:
@@ -31,27 +36,32 @@ services:
   #   environment:
   #     - TZ=Australia/Melbourne
   
-  # infra-redis:
-  #   image: redis:alpine
-  #   container_name: infra-redis
-  #   volumes:
-  #     - infra-redis:/data
-  #   networks:
-  #     - net
-  #   ports:
-  #     - 6380:80
-  #   restart: unless-stopped
-  #   environment:
-  #     - TZ=Vietnam/Hanoi
+  infra-redis:
+    image: redis:alpine
+    container_name: infra-redis
+    restart: unless-stopped
+    volumes:
+      - infra-redis-vol:/data
+    networks:
+      - taquy-traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`infra-redis.taquy.dev`)"
+      - "traefik.http.routers.whoami.entrypoints=web,websecured"
+    environment:
+      - TZ=Vietnam/Hanoi
 
   traefik:
     image: traefik:2.4
     container_name: traefik
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-ssl-vol:/certs
+    networks:
+      - taquy-traefik
     environment:
-      TZ: "Asia/Ho_Chi_Minh"
+      TZ: "Vietnam/Hanoi"
       AWS_ACCESS_KEY_ID: AKIAVZH6TJTW2VKI5M2Q
       AWS_REGION: ap-southeast-1
       AWS_SECRET_ACCESS_KEY: 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
@@ -64,12 +74,15 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecured.address=:443"
 
   whoami:
     image: containous/whoami
     container_name: whoami
     restart: unless-stopped
+    networks:
+      - taquy-traefik
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.taquy.dev`)"
-      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami.entrypoints=web,websecured"
