@@ -68,22 +68,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`traefik.taquy.dev`)"
       - "traefik.http.routers.api.service=api@internal"
-      # web routing
-      # - "traefik.http.routers.traefik-web.rule=Host(`traefik.taquy.dev`)"
-      # - "traefik.http.routers.traefik-web.entrypoints=web"
-      # - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
-      # - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
       # web secured routing
       - "traefik.http.routers.traefik-web-secured.rule=Host(`traefik.taquy.dev`)"
       - "traefik.http.routers.traefik-web-secured.entrypoints=web-secured"
       - "traefik.http.routers.traefik-web-secured.tls.certresolver=taquy-resolver"
-
-    # environment:
-      # TZ: "Vietnam/Hanoi"
-      # AWS_ACCESS_KEY_ID: AKIAVZH6TJTW2VKI5M2Q
-      # AWS_REGION: ap-southeast-1
-      # AWS_SECRET_ACCESS_KEY: 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
-      # AWS_HOSTED_ZONE_ID: Z02333301P1AFTPV8N8YA
+    environment:
+      TZ: "Vietnam/Hanoi"x
     ports:
       - 80:80
       - 8080:8080
@@ -96,7 +86,6 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=taquy-traefik"
-      # - "--providers.file.filename=/dynamic.yaml"
       # config logging
       - "--log.level=DEBUG"
       # entry points
@@ -108,7 +97,6 @@ services:
       - "--certificatesresolvers.taquy-resolver.acme.storage=/letsencrypt/acme.json"
       # - "--certificatesresolvers.taquy-resolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
    
-
   whoami:
     image: containous/whoami
     container_name: whoami
