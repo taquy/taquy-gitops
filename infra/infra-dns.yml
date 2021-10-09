@@ -8,6 +8,8 @@ volumes:
     external: true
   infra-redis-vol:
     external: true
+  authelia-vol:
+    external: true
 
 services:
   # https://github.com/authelia/authelia/blob/master/examples/compose/lite/docker-compose.yml
@@ -15,41 +17,42 @@ services:
   # authelia:
   #   image: authelia/authelia
   #   container_name: authelia
+  #   restart: unless-stopped
   #   volumes:
-  #     - authelia:/config
+  #     - authelia-vol:/config
   #   networks:
-  #     - net
+  #     - taquy-traefik
   #   labels:
   #     - 'traefik.enable=true'
   #     - 'traefik.http.routers.authelia.rule=Host(`authelia.taquy.dev`)'
   #     - 'traefik.http.routers.authelia.entrypoints=https'
   #     - 'traefik.http.routers.authelia.tls=true'
   #     - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
-  #     - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9095/api/verify?rd=https://authelia.taquy.dev'  # yamllint disable-line rule:line-length
+  #     - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://authelia.taquy.dev'  # yamllint disable-line rule:line-length
   #     - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
   #     - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
   #   ports:
-  #     - 9095:9091
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     disable: true
-  #   environment:
-  #     - TZ=Australia/Melbourne
+  #     - 9091:9091
+    # env_file:
+    #   - infra-dns.env
   
-  infra-redis:
-    image: redis:alpine
-    container_name: infra-redis
-    restart: unless-stopped
-    volumes:
-      - infra-redis-vol:/data
-    networks:
-      - taquy-traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`infra-redis.taquy.dev`)"
-      - "traefik.http.routers.whoami.entrypoints=web,websecured"
-    environment:
-      - TZ=Vietnam/Hanoi
+  
+  # TODO: redis not ready for traefik and password yet
+  # infra-redis:
+  #   image: redis:alpine
+  #   container_name: infra-redis
+  #   restart: unless-stopped
+  #   volumes:
+  #     - infra-redis-vol:/data
+  #   networks:
+  #     - taquy-traefik
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.infra-redis.rule=Host(`infra-redis.taquy.dev`)"
+  #     - "traefik.http.routers.infra-redis.entrypoints=tcp"
+  #   env_file:
+  #     - infra-dns.env
+  #   command: 'redis-server --requirepass xxx'
 
   traefik:
     image: traefik:2.4
@@ -57,24 +60,54 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik-ssl-vol:/certs
+      - traefik-ssl-vol:/letsencrypt
+      # - ./dynamic.yaml:/dynamic.yaml
     networks:
       - taquy-traefik
-    environment:
-      TZ: "Vietnam/Hanoi"
-      AWS_ACCESS_KEY_ID: AKIAVZH6TJTW2VKI5M2Q
-      AWS_REGION: ap-southeast-1
-      AWS_SECRET_ACCESS_KEY: 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
-      AWS_HOSTED_ZONE_ID: Z02333301P1AFTPV8N8YA
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.taquy.dev`)"
+      - "traefik.http.routers.api.service=api@internal"
+      # web routing
+      # - "traefik.http.routers.traefik-web.rule=Host(`traefik.taquy.dev`)"
+      # - "traefik.http.routers.traefik-web.entrypoints=web"
+      # - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
+      # - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
+      # web secured routing
+      - "traefik.http.routers.traefik-web-secured.rule=Host(`traefik.taquy.dev`)"
+      - "traefik.http.routers.traefik-web-secured.entrypoints=web-secured"
+      - "traefik.http.routers.traefik-web-secured.tls.certresolver=taquy-resolver"
+
+    # environment:
+      # TZ: "Vietnam/Hanoi"
+      # AWS_ACCESS_KEY_ID: AKIAVZH6TJTW2VKI5M2Q
+      # AWS_REGION: ap-southeast-1
+      # AWS_SECRET_ACCESS_KEY: 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
+      # AWS_HOSTED_ZONE_ID: Z02333301P1AFTPV8N8YA
     ports:
       - 80:80
       - 8080:8080
+      - 443:443
     command:
+      # config api
       - "--api.insecure=true"
+      - "--api.dashboard=true"
+      # config providers
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=taquy-traefik"
+      # - "--providers.file.filename=/dynamic.yaml"
+      # config logging
+      - "--log.level=DEBUG"
+      # entry points
       - "--entryPoints.web.address=:80"
-      - "--entryPoints.websecured.address=:443"
+      - "--entryPoints.web-secured.address=:443"
+      # ssl certificates
+      - "--certificatesresolvers.taquy-resolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.taquy-resolver.acme.email=taquy.pb@gmail.com"
+      - "--certificatesresolvers.taquy-resolver.acme.storage=/letsencrypt/acme.json"
+      # - "--certificatesresolvers.taquy-resolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+   
 
   whoami:
     image: containous/whoami
@@ -84,5 +117,13 @@ services:
       - taquy-traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.taquy.dev`)"
-      - "traefik.http.routers.whoami.entrypoints=web,websecured"
+      # web routing
+      - "traefik.http.routers.whoami-web.rule=Host(`whoami.taquy.dev`)"
+      - "traefik.http.routers.whoami-web.entrypoints=web"
+      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
+      # web secured routing
+      - "traefik.http.routers.whoami-web-secured.rule=Host(`whoami.taquy.dev`)"
+      - "traefik.http.routers.whoami-web-secured.entrypoints=web-secured"
+      - "traefik.http.routers.whoami-web-secured.tls.certresolver=taquy-resolver"
+
