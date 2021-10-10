@@ -1,0 +1,160 @@
+version: '3'
+
+volumes:
+  jenkins-home-vol:
+    external: true
+  jenkins-cache-vol:
+    external: true
+  jenkins-logs-vol:
+    external: true
+  octopus-repository-vol:
+    external: true
+  octopus-artifacts-vol:
+    external: true
+  octopus-taskLogs-vol:
+    external: true
+  octopus-cache-vol:
+    external: true
+  octopus-import-vol:
+    external: true
+  mssql-vol:
+    external: true
+  nginx-logs-vol:
+    external: true
+  nginx-conf-vol:
+    external: true
+  certbot-logs-vol:
+    external: true
+  certbot-conf-vol:
+    external: true
+  certbot-www-vol:
+    external: true
+  backup-logs-vol:
+    external: true
+  backup-archives-vol:
+    external: true
+  portainer-vol:
+    external: true
+  # sso
+  # monitoring
+  pihole-vol:
+    external: true
+  pihole-dns-vol:
+    external: true
+
+services: # 8 services
+  # backup tools
+  taquy-backup:
+    container_name: taquy-backup
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/taquy-backup:amd64
+    restart: unless-stopped
+    volumes:
+      - backup-logs-vol:/data/backup/logs
+      - backup-archives-vol:/data/backup/archives
+      - ~/.aws:/home/root/.aws/
+    environment:
+      # every day at 00:00
+      SCHEDULE: '0 0 * * *'
+      BUCKET: 'taquy-backup'
+
+  # cicd tools
+  jenkins:
+    container_name: jenkins
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/jenkins:amd64
+    restart: always
+    ports:
+      - 9091:8080
+    environment:
+      AWS_DEFAULT_REGION: "ap-southeast-1"
+      BUILD_URL: https://jenkins.taquy.dev
+      JENKINS_USER: root
+      JENKINS_PASS: root1234
+      CASC_JENKINS_CONFIG: /usr/local/jenkins-casc.yaml
+      JAVA_OPTS: -Xmx8192m -Djenkins.install.runSetupWizard=false -Daws.region=ap-southeast-1
+      JENKINS_OPTS: --argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin
+      AWS_PROFILE: "jenkins-job"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.aws:/var/jenkins_home/.aws
+      - jenkins-home-vol:/var/jenkins_home
+      - jenkins-cache-vol:/var/cache/jenkins
+      - jenkins-logs-vol:/var/log/jenkins
+      - /data/jenkins/jenkins-casc.yaml:/usr/local/jenkins-casc.yaml
+
+  mssql:
+    container_name: mssql
+    image: 397818416365.dkr.ecr.ap-southeast-1.amazonaws.com/mssql:latest
+    user: root
+    restart: unless-stopped
+    environment:
+      SA_PASSWORD: "aD@R98xaYEctkKCn"
+      ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+    healthcheck:
+      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "aD@R98xaYEctkKCn", "-Q", "select 1"]
+      interval: 10s
+      retries: 10
+    volumes:
+      - mssql-vol:/var/opt/mssql
+
+  octopus:
+    container_name: octopus
+    image: octopusdeploy/octopusdeploy:latest
+    restart: always
+    ports:
+      - 9092:8080
+      - 11111:10943
+    environment:
+      ACCEPT_EULA: "Y"
+      OCTOPUS_SERVER_NODE_NAME: taquy
+      DB_CONNECTION_STRING: Server=mssql,1433;Database=OctopusDeploy;User=sa;Password=aD@R98xaYEctkKCn
+      ADMIN_USERNAME: root
+      ADMIN_PASSWORD: aD@R98xaYEctkKCn
+      ADMIN_EMAIL: taquy.pb@gmail.com
+      # openssl rand 16 | base64
+      MASTER_KEY: DR1OIkFzQxynWzfEY5DhXg==
+      ServerApiKey:
+      DISABLE_DIND: "Y"
+    depends_on:
+      - mssql
+    volumes:
+      - octopus-repository-vol:/repository
+      - octopus-artifacts-vol:/artifacts
+      - octopus-taskLogs-vol:/taskLogs
+      - octopus-cache-vol:/cache
+      - octopus-import-vol:/import
+
+  tentacle:
+    depends_on:
+      - octopus
+    container_name: tentacle
+    image: octopusdeploy/tentacle:latest
+    restart: always
+    ports:
+      - 10931:10933
+    environment:
+      ServerUsername: root
+      ServerPassword: aD@R98xaYEctkKCn
+      TargetName: octopus-deploy
+      TargetRole: admin
+      TargetEnvironment: api.taquy.dev
+      ServerUrl: https://octopus.taquy.dev
+      PublicHostNameConfiguration: https://tentacle.taquy.dev
+      ACCEPT_EULA: "Y"
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    ports:
+      - 8000:8000
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-vol:/data
+
+networks:
+  default:
+    external: true
+    name: infra
