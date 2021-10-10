@@ -10,6 +10,8 @@ volumes:
     external: true
   authelia-vol:
     external: true
+  heimdall-vol:
+    external: true
 
 services:
   # https://github.com/authelia/authelia/blob/master/examples/compose/lite/docker-compose.yml
@@ -73,7 +75,7 @@ services:
       - "traefik.http.routers.traefik-web-secured.entrypoints=web-secured"
       - "traefik.http.routers.traefik-web-secured.tls.certresolver=taquy-resolver"
     environment:
-      TZ: "Vietnam/Hanoi"x
+      TZ: "Vietnam/Hanoi"
     ports:
       - 80:80
       - 8080:8080
@@ -105,6 +107,7 @@ services:
       - taquy-traefik
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.api.service=api@internal"
       # web routing
       - "traefik.http.routers.whoami-web.rule=Host(`whoami.taquy.dev`)"
       - "traefik.http.routers.whoami-web.entrypoints=web"
@@ -115,3 +118,52 @@ services:
       - "traefik.http.routers.whoami-web-secured.entrypoints=web-secured"
       - "traefik.http.routers.whoami-web-secured.tls.certresolver=taquy-resolver"
 
+  # https://dockstarter.com/apps/heimdall/
+  heimdall:
+    image: ghcr.io/linuxserver/heimdall
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Vietnam/Hanoi
+    volumes:
+      - heimdall-vol:/config
+    # ports:
+    #   - 80:80
+    #   - 443:443
+    restart: unless-stopped
+    networks:
+      - taquy-traefik
+    labels:
+      - "traefik.enable=true"
+      # web routing
+      - "traefik.http.routers.console-web.rule=Host(`console.taquy.dev`)"
+      - "traefik.http.routers.console-web.entrypoints=web"
+      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
+      # web secured routing
+      - "traefik.http.routers.console-web-secured.rule=Host(`console.taquy.dev`)"
+      - "traefik.http.routers.console-web-secured.entrypoints=web-secured"
+      - "traefik.http.routers.console-web-secured.tls.certresolver=taquy-resolver"
+
+  # monitoring 
+  # pihole:
+  #   container_name: pihole
+  #   image: pihole/pihole:latest
+  #   ports:
+  #     - "53:53/tcp"
+  #     - "53:53/udp"
+  #     - "67:67/udp"
+  #     - "9094:80/tcp"
+  #   environment:
+  #     TZ: 'Vietnam/Hanoi'
+  #     # WEBPASSWORD: 'set a secure password here or it will be random'
+  #   # Volumes store your data between container upgrades
+  #   volumes:
+  #     - pihole-vol:/etc/pihole/'
+  #     - pihole-dns-vol/:/etc/dnsmasq.d/'
+  #   # Recommended but not required (DHCP needs NET_ADMIN)
+  #   #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+  #   cap_add:
+  #     - NET_ADMIN
+  #   restart: unless-stopped
