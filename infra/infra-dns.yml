@@ -12,6 +12,11 @@ volumes:
     external: true
   heimdall-vol:
     external: true
+  pihole-vol:
+    external: true
+  pihole-dns-vol:
+    external: true
+
 
 services:
   # https://github.com/authelia/authelia/blob/master/examples/compose/lite/docker-compose.yml

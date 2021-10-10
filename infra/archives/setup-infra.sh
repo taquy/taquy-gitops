@@ -43,11 +43,28 @@ mkdir -p /data/pihole/etc /data/pihole/dns
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/pihole/etc pihole-vol
 docker volume create --driver local --opt o=bind --opt type=none --opt device=/data/pihole/dns pihole-dns-vol
 
+# Pull AWS secret for Jenkins node
+
+# Pull nginx config
+rm -r /data/nginx/conf || true
+aws s3 cp s3://taquy-deploy/nginx-config.zip /data/nginx/nginx-config.zip
+unzip /data/nginx/nginx-config.zip -d /data/nginx
+rm /data/nginx/nginx-config.zip || true
+mv /data/nginx/nginx/config /data/nginx/conf
+rm -r /data/nginx/nginx || true
+# nginx insecured
+mv /data/nginx/conf/nginx-insecured.conf /data/nginx/conf/nginx.conf
+
 # Docker run
 aws s3 cp s3://taquy-deploy/infra.yml ./
 docker-compose -f infra.yml rm -f
 docker-compose -f infra.yml pull
 docker-compose -f infra.yml up -d --quiet
+
+# Install SSL
+# aws s3 cp s3://taquy-deploy/init-letsencrypt.sh ./
+# chmod +x init-letsencrypt.sh
+# ./init-letsencrypt.sh
 
 # Clean dangling images
 docker rmi $(docker images -f dangling=true -q)
