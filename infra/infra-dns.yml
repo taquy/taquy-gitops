@@ -19,6 +19,29 @@ volumes:
     external: true
 
 services:
+  # sso.taquy.dev
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    volumes:
+      - ./authelia:/config
+    expose:
+      - 9091
+    restart: unless-stopped
+    healthcheck:
+      disable: true
+    environment:
+      - TZ=Australia/Melbourne
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.rule=Host(`sso.taquy.dev`)'
+      - 'traefik.http.routers.authelia.entrypoints=websecure'
+      - 'traefik.http.routers.authelia.tls=true'
+      - 'traefik.http.routers.authelia.tls.certresolver=myresolver'
+      - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://sso.taquy.dev'  # yamllint disable-line rule:line-length
+      - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+
   # traefik.taquy.dev
   traefik:
     image: traefik:2.4
@@ -193,17 +216,16 @@ services:
   #     - 51413:51413/udp
   #   restart: unless-stopped
 
-  # ldap.taquy.dev
+  # ldap.taquy.dev:389,636
   openldap:
     image: osixia/openldap:latest
     container_name: openldap
     environment:
       LDAP_ORGANISATION: "taquy"
-      LDAP_DOMAIN: "taquy"
+      LDAP_DOMAIN: "taquy.dev"
       LDAP_BASE_DN: "dc=taquy,dc=dev"
-      LDAP_ADMIN_USERNAME: admin
+      LDAP_ADMIN_USERNAME: admin # login dn: cn=admin,dc=taquy,dc=dev
       LDAP_ADMIN_PASSWORD: "root1234"
-      LDAP_CONFIG_USERNAME: config
       LDAP_CONFIG_PASSWORD: "config1234"
       LDAP_READONLY_USER: "true"
       LDAP_READONLY_USER_USERNAME: "readonly"
@@ -223,21 +245,21 @@ services:
     labels:
       - "traefik.enable=true"
       # ldap 389
-      - "traefik.tcp.routers.ldap-389.rule=Host(`ldap.taquy.dev`)"
+      - "traefik.tcp.routers.ldap-389.rule=HostSNI(`ldap.taquy.dev`)"
       - "traefik.tcp.routers.ldap-389.entrypoints=ldap-389"
       - "traefik.tcp.routers.ldap-389.tls=true"
       - "traefik.tcp.routers.ldap-389.tls.certresolver=myresolver"
       - "traefik.tcp.routers.ldap-389.service=ldap-389"
       - "traefik.tcp.services.ldap-389.loadbalancer.server.port=389"
       # ldap 636
-      - "traefik.tcp.routers.ldap-636.rule=Host(`ldap.taquy.dev`)"
+      - "traefik.tcp.routers.ldap-636.rule=HostSNI(`ldap.taquy.dev`)"
       - "traefik.tcp.routers.ldap-636.entrypoints=ldap-636"
       - "traefik.tcp.routers.ldap-636.tls=true"
       - "traefik.tcp.routers.ldap-636.tls.certresolver=myresolver"
       - "traefik.tcp.routers.ldap-636.service=ldap-636"
       - "traefik.tcp.services.ldap-636.loadbalancer.server.port=636"
 
-  # ldap-admin.taquy.dev
+  # ldap.taquy.dev:443
   phpldapadmin:
     image: osixia/phpldapadmin:latest
     container_name: phpldapadmin
