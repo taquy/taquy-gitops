@@ -1,8 +1,5 @@
 version: '3'
 
-networks:
-  taquy-traefik:
-    external: true
 volumes:
   traefik-ssl-vol:
     external: true
@@ -16,159 +13,244 @@ volumes:
     external: true
   pihole-dns-vol:
     external: true
-
+  aws-credentials-vol:
+    external: true
+  portainer-vol:
+    external: true
 
 services:
-  # https://github.com/authelia/authelia/blob/master/examples/compose/lite/docker-compose.yml
-  # https://www.youtube.com/watch?v=u6H-Qwf4nZA&t=949s&ab_channel=TechnoTim
-  # authelia:
-  #   image: authelia/authelia
-  #   container_name: authelia
-  #   restart: unless-stopped
-  #   volumes:
-  #     - authelia-vol:/config
-  #   networks:
-  #     - taquy-traefik
-  #   labels:
-  #     - 'traefik.enable=true'
-  #     - 'traefik.http.routers.authelia.rule=Host(`authelia.taquy.dev`)'
-  #     - 'traefik.http.routers.authelia.entrypoints=https'
-  #     - 'traefik.http.routers.authelia.tls=true'
-  #     - 'traefik.http.routers.authelia.tls.certresolver=letsencrypt'
-  #     - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://authelia.taquy.dev'  # yamllint disable-line rule:line-length
-  #     - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
-  #     - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
-  #   ports:
-  #     - 9091:9091
-    # env_file:
-    #   - infra-dns.env
-  
-  
-  # TODO: redis not ready for traefik and password yet
-  # infra-redis:
-  #   image: redis:alpine
-  #   container_name: infra-redis
-  #   restart: unless-stopped
-  #   volumes:
-  #     - infra-redis-vol:/data
-  #   networks:
-  #     - taquy-traefik
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.infra-redis.rule=Host(`infra-redis.taquy.dev`)"
-  #     - "traefik.http.routers.infra-redis.entrypoints=tcp"
-  #   env_file:
-  #     - infra-dns.env
-  #   command: 'redis-server --requirepass xxx'
-
+  # traefik.taquy.dev
   traefik:
     image: traefik:2.4
     container_name: traefik
     restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik-ssl-vol:/letsencrypt
-      # - ./dynamic.yaml:/dynamic.yaml
-    networks:
-      - taquy-traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`traefik.taquy.dev`)"
-      - "traefik.http.routers.api.service=api@internal"
-      # web secured routing
-      - "traefik.http.routers.traefik-web-secured.rule=Host(`traefik.taquy.dev`)"
-      - "traefik.http.routers.traefik-web-secured.entrypoints=web-secured"
-      - "traefik.http.routers.traefik-web-secured.tls.certresolver=taquy-resolver"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.taquy.dev`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.service=traefik"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.tls.domains[0].main=taquy.dev"
+      - "traefik.http.routers.traefik.tls.domains[0].sans=*.taquy.dev"
+      - "traefik.http.routers.traefik.service=api@internal"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json
+      - aws-credentials-vol:/root/.aws:ro
     environment:
       TZ: "Vietnam/Hanoi"
+      AWS_PROFILE: "taquy-route53"
     ports:
-      - 80:80
-      - 8080:8080
-      - 443:443
+      # encrypted ports
+      - "443:443"
+      - "103.166.183.142:853:853"
+      # unecrypted ports
+      - "80:80"
+      - "103.166.183.142:53:53"
+      - "103.166.183.142:53:53/udp"
+      - "9443:9443"
     command:
-      # config api
       - "--api.insecure=true"
       - "--api.dashboard=true"
-      # config providers
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=taquy-traefik"
-      # config logging
-      - "--log.level=DEBUG"
-      # entry points
-      - "--entryPoints.web.address=:80"
-      - "--entryPoints.web-secured.address=:443"
-      # ssl certificates
-      - "--certificatesresolvers.taquy-resolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.taquy-resolver.acme.email=taquy.pb@gmail.com"
-      - "--certificatesresolvers.taquy-resolver.acme.storage=/letsencrypt/acme.json"
-      # - "--certificatesresolvers.taquy-resolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-   
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.dns-tcp-tls.address=:853"
+      - "--entrypoints.dns-tcp.address=:53"
+      - "--entrypoints.dns-udp.address=:53/udp"
+      - "--entrypoints.dhcp-udp.address=:67/udp"
+      - "--entrypoints.portainer.address=:9443"
+      - "--entrypoints.ldap-389.address=:389"
+      - "--entrypoints.ldap-636.address=:636"
+      # TODO: only enable dns challenge for first time deployment
+      - "--certificatesresolvers.myresolver.acme.dnschallenge=false"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=route53"
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
+
+  # whoami.taquy.dev
   whoami:
     image: containous/whoami
     container_name: whoami
     restart: unless-stopped
-    networks:
-      - taquy-traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.service=api@internal"
-      # web routing
-      - "traefik.http.routers.whoami-web.rule=Host(`whoami.taquy.dev`)"
-      - "traefik.http.routers.whoami-web.entrypoints=web"
-      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
-      # web secured routing
-      - "traefik.http.routers.whoami-web-secured.rule=Host(`whoami.taquy.dev`)"
-      - "traefik.http.routers.whoami-web-secured.entrypoints=web-secured"
-      - "traefik.http.routers.whoami-web-secured.tls.certresolver=taquy-resolver"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.taquy.dev`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
 
-  # https://dockstarter.com/apps/heimdall/
+  # console.taquy.dev
   heimdall:
     image: ghcr.io/linuxserver/heimdall
     container_name: heimdall
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Vietnam/Hanoi
     volumes:
       - heimdall-vol:/config
-    # ports:
-    #   - 80:80
-    #   - 443:443
-    restart: unless-stopped
-    networks:
-      - taquy-traefik
     labels:
       - "traefik.enable=true"
-      # web routing
-      - "traefik.http.routers.console-web.rule=Host(`console.taquy.dev`)"
-      - "traefik.http.routers.console-web.entrypoints=web"
-      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
-      # web secured routing
-      - "traefik.http.routers.console-web-secured.rule=Host(`console.taquy.dev`)"
-      - "traefik.http.routers.console-web-secured.entrypoints=web-secured"
-      - "traefik.http.routers.console-web-secured.tls.certresolver=taquy-resolver"
+      - "traefik.http.routers.heimdall.rule=Host(`console.taquy.dev`)"
+      - "traefik.http.routers.heimdall.entrypoints=websecure"
+      - "traefik.http.routers.heimdall.tls=true"
+      - "traefik.http.routers.heimdall.tls.certresolver=myresolver"
+ 
+  # pihole.taquy.dev
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    environment:
+      TZ: 'Vietnam/Hanoi'
+      WEBPASSWORD: 'root1234'
+      PUID: '1000'
+      PGID: '1000'
+    volumes:
+      - pihole-vol:/etc/pihole/'
+      - pihole-dns-vol/:/etc/dnsmasq.d/'
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    cap_add:
+      - NET_ADMIN
+    labels:
+      - "traefik.enable=true"
+      # http
+      - "traefik.http.routers.pihole-web.rule=Host(`pihole.taquy.dev`)"
+      - "traefik.http.routers.pihole-web.entrypoints=websecure"
+      - "traefik.http.routers.pihole-web.tls=true"
+      - "traefik.http.routers.pihole-web.tls.certresolver=myresolver"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+      # dns insecure
+      - "traefik.tcp.routers.pihole-dns.rule=HostSNI(`pihole.taquy.dev`)"
+      - "traefik.tcp.routers.pihole-dns.entrypoints=dns-tcp"
+      - "traefik.tcp.routers.pihole-dns.service=pihole"
+      # dns secure
+      - "traefik.tcp.routers.pihole-dns-tls.rule=HostSNI(`pihole.taquy.dev`)"
+      - "traefik.tcp.routers.pihole-dns-tls.entrypoints=dns-tcp-tls"
+      - "traefik.tcp.routers.pihole-dns-tls.service=pihole"
+      - "traefik.tcp.routers.pihole-dns-tls.tls=true"
+      - "traefik.tcp.routers.pihole-dns-tls.tls.certresolver=myresolver"
+      # dns insecure & secure service
+      - "traefik.tcp.services.pihole.loadbalancer.server.port=53"
+      # dns over udp
+      - "traefik.udp.routers.pihole-dns-udp.entrypoints=dns-udp"
+      - "traefik.udp.routers.pihole-dns-udp.service=pihole-dns-udp"
+      - "traefik.udp.services.pihole-dns-udp.loadbalancer.server.port=53"
+      # dhcp over udp
+      - "traefik.udp.routers.pihole-dhcp-upd.entrypoints=dhcp-udp"
+      - "traefik.udp.routers.pihole-dhcp-upd.service=pihole-dhcp-upd"
+      - "traefik.udp.services.pihole-dhcp-upd.loadbalancer.server.port=67"
 
-  # monitoring 
-  # pihole:
-  #   container_name: pihole
-  #   image: pihole/pihole:latest
-  #   ports:
-  #     - "53:53/tcp"
-  #     - "53:53/udp"
-  #     - "67:67/udp"
-  #     - "9094:80/tcp"
+  # portainer.taquy.dev
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-vol:/data
+    labels:
+    # portainer web
+    - "traefik.enable=true"
+    - "traefik.http.routers.portainer.rule=Host(`portainer.taquy.dev`)"
+    - "traefik.http.routers.portainer.entrypoints=websecure"
+    - "traefik.http.routers.portainer.tls=true"
+    - "traefik.http.routers.portainer.tls.certresolver=myresolver"
+    - "traefik.http.routers.portainer.service=portainer"
+    - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    # portainer backend
+    - "traefik.http.routers.portainer-backend.rule=Host(`portainer.taquy.dev`)"
+    - "traefik.http.routers.portainer-backend.entrypoints=portainer"
+    - "traefik.http.routers.portainer-backend.tls=true"
+    - "traefik.http.routers.portainer-backend.tls.certresolver=myresolver"
+    - "traefik.http.routers.portainer-backend.service=portainer-backend"
+    - "traefik.http.services.portainer-backend.loadbalancer.server.port=9443"
+
+  # transmission:
+  #   image: lscr.io/linuxserver/transmission
+  #   container_name: transmission
   #   environment:
-  #     TZ: 'Vietnam/Hanoi'
-  #     # WEBPASSWORD: 'set a secure password here or it will be random'
-  #   # Volumes store your data between container upgrades
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #     - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+  #     - USER=username #optional
+  #     - PASS=password #optional
+  #     - WHITELIST=iplist #optional
+  #     - HOST_WHITELIST=dnsnane list #optional
   #   volumes:
-  #     - pihole-vol:/etc/pihole/'
-  #     - pihole-dns-vol/:/etc/dnsmasq.d/'
-  #   # Recommended but not required (DHCP needs NET_ADMIN)
-  #   #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
-  #   cap_add:
-  #     - NET_ADMIN
+  #     - <path to data>:/config
+  #     - <path to downloads>:/downloads
+  #     - <path to watch folder>:/watch
+  #   ports:
+  #     - 9091:9091
+  #     - 51413:51413
+  #     - 51413:51413/udp
   #   restart: unless-stopped
+
+  # ldap.taquy.dev
+  openldap:
+    image: osixia/openldap:latest
+    container_name: openldap
+    environment:
+      LDAP_ORGANISATION: "taquy"
+      LDAP_DOMAIN: "taquy"
+      LDAP_BASE_DN: "dc=taquy,dc=dev"
+      LDAP_ADMIN_USERNAME: admin
+      LDAP_ADMIN_PASSWORD: "root1234"
+      LDAP_CONFIG_USERNAME: config
+      LDAP_CONFIG_PASSWORD: "config1234"
+      LDAP_READONLY_USER: "true"
+      LDAP_READONLY_USER_USERNAME: "readonly"
+      LDAP_READONLY_USER_PASSWORD: "readonly"
+      LDAP_TLS: "false"
+      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
+      LDAP_TLS_ENFORCE: "false"
+      LDAP_REPLICATION: "false"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+    tty: true
+    stdin_open: true
+    volumes:
+      - /var/lib/ldap
+      - /etc/ldap/slapd.d
+      - /container/service/slapd/assets/certs/
+    labels:
+      - "traefik.enable=true"
+      # ldap 389
+      - "traefik.tcp.routers.ldap-389.rule=Host(`ldap.taquy.dev`)"
+      - "traefik.tcp.routers.ldap-389.entrypoints=ldap-389"
+      - "traefik.tcp.routers.ldap-389.tls=true"
+      - "traefik.tcp.routers.ldap-389.tls.certresolver=myresolver"
+      - "traefik.tcp.routers.ldap-389.service=ldap-389"
+      - "traefik.tcp.services.ldap-389.loadbalancer.server.port=389"
+      # ldap 636
+      - "traefik.tcp.routers.ldap-636.rule=Host(`ldap.taquy.dev`)"
+      - "traefik.tcp.routers.ldap-636.entrypoints=ldap-636"
+      - "traefik.tcp.routers.ldap-636.tls=true"
+      - "traefik.tcp.routers.ldap-636.tls.certresolver=myresolver"
+      - "traefik.tcp.routers.ldap-636.service=ldap-636"
+      - "traefik.tcp.services.ldap-636.loadbalancer.server.port=636"
+
+  # ldap-admin.taquy.dev
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    depends_on:
+      - openldap
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ldap-admin.rule=Host(`ldap.taquy.dev`)"
+      - "traefik.http.routers.ldap-admin.entrypoints=websecure"
+      - "traefik.http.routers.ldap-admin.tls=true"
+      - "traefik.http.routers.ldap-admin.tls.certresolver=myresolver"
+      - "traefik.http.routers.ldap-admin.service=ldap-admin"
+      - "traefik.http.services.ldap-admin.loadbalancer.server.port=80"
