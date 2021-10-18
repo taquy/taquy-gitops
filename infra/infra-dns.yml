@@ -5,7 +5,13 @@ volumes:
     external: true
   infra-redis-vol:
     external: true
-  authelia-vol:
+  authelia-source-vol:
+    external: true
+  authelia-config-vol:
+    external: true
+  authelia-mysql-vol:
+    external: true
+  authelia-redis-vol:
     external: true
   heimdall-vol:
     external: true
@@ -17,21 +23,42 @@ volumes:
     external: true
   portainer-vol:
     external: true
+  ldap-source-vol:
+    external: true
+  ldap-slapd-vol:
+    external: true
+  ldap-certs-vol:
+    external: true
+  owncloud-source-vol:
+    external: true
+  owncloud-mysql-vol:
+    external: true
+  owncloud-redis-vol:
+    external: true
+  rocketchat-source-vol:
+    external: true
+  rocketchat-mongo-vol:
+    external: true
+  rocketchat-hubot-vol:
+    external: true
 
 services:
   # sso.taquy.dev
   authelia:
     image: authelia/authelia
     container_name: authelia
+    restart: unless-stopped
+    depends_on:
+      - redis-authelia
+      - mariadb-authelia
+    environment:
+      TZ: Vietnam/Hanoi
     volumes:
-      - ./authelia:/config
+      - authelia-source-vol:/var/lib/authelia
+      # - authelia-config-vol:/config
+      - ./config:/config
     expose:
       - 9091
-    restart: unless-stopped
-    healthcheck:
-      disable: true
-    environment:
-      - TZ=Australia/Melbourne
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.authelia.rule=Host(`sso.taquy.dev`)'
@@ -41,12 +68,53 @@ services:
       - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://sso.taquy.dev'  # yamllint disable-line rule:line-length
       - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
       - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+      - 'traefik.http.middlewares.authelia-basic.forwardauth.address=http://authelia:9091/api/verify?auth=basic'
+      - 'traefik.http.middlewares.authelia-basic.forwardauth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia-basic.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email'
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    depends_on:
+      - traefik
+    environment:
+      - PMA_ARBITRARY=1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.taquy.dev`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.phpmyadmin.tls=true"
+      - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
+      - "traefik.http.routers.phpmyadmin.service=phpmyadmin"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+
+  mariadb-authelia:
+    image: mariadb/server:latest
+    container_name: mariadb-authelia
+    restart: always
+    volumes:
+      - authelia-mysql-vol:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: root1234
+      MARIADB_DATABASE: authelia
+
+  redis-authelia:
+    image: redis:alpine
+    container_name: redis-authelia
+    restart: unless-stopped
+    volumes:
+      - authelia-redis-vol:/data
+    environment:
+      TZ: Vietnam/Hanoi
 
   # traefik.taquy.dev
   traefik:
     image: traefik:2.4
     container_name: traefik
     restart: unless-stopped
+    depends_on:
+      - authelia
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.taquy.dev`)"
@@ -103,6 +171,7 @@ services:
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"
+      - "traefik.http.routers.whoami.middlewares=authelia@docker"
 
   # console.taquy.dev
   heimdall:
@@ -121,6 +190,7 @@ services:
       - "traefik.http.routers.heimdall.entrypoints=websecure"
       - "traefik.http.routers.heimdall.tls=true"
       - "traefik.http.routers.heimdall.tls.certresolver=myresolver"
+      - "traefik.http.routers.heimdall.middlewares=authelia-basic@docker"
  
   # pihole.taquy.dev
   pihole:
@@ -239,9 +309,9 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - /var/lib/ldap
-      - /etc/ldap/slapd.d
-      - /container/service/slapd/assets/certs/
+      - ldap-source-vol:/var/lib/ldap
+      - ldap-slapd-vol:/etc/ldap/slapd.d
+      - ldap-certs-vol:/container/service/slapd/assets/certs/
     labels:
       - "traefik.enable=true"
       # ldap 389
@@ -272,7 +342,116 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.ldap-admin.rule=Host(`ldap.taquy.dev`)"
       - "traefik.http.routers.ldap-admin.entrypoints=websecure"
-      - "traefik.http.routers.ldap-admin.tls=true"
       - "traefik.http.routers.ldap-admin.tls.certresolver=myresolver"
-      - "traefik.http.routers.ldap-admin.service=ldap-admin"
-      - "traefik.http.services.ldap-admin.loadbalancer.server.port=80"
+
+  # ws3.taquy.dev
+  owncloud:
+    image: owncloud/server:latest
+    container_name: owncloud_server
+    restart: always
+    depends_on:
+      - mariadb-owncloud
+      - redis-owncloud
+    environment:
+      OWNCLOUD_DOMAIN: ws3.taquy.dev
+      OWNCLOUD_DB_TYPE: mysql
+      OWNCLOUD_DB_NAME: owncloud
+      OWNCLOUD_DB_USERNAME: owncloud
+      OWNCLOUD_DB_PASSWORD: ${OWNCLOUD_MYSQL_PASSWORD}
+      OWNCLOUD_DB_HOST: mariadb-owncloud
+      OWNCLOUD_ADMIN_USERNAME: ${OWNCLOUD_ADMIN_USERNAME}
+      OWNCLOUD_ADMIN_PASSWORD: ${OWNCLOUD_ADMIN_PASSWORD}
+      OWNCLOUD_MYSQL_UTF8MB4: "true"
+      OWNCLOUD_REDIS_ENABLED: "true"
+      OWNCLOUD_REDIS_HOST: redis-owncloud
+    volumes:
+      - owncloud-source-vol:/mnt/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.owncloud.rule=Host(`ws3.taquy.dev`)"
+      - "traefik.http.routers.owncloud.entrypoints=websecure"
+      - "traefik.http.routers.owncloud.tls.certresolver=myresolver"
+      - "traefik.http.routers.owncloud.service=owncloud"
+      - "traefik.http.services.owncloud.loadbalancer.server.port=8080"
+  mariadb-owncloud:
+    image: mariadb:10.5
+    container_name: mariadb-owncloud
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${OWNCLOUD_MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: owncloud
+      MYSQL_PASSWORD: ${OWNCLOUD_MYSQL_PASSWORD}
+      MYSQL_DATABASE: owncloud
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    volumes:
+      - owncloud-mysql-vol:/var/lib/mysql
+  redis-owncloud:
+    image: redis:6
+    container_name: redis-owncloud
+    restart: always
+    command: ["--databases", "1"]
+    volumes:
+      - owncloud-redis-vol:/data
+
+  # chat.taquy.dev
+  rocketchat:
+    image: registry.rocket.chat/rocketchat/rocket.chat:latest
+    command: >
+      bash -c
+        "for i in `seq 1 30`; do
+          node main.js &&
+          s=$$? && break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    restart: unless-stopped
+    volumes:
+      - rocketchat-source-vol:/app/uploads
+    environment:
+      - PORT=3000
+      - ROOT_URL=https://chat.taquy.dev
+      - MONGO_URL=mongodb://mongo-rocketchat:27017/rocketchat
+      - MONGO_OPLOG_URL=mongodb://mongo-rocketchat:27017/local
+    depends_on:
+      - mongo-rocketchat
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rocketchat.rule=Host(`chat.taquy.dev`)"
+      - "traefik.http.routers.rocketchat.entrypoints=websecure"
+      - "traefik.http.routers.rocketchat.tls.certresolver=myresolver"
+      - "traefik.http.routers.rocketchat.service=rocketchat"
+      - "traefik.http.services.rocketchat.loadbalancer.server.port=3000"
+  mongo-rocketchat:
+    image: mongo:4.0
+    restart: unless-stopped
+    volumes:
+     - rocketchat-mongo-vol:/data/db
+  hubot:
+    image: rocketchat/hubot-rocketchat:latest
+    restart: unless-stopped
+    environment:
+      - ROCKETCHAT_URL=rocketchat:3000
+      - ROCKETCHAT_ROOM=GENERAL
+      - ROCKETCHAT_USER=bot
+      - ROCKETCHAT_PASSWORD=botpassword
+      - BOT_NAME=bot
+      - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
+    depends_on:
+      - rocketchat
+    volumes:
+      - rocketchat-hubot-vol:/home/hubot/scripts
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.hubot.rule=Host(`chat.taquy.dev`)"
+      - "traefik.tcp.routers.hubot.entrypoints=websecure"
+      - "traefik.tcp.routers.hubot.tls.certresolver=myresolver"
+      - "traefik.tcp.routers.hubot.service=hubot"
+      - "traefik.tcp.services.hubot.loadbalancer.server.port=8080"
+  # git.taquy.dev
+  ## https://docs.gitlab.com/ee/install/docker.html
+
+  # mail.taquy.dev
+  ## https://github.com/docker-mailserver/docker-mailserver
+
+  # registry.taquy.dev
+  ## https://github.com/jfrog/artifactory-docker-examples/blob/master/docker-compose/artifactory/artifactory-pro.yml

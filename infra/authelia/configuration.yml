@@ -1,0 +1,98 @@
+
+theme: dark
+
+jwt_secret: root1234
+
+access_control:
+  default_policy: deny
+  networks:
+  - name: internal
+    networks:
+      - 0.0.0.0/0
+  rules:
+  - domain: "*.taquy.dev"
+    policy: one_factor
+    networks:
+    - internal
+    - 1.1.1.1
+  - domain: taquy.dev
+    policy: bypass
+    networks:
+    - internal
+    - 1.1.1.1
+
+server:
+  host: 0.0.0.0
+  port: 9091
+  path: ""
+  read_buffer_size: 4096
+  write_buffer_size: 4096
+  enable_pprof: false
+  enable_expvars: false
+  disable_healthcheck: true
+
+storage:
+  mysql:
+    host: mariadb-authelia
+    port: 3306
+    database: authelia
+    username: root
+    password: root1243
+
+session:
+  name: authelia_session
+  secret: root1234
+  expiration: 3600
+  inactivity: 300
+  domain: taquy.dev
+  redis:
+    host: redis-authelia
+    port: 6379
+    database_index: 0
+    maximum_active_connections: 8
+    minimum_idle_connections: 0
+
+authentication_backend:
+  disable_reset_password: false
+  refresh_interval: 5m
+  ldap:
+    implementation: custom
+    url: ldap://openldap
+    timeout: 5s
+    base_dn: DC=taquy,DC=dev
+    username_attribute: uid
+    additional_users_dn: ou=users
+    users_filter: (&({username_attribute}={input})(objectClass=inetOrgPerson))
+    additional_groups_dn: ou=infra
+    display_name_attribute: displayName
+    groups_filter: (&(member={dn})(objectClass=posixGroup))
+    user: CN=admin,DC=taquy,DC=dev
+    password: root1234
+
+totp:
+  issuer: taquy.dev
+  period: 30
+  skew: 1
+
+log:
+  level: info
+  format: text
+  file_path: "/config/log.txt"
+  keep_stdout: true
+
+notifier:
+  disable_startup_check: false
+  filesystem:
+    filename: /config/notification.txt
+
+ntp:
+  address: "time.cloudflare.com:123"
+  version: 3
+  max_desync: 3s
+  disable_startup_check: false
+  disable_failure: false
+
+regulation:
+  max_retries: 3
+  find_time: 2m
+  ban_time: 5m
