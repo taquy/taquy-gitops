@@ -41,6 +41,8 @@ volumes:
     external: true
   rocketchat-hubot-vol:
     external: true
+  openvpn-vol:
+    external: true
 
 services:
   # sso.taquy.dev
@@ -50,7 +52,7 @@ services:
     restart: unless-stopped
     depends_on:
       - redis-authelia
-      - mariadb-authelia
+      - mysql-authelia
     environment:
       TZ: Vietnam/Hanoi
     volumes:
@@ -88,16 +90,19 @@ services:
       - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
       - "traefik.http.routers.phpmyadmin.service=phpmyadmin"
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
-
-  mariadb-authelia:
-    image: mariadb/server:latest
-    container_name: mariadb-authelia
+   
+  mysql-authelia:
+    image: mysql
+    container_name: mysql-authelia
     restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_USER: authelia
+      MYSQL_PASSWORD: root1234
+      MYSQL_DATABASE: authelia
+    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - authelia-mysql-vol:/var/lib/mysql
-    environment:
-      MARIADB_ROOT_PASSWORD: root1234
-      MARIADB_DATABASE: authelia
 
   redis-authelia:
     image: redis:alpine
@@ -140,7 +145,6 @@ services:
       - "80:80"
       - "103.166.183.142:53:53"
       - "103.166.183.142:53:53/udp"
-      - "9443:9443"
     command:
       - "--api.insecure=true"
       - "--api.dashboard=true"
@@ -347,7 +351,7 @@ services:
   # ws3.taquy.dev
   owncloud:
     image: owncloud/server:latest
-    container_name: owncloud_server
+    container_name: owncloud
     restart: always
     depends_on:
       - mariadb-owncloud
@@ -393,41 +397,10 @@ services:
     volumes:
       - owncloud-redis-vol:/data
 
-  # chat.taquy.dev
-  rocketchat:
-    image: registry.rocket.chat/rocketchat/rocket.chat:latest
-    command: >
-      bash -c
-        "for i in `seq 1 30`; do
-          node main.js &&
-          s=$$? && break || s=$$?;
-          echo \"Tried $$i times. Waiting 5 secs...\";
-          sleep 5;
-        done; (exit $$s)"
-    restart: unless-stopped
-    volumes:
-      - rocketchat-source-vol:/app/uploads
-    environment:
-      - PORT=3000
-      - ROOT_URL=https://chat.taquy.dev
-      - MONGO_URL=mongodb://mongo-rocketchat:27017/rocketchat
-      - MONGO_OPLOG_URL=mongodb://mongo-rocketchat:27017/local
-    depends_on:
-      - mongo-rocketchat
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.rocketchat.rule=Host(`chat.taquy.dev`)"
-      - "traefik.http.routers.rocketchat.entrypoints=websecure"
-      - "traefik.http.routers.rocketchat.tls.certresolver=myresolver"
-      - "traefik.http.routers.rocketchat.service=rocketchat"
-      - "traefik.http.services.rocketchat.loadbalancer.server.port=3000"
-  mongo-rocketchat:
-    image: mongo:4.0
-    restart: unless-stopped
-    volumes:
-     - rocketchat-mongo-vol:/data/db
+  # hubot.taquy.dev
   hubot:
     image: rocketchat/hubot-rocketchat:latest
+    container_name: hubot-rocketchat
     restart: unless-stopped
     environment:
       - ROCKETCHAT_URL=rocketchat:3000
@@ -442,15 +415,75 @@ services:
       - rocketchat-hubot-vol:/home/hubot/scripts
     labels:
       - "traefik.enable=true"
-      - "traefik.tcp.routers.hubot.rule=Host(`chat.taquy.dev`)"
+      - "traefik.tcp.routers.hubot.rule=Host(`hubot.taquy.dev`)"
       - "traefik.tcp.routers.hubot.entrypoints=websecure"
       - "traefik.tcp.routers.hubot.tls.certresolver=myresolver"
       - "traefik.tcp.routers.hubot.service=hubot"
       - "traefik.tcp.services.hubot.loadbalancer.server.port=8080"
+
+  # chat.taquy.dev
+  rocketchat:
+    image: rocketchat/rocket.chat:3.7.1
+    restart: unless-stopped
+    command: >
+      bash -c
+        "for i in `seq 1 30`; do
+          INSTANCE_IP=$$(hostname -i) node main.js &&
+          s=$$? && break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    volumes:
+     - ./data/uploads:/app/uploads
+     - /tmp:/tmp
+    environment:
+     - PORT=3000
+     - ROOT_URL=http://${ROCKETCHAT_HOST}
+     - MONGO_URL=mongodb://mongo:27017/rocketchat
+     - MONGO_OPLOG_URL=mongodb://mongo:27017/local
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rocketchat.rule=Host(`chat.taquy.dev`)"
+      - "traefik.http.routers.rocketchat.entrypoints=websecure"
+      - "traefik.http.routers.rocketchat.tls.certresolver=myresolver"
+      - "traefik.http.routers.rocketchat.service=rocketchat"
+      - "traefik.http.services.rocketchat.loadbalancer.server.port=3000"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:4.0
+    container_name: mongo
+    restart: unless-stopped
+    command: mongod --oplogSize 128 --replSet rs0
+    volumes:
+      - ./data/db:/data/db
+      - ./data/backups:/dump
+
+  mongo-init-replica:
+    image: mongo:4.0
+    container_name: mongo-replica
+    command: >
+      bash -c
+        "for i in `seq 1 30`; do
+          mongo mongo/rocketchat --eval \"
+            rs.initiate({
+              _id: 'rs0',
+              members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
+          s=$$? && break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    depends_on:
+      - mongo
+
+  # vpn.taquy.dev
+  ## https://github.com/kylemanna/docker-openvpn/blob/master/docs/docker-compose.md
+
   # git.taquy.dev
   ## https://docs.gitlab.com/ee/install/docker.html
 
-  # mail.taquy.dev
+  # smtp.taquy.dev
   ## https://github.com/docker-mailserver/docker-mailserver
 
   # registry.taquy.dev

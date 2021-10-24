@@ -32,12 +32,14 @@ server:
   disable_healthcheck: true
 
 storage:
-  mysql:
-    host: mariadb-authelia
-    port: 3306
-    database: authelia
-    username: root
-    password: root1243
+  local:
+    path: /config/db.sqlite3
+  # mysql:
+  #   host: mysql-authelia
+  #   port: 3306
+  #   database: authelia
+  #   username: root
+  #   password: root1243
 
 session:
   name: authelia_session
@@ -60,12 +62,17 @@ authentication_backend:
     url: ldap://openldap
     timeout: 5s
     base_dn: DC=taquy,DC=dev
+    # user attributes
     username_attribute: uid
     additional_users_dn: ou=users
     users_filter: (&({username_attribute}={input})(objectClass=inetOrgPerson))
-    additional_groups_dn: ou=infra
+    # group filters
+    group_name_attribute: cn
+    additional_groups_dn: ou=groups
+    groups_filter: (&(member={dn})(objectClass=groupOfNames))
+    # display attributes
+    mail_attribute: mail
     display_name_attribute: displayName
-    groups_filter: (&(member={dn})(objectClass=posixGroup))
     user: CN=admin,DC=taquy,DC=dev
     password: root1234
 
