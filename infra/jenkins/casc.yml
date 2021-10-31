@@ -1,14 +1,30 @@
 jenkins:
   scmCheckoutRetryCount: 0
   securityRealm:
-    local:
-      allowsSignup: false
-      enableCaptcha: true
-      users:
-        - id: "admin"
-          password: "admin"
-        - id: "dev"
-          password: "dev"
+    ldap:
+      configurations:
+        - server: openldap
+          rootDN: dc=taquy,dc=dev
+          managerDN: "admin"
+          managerPasswordSecret: "root1234"
+          userSearch: "(&(objectCategory=inetOrgPerson)(cn={0}))"
+          groupSearchFilter: "((objectclass=posixGroup))"
+          groupMembershipStrategy:
+            fromGroupSearch:
+              filter: "(&(objectClass=posixGroup)(|(cn=admin)(cn=member)))"
+      cache:
+        size: 100
+        ttl: 10
+      userIdStrategy: CaseInsensitive
+      groupIdStrategy: CaseSensitive
+    # local:
+    #   allowsSignup: false
+    #   enableCaptcha: true
+    #   users:
+    #     - id: "admin"
+    #       password: "admin"
+    #     - id: "dev"
+    #       password: "dev"
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false

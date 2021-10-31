@@ -43,7 +43,10 @@ volumes:
     external: true
   openvpn-vol:
     external: true
-
+  storage-postgres:
+    external: true
+  storage-redis:
+    external: true
 services:
   # sso.taquy.dev
   authelia:
@@ -190,11 +193,11 @@ services:
       - heimdall-vol:/config
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.heimdall.middlewares=authelia@docker"
       - "traefik.http.routers.heimdall.rule=Host(`console.taquy.dev`)"
       - "traefik.http.routers.heimdall.entrypoints=websecure"
       - "traefik.http.routers.heimdall.tls=true"
       - "traefik.http.routers.heimdall.tls.certresolver=myresolver"
-      - "traefik.http.routers.heimdall.middlewares=authelia-basic@docker"
  
   # pihole.taquy.dev
   pihole:
@@ -216,6 +219,7 @@ services:
       - NET_ADMIN
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.pihole-web.middlewares=authelia@docker"
       # http
       - "traefik.http.routers.pihole-web.rule=Host(`pihole.taquy.dev`)"
       - "traefik.http.routers.pihole-web.entrypoints=websecure"
@@ -254,6 +258,7 @@ services:
     labels:
     # portainer web
     - "traefik.enable=true"
+    - "traefik.http.routers.portainer.middlewares=authelia@docker"
     - "traefik.http.routers.portainer.rule=Host(`portainer.taquy.dev`)"
     - "traefik.http.routers.portainer.entrypoints=websecure"
     - "traefik.http.routers.portainer.tls=true"
@@ -348,6 +353,20 @@ services:
       - "traefik.http.routers.ldap-admin.entrypoints=websecure"
       - "traefik.http.routers.ldap-admin.tls.certresolver=myresolver"
 
+  # s3.taquy.dev
+  # nextcloud:
+  #   image: nextcloud
+  #   container_name: nextcloud
+  #   restart: always
+  #   volumes:
+  #     - nextcloud:/var/www/html
+  #   environment:
+  #     MYSQL_PASSWORD: 
+  #     MYSQL_DATABASE: nextcloud
+  #     MYSQL_USER: nextcloud
+  #     MYSQL_HOST: db
+
+
   # ws3.taquy.dev
   owncloud:
     image: owncloud/server:latest
@@ -372,6 +391,7 @@ services:
       - owncloud-source-vol:/mnt/data
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.owncloud.middlewares=authelia@docker"
       - "traefik.http.routers.owncloud.rule=Host(`ws3.taquy.dev`)"
       - "traefik.http.routers.owncloud.entrypoints=websecure"
       - "traefik.http.routers.owncloud.tls.certresolver=myresolver"
@@ -488,3 +508,25 @@ services:
 
   # registry.taquy.dev
   ## https://github.com/jfrog/artifactory-docker-examples/blob/master/docker-compose/artifactory/artifactory-pro.yml
+
+  # postgres.taquy.dev
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    volumes:
+      - storage-postgres:/var/lib/postgresql/data
+      - ./init-postgres.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root1234
+    commands:
+      
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.postgres.rule=Host(`postgres.taquy.dev`)"
+      - "traefik.tcp.routers.postgres.entrypoints=websecure"
+      - "traefik.tcp.routers.postgres.tls.certresolver=myresolver"
+      - "traefik.tcp.routers.postgres.service=postgres"
+      - "traefik.tcp.services.postgres.loadbalancer.server.port=5432"
