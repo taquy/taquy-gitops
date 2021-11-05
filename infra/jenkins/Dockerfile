@@ -38,6 +38,9 @@ RUN mkdir /var/log/jenkins \
     $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
   && apt-get update -y \
   && apt-get install -y docker-ce docker-ce-cli containerd.io \
+  && usermod -aG docker root && usermod -aG docker jenkins \
+  && chown jenkins:jenkins /var/jenkins_home/.docker -R \
+  && chmod g+rwx "/var/jenkins_home/.docker" -R \
   # install awscli
   && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   && unzip -qq awscliv2.zip \

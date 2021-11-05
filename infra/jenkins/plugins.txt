@@ -29,3 +29,4 @@ workflow-cps:latest
 pipeline-model-definition:latest
 aws-secrets-manager-credentials-provider:0.5.4
 ldap:2.7
+github:1.34.1
