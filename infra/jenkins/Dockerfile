@@ -41,7 +41,7 @@ RUN curl -4fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
   && apt-get install -y docker-ce docker-ce-cli containerd.io
 
 # post docker installation
-RUN  usermod -aG docker root && usermod -aG docker jenkins \
+RUN  usermod -aG docker root && usermod -aG docker jenkins
 
 # install aws cli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
