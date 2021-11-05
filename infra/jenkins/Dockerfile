@@ -17,8 +17,15 @@ VOLUME [ "/var/log/jenkins", "/var/cache/jenkins", "/var/jenkins_home", "/usr/lo
 
 USER root
 
+# add plugins
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/plugins.txt
 RUN cat /etc/*release
+
+# add jenkins to sudoers
+RUN apt-get update \
+  && apt-get install -y sudo \
+  && rm -rf /var/lib/apt/lists/*
+RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 # create directories
 RUN mkdir /var/log/jenkins \
