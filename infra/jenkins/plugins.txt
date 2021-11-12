@@ -74,3 +74,11 @@ blueocean-core-js:latest
 ansible:latest
 octopusdeploy:latest
 git-changelog:latest
+authorize-project:latest
+envinject:latest
+throttle-concurrents:latest
+zentimestamp:latest
+jquery:latest
+pam-auth:latest
+ant:latest
+email-ext:latest
