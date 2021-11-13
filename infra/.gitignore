@@ -15,9 +15,6 @@
 *.tfstate.*
 **/.terraform.lock.hcl
 
-# .tfvars files
-*.tfvars
-
 **/.idea
 **/*.iml
 
